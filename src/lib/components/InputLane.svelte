@@ -48,13 +48,17 @@
     isAutoSubmitting = false;
   }
 
+  function onInput(event: Event): void {
+    value = (event.currentTarget as HTMLTextAreaElement).value;
+    void autoSubmitIfCorrect();
+  }
+
   $: if (status === "running") {
     tick().then(() => inputElement?.focus());
   }
 
   $: livePreview = renderLivePreview(value);
   $: hasPreview = value.trim().length > 0;
-  $: void autoSubmitIfCorrect();
 </script>
 
 <section class="input-lane">
@@ -63,6 +67,7 @@
     bind:value
     rows="3"
     placeholder={status === "running" ? "Type LaTeX here..." : "Start a session to begin typing"}
+    on:input={onInput}
     disabled={status !== "running" || isSubmitting}
   ></textarea>
 
