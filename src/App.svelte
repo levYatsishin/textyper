@@ -74,7 +74,14 @@
 
   <FormulaStage expression={$game.currentExpression} revealLatex={$game.settings.revealLatex} />
 
-  <InputLane status={$game.status} isSubmitting={$game.isSubmitting} lastResult={$game.lastResult} on:submit={(event) => handleSubmit(event.detail)} on:skip={handleSkip} />
+  <InputLane
+    status={$game.status}
+    isSubmitting={$game.isSubmitting}
+    lastResult={$game.lastResult}
+    targetLatex={$game.currentExpression?.latex ?? ""}
+    on:submit={(event) => handleSubmit(event.detail)}
+    on:skip={handleSkip}
+  />
 
   <StatsRail
     stats={$game.stats}
