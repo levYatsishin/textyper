@@ -4,9 +4,9 @@ import { ALL_TOPIC_IDS } from "../data/topics";
 import type { Expression, GameState } from "../types";
 
 const SAMPLE_EXPRESSIONS: Expression[] = [
-  { id: "1", latex: "x+y", difficulty: "beginner", name: "Simple sum", topics: ["algebra"] },
-  { id: "2", latex: "\\frac{1}{2}", difficulty: "intermediate", name: "Fraction", topics: ["algebra", "calculus"] },
-  { id: "3", latex: "\\int_0^1 x\\,dx", difficulty: "advanced", name: "Integral", topics: ["calculus"] }
+  { id: "1", latex: "x+y", difficulty: "beginner", name: "Simple sum", topics: ["algebra"], subtopics: ["fundamentals"] },
+  { id: "2", latex: "\\frac{1}{2}", difficulty: "intermediate", name: "Fraction", topics: ["algebra", "calculus"], subtopics: ["integrals"] },
+  { id: "3", latex: "\\int_0^1 x\\,dx", difficulty: "advanced", name: "Integral", topics: ["calculus"], subtopics: ["integrals"] }
 ];
 
 function getState(store: { subscribe: (run: (value: GameState) => void) => () => void }): GameState {

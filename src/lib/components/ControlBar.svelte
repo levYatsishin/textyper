@@ -6,6 +6,7 @@
   export let status: SessionStatus;
   export let topics: TopicDefinition[] = [];
   export let topicCounts: Record<TopicId, number> = {};
+  export let topicSubtopicStats: Record<TopicId, Array<{ label: string; count: number }>> = {};
 
   const dispatch = createEventDispatcher<{
     modeChange: Mode;
@@ -13,6 +14,7 @@
     durationChange: SessionSettings["durationSec"];
     revealToggle: boolean;
     topicToggle: TopicId;
+    subtopicToggle: { topicId: TopicId; subtopic: string };
     topicSelectAll: void;
     start: void;
     restart: void;
@@ -22,6 +24,7 @@
   let topicsMenuElement: HTMLDivElement | null = null;
   let topicsMenuOpen = false;
   let topicSearch = "";
+  let expandedTopicIds: TopicId[] = [];
 
   function toggleReveal(): void {
     dispatch("revealToggle", !settings.revealLatex);
@@ -61,16 +64,34 @@
     topicsMenuOpen = !topicsMenuOpen;
     if (!topicsMenuOpen) {
       topicSearch = "";
+      expandedTopicIds = [];
     }
   }
 
   function closeTopicsMenu(): void {
     topicsMenuOpen = false;
     topicSearch = "";
+    expandedTopicIds = [];
   }
 
   function handleTopicToggle(topicId: TopicId): void {
     dispatch("topicToggle", topicId);
+  }
+
+  function handleSubtopicToggle(topicId: TopicId, subtopic: string): void {
+    dispatch("subtopicToggle", { topicId, subtopic });
+  }
+
+  function isSubtopicSelected(topicId: TopicId, subtopic: string): boolean {
+    return (settings.selectedSubtopicsByTopic[topicId] ?? []).includes(subtopic);
+  }
+
+  function toggleTopicExpanded(topicId: TopicId): void {
+    if (expandedTopicIds.includes(topicId)) {
+      expandedTopicIds = expandedTopicIds.filter((value) => value !== topicId);
+      return;
+    }
+    expandedTopicIds = [...expandedTopicIds, topicId];
   }
 
   function handleDocumentMouseDown(event: MouseEvent): void {
@@ -115,7 +136,6 @@
     }
     return topic.label.toLowerCase().includes(normalizedTopicSearch) || topic.id.includes(normalizedTopicSearch);
   });
-  $: allTopicsSelected = settings.selectedTopicIds.length === topics.length;
 </script>
 
 <section class="control-bar">
@@ -191,7 +211,6 @@
               type="button"
               class="text-option"
               on:click={() => dispatch("topicSelectAll")}
-              disabled={allTopicsSelected}
             >
               all
             </button>
@@ -202,15 +221,44 @@
               <p class="topics-empty">no topics</p>
             {:else}
               {#each visibleTopics as topic}
-                <button
-                  type="button"
-                  class={`topic-row text-option ${settings.selectedTopicIds.includes(topic.id) ? "active-option" : ""}`}
-                  on:click={() => handleTopicToggle(topic.id)}
-                  disabled={isLastSelectedTopic(topic.id)}
-                >
-                  <span>{topic.label}</span>
-                  <span class="topic-count">{topicCounts[topic.id] ?? 0}</span>
-                </button>
+                <div class="topic-item">
+                  <div class="topic-row-line">
+                    <button
+                      type="button"
+                      class="topic-expand text-option"
+                      aria-label={expandedTopicIds.includes(topic.id) ? `Collapse ${topic.label}` : `Expand ${topic.label}`}
+                      aria-expanded={expandedTopicIds.includes(topic.id)}
+                      on:click={() => toggleTopicExpanded(topic.id)}
+                    >
+                      {expandedTopicIds.includes(topic.id) ? "▾" : "▸"}
+                    </button>
+
+                    <button
+                      type="button"
+                      class={`topic-row text-option ${settings.selectedTopicIds.includes(topic.id) ? "active-option" : ""}`}
+                      on:click={() => handleTopicToggle(topic.id)}
+                      disabled={isLastSelectedTopic(topic.id)}
+                    >
+                      <span>{topic.label}</span>
+                      <span class="topic-count">{topicCounts[topic.id] ?? 0}</span>
+                    </button>
+                  </div>
+
+                  {#if expandedTopicIds.includes(topic.id) && (topicSubtopicStats[topic.id]?.length ?? 0) > 0}
+                    <div class="topic-sublist" role="group" aria-label={`${topic.label} subtopics`}>
+                      {#each topicSubtopicStats[topic.id] as subtopic}
+                        <button
+                          type="button"
+                          class={`subtopic-row text-option ${isSubtopicSelected(topic.id, subtopic.label) ? "active-option" : ""}`}
+                          on:click={() => handleSubtopicToggle(topic.id, subtopic.label)}
+                        >
+                          <span>{subtopic.label}</span>
+                          <span class="topic-count">{subtopic.count}</span>
+                        </button>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
               {/each}
             {/if}
           </div>

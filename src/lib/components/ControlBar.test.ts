@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
+import { tick } from "svelte";
 import { describe, expect, it } from "vitest";
 import ControlBar from "./ControlBar.svelte";
 import ControlBarHarness from "./test-fixtures/ControlBarHarness.svelte";
@@ -9,6 +10,23 @@ const settings: SessionSettings = {
   durationSec: 60,
   difficulties: ["beginner", "intermediate", "advanced"],
   selectedTopicIds: ["algebra", "calculus"],
+  selectedSubtopicsByTopic: {
+    algebra: ["fundamentals"],
+    calculus: ["integrals"]
+  },
+  revealLatex: false
+};
+
+const settingsAllTopicsPartial: SessionSettings = {
+  mode: "practice",
+  durationSec: 60,
+  difficulties: ["beginner", "intermediate", "advanced"],
+  selectedTopicIds: ["algebra", "calculus", "probability"],
+  selectedSubtopicsByTopic: {
+    algebra: ["fundamentals"],
+    calculus: ["integrals"],
+    probability: ["random variables"]
+  },
   revealLatex: false
 };
 
@@ -24,13 +42,20 @@ const topicCounts: Record<TopicId, number> = {
   probability: 3
 };
 
+const topicSubtopicStats = {
+  algebra: [{ label: "fundamentals", count: 12 }],
+  calculus: [{ label: "integrals", count: 8 }],
+  probability: [{ label: "random variables", count: 3 }]
+};
+
 describe("ControlBar topics menu", () => {
   it("opens and closes the topics menu", async () => {
     render(ControlBar, {
       settings,
       status: "running",
       topics,
-      topicCounts
+      topicCounts,
+      topicSubtopicStats
     });
 
     await fireEvent.click(screen.getByRole("button", { name: "topics" }));
@@ -45,7 +70,8 @@ describe("ControlBar topics menu", () => {
       settings,
       status: "running",
       topics,
-      topicCounts
+      topicCounts,
+      topicSubtopicStats
     });
 
     await fireEvent.click(screen.getByRole("button", { name: "topics" }));
@@ -61,10 +87,51 @@ describe("ControlBar topics menu", () => {
     render(ControlBarHarness);
 
     await fireEvent.click(screen.getByRole("button", { name: "topics" }));
-    await fireEvent.click(screen.getByRole("button", { name: /probability/i }));
+    const probabilityButton = screen.getByText("probability").closest("button");
+    if (!probabilityButton) {
+      throw new Error("Expected probability topic button");
+    }
+    await fireEvent.click(probabilityButton);
     await fireEvent.click(screen.getByRole("button", { name: "all" }));
 
     expect(screen.getByTestId("toggled-value").textContent).toBe("probability");
     expect(screen.getByTestId("all-count").textContent).toBe("1");
+  });
+
+  it("expands subtopics immediately on arrow click", async () => {
+    render(ControlBar, {
+      settings,
+      status: "running",
+      topics,
+      topicCounts,
+      topicSubtopicStats
+    });
+
+    await fireEvent.click(screen.getByRole("button", { name: "topics" }));
+    expect(screen.queryByText("fundamentals")).toBeNull();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Expand algebra" }));
+    await tick();
+    expect(screen.getByText("fundamentals")).toBeTruthy();
+  });
+
+  it("keeps all action enabled when topics are selected but subtopics are partial", async () => {
+    render(ControlBar, {
+      settings: settingsAllTopicsPartial,
+      status: "running",
+      topics,
+      topicCounts,
+      topicSubtopicStats: {
+        ...topicSubtopicStats,
+        probability: [
+          { label: "random variables", count: 2 },
+          { label: "distributions", count: 1 }
+        ]
+      }
+    });
+
+    await fireEvent.click(screen.getByRole("button", { name: "topics" }));
+    const allButton = screen.getByRole("button", { name: "all" });
+    expect(allButton.hasAttribute("disabled")).toBe(false);
   });
 });

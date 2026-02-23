@@ -380,10 +380,86 @@ function inferTopics(entry: RawExpression): TopicId[] {
   return normalized.length > 0 ? normalized : ["algebra"];
 }
 
-export const EXPRESSIONS: Expression[] = rawExpressions.map((entry, index) => ({
-  id: `expr-${String(index + 1).padStart(3, "0")}`,
-  latex: entry.latex,
-  difficulty: difficultyMap[entry.difficulty],
-  name: inferName(entry, index),
-  topics: inferTopics(entry)
-}));
+function inferSubtopics(entry: RawExpression, topics: TopicId[]): string[] {
+  const subtopics = new Set<string>();
+  const latex = entry.latex;
+
+  if (latex.includes("\\sin") || latex.includes("\\cos") || latex.includes("\\tan")) {
+    subtopics.add("identities");
+  }
+  if (latex.includes("\\frac{d}{dx}") || latex.includes("\\partial") || latex.includes("f'(a)") || latex.includes("f'(x)")) {
+    subtopics.add("derivatives");
+  }
+  if (latex.includes("\\int")) {
+    subtopics.add("integrals");
+  }
+  if (latex.includes("\\lim")) {
+    subtopics.add("limits");
+  }
+  if (latex.includes("\\sum")) {
+    subtopics.add("series");
+  }
+  if (latex.includes("\\prod")) {
+    subtopics.add("products");
+  }
+  if (latex.includes("\\det") || latex.includes("\\begin{pmatrix}") || latex.includes("c_{ij}") || latex.includes("\\lambda")) {
+    subtopics.add("matrix methods");
+  }
+  if (latex.includes("P(") || latex.includes("\\mathbb{E}") || latex.includes("\\mathrm{Cov}")) {
+    subtopics.add("random variables");
+  }
+  if (latex.includes("\\sigma") || latex.includes("X \\sim") || latex.includes("\\lambda")) {
+    subtopics.add("distributions");
+  }
+  if (latex.includes("\\oint") || latex.includes("\\operatorname{Res}") || latex.includes("\\mathrm{Re}")) {
+    subtopics.add("contour methods");
+  }
+  if (latex.includes("\\Gamma") || latex.includes("\\zeta") || latex.includes("J_{\\nu}") || latex.includes("Y_{\\ell}^{m}")) {
+    subtopics.add("special identities");
+  }
+  if (latex.includes("\\forall") || latex.includes("\\exists") || latex.includes("\\neg") || latex.includes("\\subseteq")) {
+    subtopics.add("logic rules");
+  }
+  if (latex.includes("\\nabla") || latex.includes("\\mathbf{") || latex.includes("\\partial")) {
+    subtopics.add("field operators");
+  }
+  if (latex.includes("\\pi r") || latex.includes("a^2 + b^2 = c^2") || latex.includes("B_a(r)")) {
+    subtopics.add("metric geometry");
+  }
+  if (latex.includes("L(x,\\lambda)") || latex.includes("\\nabla_{x}L") || latex.includes("\\lambda^{t-i}")) {
+    subtopics.add("lagrangian methods");
+  }
+  if (latex.includes("\\pmod") || latex.includes("prime") || latex.includes("\\mu(n)")) {
+    subtopics.add("modular arithmetic");
+  }
+
+  if (subtopics.size === 0) {
+    if (topics.includes("calculus")) {
+      subtopics.add("core analysis");
+    } else if (topics.includes("probability")) {
+      subtopics.add("probability basics");
+    } else if (topics.includes("linear-algebra")) {
+      subtopics.add("linear structures");
+    } else if (topics.includes("number-theory")) {
+      subtopics.add("number theory basics");
+    } else if (topics.includes("mathematical-physics")) {
+      subtopics.add("physical laws");
+    } else {
+      subtopics.add("fundamentals");
+    }
+  }
+
+  return [...subtopics].sort((left, right) => left.localeCompare(right));
+}
+
+export const EXPRESSIONS: Expression[] = rawExpressions.map((entry, index) => {
+  const topics = inferTopics(entry);
+  return {
+    id: `expr-${String(index + 1).padStart(3, "0")}`,
+    latex: entry.latex,
+    difficulty: difficultyMap[entry.difficulty],
+    name: inferName(entry, index),
+    topics,
+    subtopics: inferSubtopics(entry, topics)
+  };
+});

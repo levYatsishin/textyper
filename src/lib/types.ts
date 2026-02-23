@@ -18,6 +18,7 @@ export interface Expression {
   difficulty: Difficulty;
   name: string;
   topics: TopicId[];
+  subtopics: string[];
 }
 
 export interface SessionSettings {
@@ -25,6 +26,7 @@ export interface SessionSettings {
   durationSec: 60 | 120;
   difficulties: Difficulty[];
   selectedTopicIds: TopicId[];
+  selectedSubtopicsByTopic: Record<TopicId, string[]>;
   revealLatex: boolean;
 }
 

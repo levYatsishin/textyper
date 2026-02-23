@@ -7,6 +7,10 @@
     durationSec: 60,
     difficulties: ["beginner", "intermediate", "advanced"],
     selectedTopicIds: ["algebra", "calculus"],
+    selectedSubtopicsByTopic: {
+      algebra: ["fundamentals"],
+      calculus: ["integrals"]
+    },
     revealLatex: false
   };
 
@@ -20,6 +24,11 @@
     algebra: 12,
     calculus: 8,
     probability: 3
+  };
+  const topicSubtopicStats = {
+    algebra: [{ label: "fundamentals", count: 12 }],
+    calculus: [{ label: "integrals", count: 8 }],
+    probability: [{ label: "random variables", count: 3 }]
   };
 
   let toggled: TopicId[] = [];
@@ -39,6 +48,7 @@
   status="running"
   {topics}
   {topicCounts}
+  {topicSubtopicStats}
   on:topicToggle={handleTopicToggle}
   on:topicSelectAll={handleTopicSelectAll}
 />

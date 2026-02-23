@@ -4,6 +4,7 @@ import {
   BESTS_STORAGE_KEY,
   computeBestScores,
   DEFAULT_SETTINGS,
+  getBestKey,
   HISTORY_STORAGE_KEY,
   loadHistory,
   loadSettings,
@@ -23,6 +24,10 @@ function makeRecord(index: number): SessionRecord {
       durationSec: 60,
       difficulties: ["beginner", "intermediate", "advanced"],
       selectedTopicIds: [...ALL_TOPIC_IDS],
+      selectedSubtopicsByTopic: {
+        algebra: ["fundamentals"],
+        calculus: ["integrals"]
+      },
       revealLatex: false
     },
     stats: {
@@ -72,6 +77,10 @@ describe("persistence", () => {
       durationSec: 120,
       difficulties: ["advanced"],
       selectedTopicIds: ["mathematical-physics", "differential-equations"],
+      selectedSubtopicsByTopic: {
+        "mathematical-physics": ["physical laws"],
+        "differential-equations": ["field operators"]
+      },
       revealLatex: true
     };
     saveSettings(settings);
@@ -94,8 +103,12 @@ describe("persistence", () => {
     second.settings.difficulties = ["advanced"];
 
     const bests = computeBestScores([first, second]);
-    expect(bests[`practice:beginner+intermediate+advanced:${ALL_TOPIC_IDS.join("+")}`].id).toBe(first.id);
-    expect(bests[`practice:advanced:${ALL_TOPIC_IDS.join("+")}`].id).toBe(second.id);
+    expect(
+      bests[getBestKey(first.settings.mode, first.settings.difficulties, first.settings.selectedTopicIds, first.settings.selectedSubtopicsByTopic)].id
+    ).toBe(first.id);
+    expect(
+      bests[getBestKey(second.settings.mode, second.settings.difficulties, second.settings.selectedTopicIds, second.settings.selectedSubtopicsByTopic)].id
+    ).toBe(second.id);
   });
 
   it("returns empty history and bests when storage is empty", () => {

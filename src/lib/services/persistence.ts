@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
   durationSec: 60,
   difficulties: [...DIFFICULTY_ORDER],
   selectedTopicIds: [...ALL_TOPIC_IDS],
+  selectedSubtopicsByTopic: {},
   revealLatex: false
 };
 
@@ -92,6 +93,26 @@ function sanitizeTopicIds(raw: unknown, legacyTopic: unknown): TopicId[] {
   return [...DEFAULT_SETTINGS.selectedTopicIds];
 }
 
+function sanitizeSubtopicsMap(raw: unknown): Record<TopicId, string[]> {
+  if (!raw || typeof raw !== "object") {
+    return {};
+  }
+
+  const value = raw as Record<string, unknown>;
+  const result: Record<TopicId, string[]> = {};
+
+  for (const topicId of ALL_TOPIC_IDS) {
+    const entry = value[topicId];
+    if (!Array.isArray(entry)) {
+      continue;
+    }
+    const unique = [...new Set(entry.filter((item): item is string => typeof item === "string"))];
+    result[topicId] = unique.sort((left, right) => left.localeCompare(right));
+  }
+
+  return result;
+}
+
 export function sanitizeSettings(raw: unknown): SessionSettings {
   if (!raw || typeof raw !== "object") {
     return { ...DEFAULT_SETTINGS };
@@ -104,6 +125,7 @@ export function sanitizeSettings(raw: unknown): SessionSettings {
     durationSec: isDuration(input.durationSec) ? input.durationSec : DEFAULT_SETTINGS.durationSec,
     difficulties: sanitizeDifficulties(input.difficulties, input.difficulty),
     selectedTopicIds: sanitizeTopicIds(input.selectedTopicIds, input.topic),
+    selectedSubtopicsByTopic: sanitizeSubtopicsMap(input.selectedSubtopicsByTopic),
     revealLatex: typeof input.revealLatex === "boolean" ? input.revealLatex : DEFAULT_SETTINGS.revealLatex
   };
 }
@@ -181,16 +203,26 @@ export function saveHistory(history: SessionRecord[]): SessionRecord[] {
 export function getBestKey(
   mode: SessionSettings["mode"],
   difficulties: SessionSettings["difficulties"],
-  selectedTopicIds: SessionSettings["selectedTopicIds"]
+  selectedTopicIds: SessionSettings["selectedTopicIds"],
+  selectedSubtopicsByTopic: SessionSettings["selectedSubtopicsByTopic"]
 ): string {
-  return `${mode}:${normalizeDifficulties(difficulties).join("+")}:${normalizeTopicIds(selectedTopicIds).join("+")}`;
+  const topicsKey = normalizeTopicIds(selectedTopicIds).join("+");
+  const subtopicsKey = normalizeTopicIds(selectedTopicIds)
+    .map((topicId) => `${topicId}:${(selectedSubtopicsByTopic[topicId] ?? []).join(",")}`)
+    .join("|");
+  return `${mode}:${normalizeDifficulties(difficulties).join("+")}:${topicsKey}:${subtopicsKey}`;
 }
 
 export function computeBestScores(history: SessionRecord[]): BestScores {
   const bests: BestScores = {};
 
   for (const record of history) {
-    const key = getBestKey(record.settings.mode, record.settings.difficulties, record.settings.selectedTopicIds);
+    const key = getBestKey(
+      record.settings.mode,
+      record.settings.difficulties,
+      record.settings.selectedTopicIds,
+      record.settings.selectedSubtopicsByTopic
+    );
     const currentBest = bests[key];
 
     if (!currentBest || record.stats.correct > currentBest.stats.correct) {
@@ -233,7 +265,8 @@ export function loadBestScores(): BestScores {
       const key = getBestKey(
         sanitized.settings.mode,
         sanitized.settings.difficulties,
-        sanitized.settings.selectedTopicIds
+        sanitized.settings.selectedTopicIds,
+        sanitized.settings.selectedSubtopicsByTopic
       );
       const currentBest = result[key];
       if (

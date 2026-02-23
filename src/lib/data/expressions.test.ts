@@ -3,10 +3,11 @@ import { EXPRESSIONS } from "./expressions";
 import { ALL_TOPIC_IDS } from "./topics";
 
 describe("expressions dataset", () => {
-  it("includes name and at least one topic per formula", () => {
+  it("includes name, topics, and subtopics per formula", () => {
     for (const expression of EXPRESSIONS) {
       expect(expression.name.trim().length).toBeGreaterThan(0);
       expect(expression.topics.length).toBeGreaterThan(0);
+      expect(expression.subtopics.length).toBeGreaterThan(0);
     }
   });
 
