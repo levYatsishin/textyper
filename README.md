@@ -20,7 +20,9 @@ Minimal trainer for typing LaTeX math quickly.
 ### About difficulty 
 Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read about it more in ... **TODO** 
 ### About number of formulas in categories 
-A single formula can belong to multiple topics/subtopics. Counts are membership totals, not mutually exclusive buckets. Moreover classification was mostly automatic and to be honest should not be treated very seriously, just as a helpful hint. You can hover on the displayed topic of the current formula and see to which other ones it also belongs. 
+Any single formula can belong to multiple topics/subtopics. Counts are membership totals, not mutually exclusive buckets.
+
+Moreover, classification was mostly automatic and, to be honest, should not be treated too seriously, only as a helpful hint. You can hover on the displayed topic of the current formula and see to which other ones it also belongs. 
 
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
 ## Planned features
