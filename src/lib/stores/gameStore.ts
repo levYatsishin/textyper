@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { getTopicScopedSubtopics } from "../services/topicSubtopics";
 import { compareLatex } from "../services/matcher";
 import { createEmptyStats, toSessionStats } from "../services/metrics";
 import {
@@ -56,7 +57,7 @@ function getExpressionPool(
         if (selectedSubtopics.length === 0) {
           return true;
         }
-        return item.subtopics.some((subtopic) => selectedSubtopics.includes(subtopic));
+        return getTopicScopedSubtopics(item, topicId).some((subtopic) => selectedSubtopics.includes(subtopic));
       })
   );
 }
@@ -105,7 +106,7 @@ function buildSubtopicUniverse(expressions: Expression[]): Record<string, string
         byTopic.set(topicId, new Set<string>());
       }
       const subtopics = byTopic.get(topicId)!;
-      for (const subtopic of expression.subtopics) {
+      for (const subtopic of getTopicScopedSubtopics(expression, topicId)) {
         subtopics.add(subtopic);
       }
     }
@@ -250,7 +251,9 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       if (selectedSubtopics.length === 0) {
         return true;
       }
-      return restoredExpression.subtopics.some((subtopic) => selectedSubtopics.includes(subtopic));
+      return getTopicScopedSubtopics(restoredExpression, topicId).some((subtopic) =>
+        selectedSubtopics.includes(subtopic)
+      );
     });
 
   let state: GameState = canRestoreActiveSession && activeSnapshot && restoredSettings

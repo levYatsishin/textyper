@@ -9,6 +9,7 @@
   import StatsRail from "./lib/components/StatsRail.svelte";
   import { EXPRESSIONS } from "./lib/data/expressions";
   import { TOPICS } from "./lib/data/topics";
+  import { getTopicScopedSubtopics } from "./lib/services/topicSubtopics";
   import { createGameStore } from "./lib/stores/gameStore";
   import type { Difficulty, Mode, SessionSettings, TopicId } from "./lib/types";
 
@@ -38,7 +39,7 @@
         if (!set) {
           continue;
         }
-        for (const subtopic of expression.subtopics) {
+        for (const subtopic of getTopicScopedSubtopics(expression, topicId)) {
           set.add(subtopic);
         }
       }
@@ -165,7 +166,7 @@
           if (selectedSubtopics.length === 0) {
             return true;
           }
-          return item.subtopics.some((subtopic) => selectedSubtopics.includes(subtopic));
+          return getTopicScopedSubtopics(item, topicId).some((subtopic) => selectedSubtopics.includes(subtopic));
         })
     ).length;
   }
@@ -220,16 +221,12 @@
       if (!settings.difficulties.includes(expression.difficulty)) {
         continue;
       }
-      if (expression.subtopics.length === 0) {
-        continue;
-      }
-
       for (const topicId of expression.topics) {
         const topicMap = byTopic[topicId];
         if (!topicMap) {
           continue;
         }
-        for (const subtopic of expression.subtopics) {
+        for (const subtopic of getTopicScopedSubtopics(expression, topicId)) {
           topicMap.set(subtopic, (topicMap.get(subtopic) ?? 0) + 1);
         }
       }

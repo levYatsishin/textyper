@@ -181,7 +181,6 @@
       "complexityBand": "beginner",
       "name": "Pythagorean trigonometric identity",
       "topics": [
-        "real-analysis",
         "trigonometry"
       ],
       "subtopics": [
@@ -319,7 +318,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 10",
       "topics": [
-        "real-analysis",
         "set-logic"
       ],
       "subtopics": [
@@ -457,7 +455,6 @@
       "complexityBand": "beginner",
       "name": "Cosine double-angle identity",
       "topics": [
-        "real-analysis",
         "trigonometry"
       ],
       "subtopics": [
@@ -594,7 +591,6 @@
       "complexityBand": "beginner",
       "name": "Probability identity",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics"
       ],
@@ -665,7 +661,6 @@
       "complexityBand": "beginner",
       "name": "Probability identity",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics",
         "set-logic"
@@ -704,7 +699,6 @@
       "complexityBand": "beginner",
       "name": "Probability identity",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics",
         "set-logic"
@@ -777,7 +771,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 23",
       "topics": [
-        "real-analysis",
         "trigonometry"
       ],
       "subtopics": [
@@ -917,7 +910,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 27",
       "topics": [
-        "real-analysis",
         "set-logic"
       ],
       "subtopics": [
@@ -1057,7 +1049,6 @@
       "complexityBand": "beginner",
       "name": "Binomial coefficient formula",
       "topics": [
-        "real-analysis",
         "discrete-math"
       ],
       "subtopics": [
@@ -1232,7 +1223,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 36",
       "topics": [
-        "real-analysis",
         "trigonometry"
       ],
       "subtopics": [
@@ -1267,7 +1257,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 37",
       "topics": [
-        "real-analysis",
         "trigonometry"
       ],
       "subtopics": [
@@ -1484,7 +1473,6 @@
       "complexityBand": "beginner",
       "name": "Gauss law (electrostatics)",
       "topics": [
-        "real-analysis",
         "vector-calculus",
         "mathematical-physics"
       ],
@@ -1555,7 +1543,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 45",
       "topics": [
-        "real-analysis",
         "set-logic"
       ],
       "subtopics": [
@@ -1701,7 +1688,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 49",
       "topics": [
-        "real-analysis",
         "trigonometry"
       ],
       "subtopics": [
@@ -1951,7 +1937,6 @@
       "complexityBand": "intermediate",
       "name": "Math formula 56",
       "topics": [
-        "real-analysis",
         "complex-analysis"
       ],
       "subtopics": [
@@ -2021,7 +2006,6 @@
       "complexityBand": "beginner",
       "name": "Determinant-eigenvalue product",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "linear-algebra",
         "algebra"
@@ -2060,7 +2044,6 @@
       "complexityBand": "beginner",
       "name": "Curl of gradient identity",
       "topics": [
-        "real-analysis",
         "vector-calculus"
       ],
       "subtopics": [
@@ -2130,7 +2113,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 61",
       "topics": [
-        "real-analysis",
         "number-theory"
       ],
       "subtopics": [
@@ -2200,7 +2182,6 @@
       "complexityBand": "beginner",
       "name": "Math formula 63",
       "topics": [
-        "real-analysis",
         "complex-analysis"
       ],
       "subtopics": [
@@ -2490,7 +2471,6 @@
       "complexityBand": "beginner",
       "name": "Special function identity",
       "topics": [
-        "real-analysis",
         "number-theory"
       ],
       "subtopics": [
@@ -2671,7 +2651,6 @@
       "complexityBand": "intermediate",
       "name": "Vector calculus relation",
       "topics": [
-        "real-analysis",
         "vector-calculus"
       ],
       "subtopics": [
@@ -2849,7 +2828,6 @@
       "complexityBand": "beginner",
       "name": "Covariance identity",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics"
       ],
@@ -2956,7 +2934,6 @@
       "complexityBand": "intermediate",
       "name": "Normal distribution density",
       "topics": [
-        "real-analysis",
         "statistics"
       ],
       "subtopics": [
@@ -3213,7 +3190,6 @@
       "complexityBand": "intermediate",
       "name": "Fourth moment of normal distribution",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics"
       ],
@@ -3288,7 +3264,6 @@
       "complexityBand": "beginner",
       "name": "Special function identity",
       "topics": [
-        "real-analysis",
         "number-theory"
       ],
       "subtopics": [
@@ -3506,7 +3481,6 @@
       "complexityBand": "advanced",
       "name": "Infinite product for sinh(x)/x",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "special-functions",
         "trigonometry",
@@ -3621,7 +3595,6 @@
       "complexityBand": "advanced",
       "name": "Vector calculus relation",
       "topics": [
-        "real-analysis",
         "vector-calculus"
       ],
       "subtopics": [
@@ -3731,7 +3704,6 @@
       "complexityBand": "advanced",
       "name": "Spherical harmonics",
       "topics": [
-        "real-analysis",
         "number-theory",
         "special-functions",
         "trigonometry"
@@ -3909,7 +3881,6 @@
       "complexityBand": "intermediate",
       "name": "Definition of a ball in R^d",
       "topics": [
-        "real-analysis",
         "geometry"
       ],
       "subtopics": [
@@ -4013,7 +3984,6 @@
       "complexityBand": "beginner",
       "name": "Area of circle",
       "topics": [
-        "real-analysis",
         "geometry"
       ],
       "subtopics": [
@@ -4048,7 +4018,6 @@
       "complexityBand": "beginner",
       "name": "Volume of cone",
       "topics": [
-        "real-analysis",
         "geometry"
       ],
       "subtopics": [
@@ -4083,7 +4052,6 @@
       "complexityBand": "beginner",
       "name": "Volume of sphere",
       "topics": [
-        "real-analysis",
         "geometry"
       ],
       "subtopics": [
@@ -4118,7 +4086,6 @@
       "complexityBand": "beginner",
       "name": "Volume of ellipsoid",
       "topics": [
-        "real-analysis",
         "geometry"
       ],
       "subtopics": [
@@ -4153,7 +4120,6 @@
       "complexityBand": "beginner",
       "name": "Standard deviation scaling",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics"
       ],
@@ -4262,7 +4228,6 @@
       "complexityBand": "beginner",
       "name": "Probability bounds axiom",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics"
       ],
@@ -4299,7 +4264,6 @@
       "name": "Probability of sample space",
       "topics": [
         "pdes",
-        "real-analysis",
         "probability",
         "statistics",
         "set-logic"
@@ -4336,7 +4300,6 @@
       "complexityBand": "beginner",
       "name": "Probability of empty set",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics",
         "set-logic"
@@ -4373,7 +4336,6 @@
       "complexityBand": "beginner",
       "name": "Complement probability rule",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics"
       ],
@@ -4409,7 +4371,6 @@
       "complexityBand": "beginner",
       "name": "Bayes theorem",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics"
       ],
@@ -4480,7 +4441,6 @@
       "complexityBand": "beginner",
       "name": "Tangent identity",
       "topics": [
-        "real-analysis",
         "trigonometry"
       ],
       "subtopics": [
@@ -4586,7 +4546,6 @@
       "complexityBand": "beginner",
       "name": "Poisson PMF",
       "topics": [
-        "real-analysis",
         "linear-algebra",
         "probability",
         "statistics"
@@ -4804,7 +4763,6 @@
       "complexityBand": "intermediate",
       "name": "Inverse of a 2x2 matrix",
       "topics": [
-        "real-analysis",
         "vector-calculus",
         "linear-algebra"
       ],
@@ -4924,7 +4882,6 @@
       "complexityBand": "beginner",
       "name": "RSA congruence",
       "topics": [
-        "real-analysis",
         "number-theory"
       ],
       "subtopics": [
@@ -5179,7 +5136,6 @@
       "complexityBand": "advanced",
       "name": "Geodesic Equation",
       "topics": [
-        "real-analysis",
         "special-functions",
         "linear-algebra"
       ],
@@ -5686,7 +5642,6 @@
       "complexityBand": "beginner",
       "name": "Closure decomposition",
       "topics": [
-        "real-analysis",
         "topology"
       ],
       "subtopics": [
@@ -5721,7 +5676,6 @@
       "complexityBand": "beginner",
       "name": "Compact sets are closed (Hausdorff)",
       "topics": [
-        "real-analysis",
         "topology"
       ],
       "subtopics": [
@@ -5900,7 +5854,6 @@
       "complexityBand": "beginner",
       "name": "Kernel is normal subgroup",
       "topics": [
-        "real-analysis",
         "abstract-algebra"
       ],
       "subtopics": [
@@ -5969,8 +5922,7 @@
       "complexityBand": "beginner",
       "name": "Newton iteration",
       "topics": [
-        "numerical-methods",
-        "real-analysis"
+        "numerical-methods"
       ],
       "subtopics": [
         "iterative methods",
@@ -6044,7 +5996,6 @@
       "name": "Interpolation error bound",
       "topics": [
         "numerical-methods",
-        "real-analysis",
         "algebra"
       ],
       "subtopics": [
@@ -6080,8 +6031,7 @@
       "complexityBand": "beginner",
       "name": "Heat equation",
       "topics": [
-        "pdes",
-        "real-analysis"
+        "pdes"
       ],
       "subtopics": [
         "parabolic"
@@ -6498,8 +6448,7 @@
       "complexityBand": "advanced",
       "name": "Fixed-point iteration error bound",
       "topics": [
-        "numerical-methods",
-        "real-analysis"
+        "numerical-methods"
       ],
       "subtopics": [
         "iterative methods",
@@ -7412,7 +7361,6 @@
       "topics": [
         "algebra",
         "differential-equations",
-        "real-analysis",
         "pdes"
       ],
       "subtopics": [

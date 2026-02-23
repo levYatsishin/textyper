@@ -2,6 +2,7 @@
   import { onDestroy, onMount, tick } from "svelte";
   import katex from "katex";
   import { TOPIC_MAP } from "../data/topics";
+  import { getTopicScopedSubtopics } from "../services/topicSubtopics";
   import type { Expression } from "../types";
 
   export let expression: Expression | null = null;
@@ -38,7 +39,7 @@
 
   $: renderedExpression = expression ? renderLatex(expression.latex) : "";
   $: sourceTopic = expression ? formatTopic(expression.topics[0] ?? "") : "";
-  $: sourceSubtopic = expression?.subtopics[0] ?? "";
+  $: sourceSubtopic = expression ? getTopicScopedSubtopics(expression, expression.topics[0] ?? "")[0] ?? "" : "";
   $: sourceLabel = expression ? (sourceSubtopic ? `${sourceTopic} · ${sourceSubtopic}` : sourceTopic) : "";
 
   function updateFormulaScale(): void {
