@@ -1,5 +1,8 @@
 ![math latex typer cover](post-tech-design/images/cover_smooth.png)
-# math latex typer
+<div align="center">
+  <h1>math latex typer</h1>
+</div>
+
 Minimal trainer for typing LaTeX math quickly.
 
 **Heavily** inspired by [typelatex](https://github.com/JaidenRatti/type-latex) and therefore, as the geneology goes, by [texnique](https://github.com/akshayravikumar/TeXnique).
