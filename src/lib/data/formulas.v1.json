@@ -7474,6 +7474,559 @@
         "wikidata_subjects": [],
         "wikidata_defining_formula": "\\forall U\\in\\operatorname{Open}(X)\\colon (X\\setminus U\\in\\operatorname{Open}(X) \\iff U\\in\\{\\varnothing,X\\})"
       }
+    },
+    {
+      "id": "expr-96f393d8bb0a",
+      "latex": "H(p, q) = H(p) + D_{\\mathrm{KL}}(p \\parallel q),",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Cross-Entropy Decomposition",
+      "topics": [
+        "information-theory"
+      ],
+      "subtopics": [
+        "cross-entropy"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-d3f53b06ae8a",
+      "latex": "H(p,q) = -\\sum_{x\\in\\mathcal{X}} p(x)\\, \\log q(x).",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Discrete Cross-Entropy",
+      "topics": [
+        "information-theory"
+      ],
+      "subtopics": [
+        "cross-entropy"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-f64171651da8",
+      "latex": "\\nabla_{\\mathbf{w}} L(\\mathbf{w})=X^\\mathsf{T}(\\hat{\\mathbf{y}}-\\mathbf{y}).",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Logistic Loss Gradient",
+      "topics": [
+        "information-theory",
+        "machine-learning-math"
+      ],
+      "subtopics": [
+        "classification-loss"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-dbd750fb978a",
+      "latex": "\\log \\mathcal{L}(\\theta; {\\mathbf x}) = -N\\cdot H(p, q_\\theta).",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Log-Likelihood and Cross-Entropy",
+      "topics": [
+        "information-theory"
+      ],
+      "subtopics": [
+        "likelihood"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-70ff57a7cd19",
+      "latex": "(\\partial_t -\\Delta)u=0",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Homogeneous Heat Equation",
+      "topics": [
+        "pdes"
+      ],
+      "subtopics": [
+        "heat-equation"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-5b32fe530b6d",
+      "latex": "P_t = D \\Delta P.",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Diffusion Equation Form",
+      "topics": [
+        "pdes"
+      ],
+      "subtopics": [
+        "heat-equation"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-3ab54cf22e65",
+      "latex": "\\Phi(x,t) := (4t\\pi)^{-\\frac{n}{2}}\\exp\\left(-\\frac{|x|^2}{4t}\\right).",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Heat Kernel in n Dimensions",
+      "topics": [
+        "pdes"
+      ],
+      "subtopics": [
+        "fundamental-solution"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-f9de0bf8d3aa",
+      "latex": "X(x) = B \\sin\\left(\\sqrt{\\lambda} \\, x\\right) + C \\cos\\left(\\sqrt{\\lambda} \\, x\\right).",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Separated Spatial Eigenfunction",
+      "topics": [
+        "pdes"
+      ],
+      "subtopics": [
+        "separation-of-variables"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-752b1fffe63b",
+      "latex": "X''(x) = - \\lambda X(x).",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Spatial ODE from Separation",
+      "topics": [
+        "pdes"
+      ],
+      "subtopics": [
+        "separation-of-variables"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-98c010fc3e67",
+      "latex": "x_{n+1} = \\cos x_n\\,",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Fixed-Point Cosine Iteration",
+      "topics": [
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "fixed-point-iteration"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Fixed-point iteration",
+        "page_id": "7344320",
+        "wikidata_item_id": "Q1030759",
+        "page_url": "https://en.wikipedia.org/wiki/Fixed-point_iteration",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-07ce9907a900",
+      "latex": "|x_n-x| \\leq { q^n \\over 1-q } | x_1 - x_0 | = C q^n",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Fixed-Point Error Bound",
+      "topics": [
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "error-bounds"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Fixed-point iteration",
+        "page_id": "7344320",
+        "wikidata_item_id": "Q1030759",
+        "page_url": "https://en.wikipedia.org/wiki/Fixed-point_iteration",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-e2a9c255318d",
+      "latex": "L(x) = \\sum_{j=0}^{k} y_j \\ell_j(x).",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Lagrange Interpolation Form",
+      "topics": [
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "interpolation"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lagrange polynomial",
+        "page_id": "217523",
+        "wikidata_item_id": "Q861606",
+        "page_url": "https://en.wikipedia.org/wiki/Lagrange_polynomial",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-79bfd117f5a0",
+      "latex": "L(x) = \\ell(x) \\sum_{j=0}^k \\frac{w_j}{x-x_j}y_j.",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Barycentric Lagrange Formula",
+      "topics": [
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "interpolation"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lagrange polynomial",
+        "page_id": "217523",
+        "wikidata_item_id": "Q861606",
+        "page_url": "https://en.wikipedia.org/wiki/Lagrange_polynomial",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-535e851ebd70",
+      "latex": "x_\\text{fix} = g(x_\\text{fix}) = x_\\text{fix} - \\frac{f(x_\\text{fix})}{f'(x_\\text{fix})}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Newton Step as Fixed Point",
+      "topics": [
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "newton-method"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Fixed-point iteration",
+        "page_id": "7344320",
+        "wikidata_item_id": "Q1030759",
+        "page_url": "https://en.wikipedia.org/wiki/Fixed-point_iteration",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-810f797e44bf",
+      "latex": "C(z) = \\frac{1-\\sqrt{1-4z}}{2z} = \\sum_{n = 0}^\\infty \\frac{1}{n+1}\\binom{2n}{n} z^n\\,.",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Catalan Generating Function",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "generating-functions"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-ec5b9a6b511f",
+      "latex": "C(z) = z \\cdot C(z)^2 + 1\\,.",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Catalan Functional Equation",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "generating-functions"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-64dae14cf785",
+      "latex": "C_n = \\sum_{k=0}^{n-1} C_k C_{n-1-k} + \\delta_{n,0} = C_0 C_{n-1} + C_1 C_{n-2} + \\cdots + C_{n-1} C_0 + \\delta_{n,0}\\,,\\quad n \\geq 0\\,,",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Catalan Recurrence",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "combinatorial-recurrences"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-37acea23ebd2",
+      "latex": "C(z) = A(z)B(z) \\Leftrightarrow [z^n]C(z) = \\sum_{k=0}^{n}{a_k b_{n-k}}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Convolution Product Identity",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "generating-functions"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-f96b987c9e24",
+      "latex": "d(f, g) = \\sup_{x \\in [0, 1]} |f(x) - g(x)|.",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Supremum Metric on Function Space",
+      "topics": [
+        "topology"
+      ],
+      "subtopics": [
+        "metric-spaces"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Compact space",
+        "page_id": "6042",
+        "wikidata_item_id": "Q381892",
+        "page_url": "https://en.wikipedia.org/wiki/Compact_space",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\forall \\mathcal U \\subseteq\\operatorname{Open}(X)\\colon \\left(\\bigcup\\mathcal U = X \\implies\\exists \\mathcal U' \\subseteq \\mathcal U \\colon \\left(\\bigcup\\mathcal U' = X \\land |\\mathcal U'| < \\aleph_0\\right)\\right)"
+      }
+    },
+    {
+      "id": "expr-a47ea1c78b2e",
+      "latex": "S = \\left\\{ (x,y,z) \\in \\R^3 \\mid x^2 + y^2 + z^2 = 1 \\right\\}.",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Unit Sphere as Manifold",
+      "topics": [
+        "topology"
+      ],
+      "subtopics": [
+        "manifolds"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Manifold",
+        "page_id": "2073470",
+        "wikidata_item_id": "Q203920",
+        "page_url": "https://en.wikipedia.org/wiki/Manifold",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-b7c6b2b9ec86",
+      "latex": "K_n^M(F) / p = H^n(F, \\mu_l^{\\otimes n}).",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Norm Residue Isomorphism",
+      "topics": [
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "field-theory"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Field (mathematics)",
+        "page_id": "10603",
+        "wikidata_item_id": "Q190109",
+        "page_url": "https://en.wikipedia.org/wiki/Field_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-9df4d8072965",
+      "latex": "G/N = \\{gN \\mid g\\in G\\}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Quotient Group Definition",
+      "topics": [
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "group-theory"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Group (mathematics)",
+        "page_id": "19447",
+        "wikidata_item_id": "Q83478",
+        "page_url": "https://en.wikipedia.org/wiki/Group_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\begin{aligned}&(\\cdot)\\colon G\\times G\\to G\\\\&\\forall x,y,z\\in G\\colon (x\\cdot y)\\cdot z=x\\cdot(y\\cdot z)\\\\&\\exists1\\in G\\forall x\\in G\\colon 1\\cdot x=x\\cdot1=x\\\\&\\forall x\\in G\\exists y\\in G\\colon x\\cdot y=y\\cdot x=1\\end{aligned}"
+      }
+    },
+    {
+      "id": "expr-0938815e310e",
+      "latex": "\\frac{a}{b}+\\frac{c}{d} = \\frac{ad+bc}{bd}.",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Field Fraction Addition",
+      "topics": [
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "field-operations"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Field (mathematics)",
+        "page_id": "10603",
+        "wikidata_item_id": "Q190109",
+        "page_url": "https://en.wikipedia.org/wiki/Field_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-4878b242faef",
+      "latex": "\\mathbf{a}_{n+1} = \\mathbf{a}_n-\\eta_n\\,\\mathbf{p}_n",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Gradient-Based Parameter Update",
+      "topics": [
+        "machine-learning-math"
+      ],
+      "subtopics": [
+        "optimization"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Gradient descent",
+        "page_id": "201489",
+        "wikidata_item_id": "Q1199743",
+        "page_url": "https://en.wikipedia.org/wiki/Gradient_descent",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\mathbf{x}_{n+1} = \\mathbf{x}_n -\\gamma\\nabla F(\\mathbf{x}_n)"
+      }
     }
   ]
 }
