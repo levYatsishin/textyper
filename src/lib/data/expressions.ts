@@ -165,7 +165,34 @@ const rawExpressions: RawExpression[] = [
   { latex: "\\text{ind}(D) = \\int_M \\hat{A}(TM) \\wedge \\text{ch}(E)", difficulty: "hard", isUserSubmitted: true, expressionName: "Atiyah-Singer Index Theorem" },
   { latex: "\\frac{\\partial f}{\\partial t} + \\mathbf{v} \\cdot \\nabla_{\\mathbf{r}} f + \\frac{\\mathbf{F}}{m} \\cdot \\nabla_{\\mathbf{v}} f = \\left(\\frac{\\partial f}{\\partial t}\\right)_{\\text{coll}}", difficulty: "hard", isUserSubmitted: true, expressionName: "Boltzmann Transport Equation" },
   { latex: "\\partial\\mu F^{\\mu  \\nu} + [A_\\mu, F^{\\mu  \\nu}] = J^\\nu", difficulty: "hard", isUserSubmitted: true, expressionName: "Yang-Mills Equations" },
-  { latex: "Z = \\text{Tr} \\left( e^{-\\beta H} \\right)", difficulty: "medium", isUserSubmitted: true, expressionName: "Partition function in quantum statistical mechanics" }
+  { latex: "Z = \\text{Tr} \\left( e^{-\\beta H} \\right)", difficulty: "medium", isUserSubmitted: true, expressionName: "Partition function in quantum statistical mechanics" },
+  { latex: "\\sum_{v \\in V} \\deg(v) = 2|E|", difficulty: "medium", expressionName: "Handshake lemma" },
+  { latex: "a_n = 3a_{n-1} - 2a_{n-2}", difficulty: "medium", expressionName: "Linear recurrence relation" },
+  { latex: "\\sum_{n=0}^{\\infty} x^n = \\frac{1}{1-x}", difficulty: "medium", expressionName: "Geometric generating function" },
+  { latex: "\\partial(\\partial M)=\\emptyset", difficulty: "medium", expressionName: "Boundary of boundary is empty" },
+  { latex: "\\overline{A} = A \\cup A'", difficulty: "easy", expressionName: "Closure decomposition" },
+  { latex: "K \\subset X,\\ K\\ \\text{compact} \\Rightarrow K\\ \\text{closed}", difficulty: "medium", expressionName: "Compact sets are closed (Hausdorff)" },
+  { latex: "f_n \\to f\\ \\text{in}\\ L^1 \\iff \\int |f_n-f|\\,d\\mu \\to 0", difficulty: "hard", expressionName: "L1 convergence criterion" },
+  { latex: "\\limsup_{n\\to\\infty} a_n = \\inf_n\\sup_{k\\ge n} a_k", difficulty: "hard", expressionName: "Limsup characterization" },
+  { latex: "\\|f\\|_p = \\left(\\int |f|^p\\,d\\mu\\right)^{1/p}", difficulty: "hard", expressionName: "Lp norm definition" },
+  { latex: "|G| = |H|[G:H]", difficulty: "medium", expressionName: "Lagrange theorem" },
+  { latex: "\\ker\\varphi \\trianglelefteq G", difficulty: "medium", expressionName: "Kernel is normal subgroup" },
+  { latex: "F[x]/(p(x))", difficulty: "easy", expressionName: "Polynomial quotient ring" },
+  { latex: "x_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}", difficulty: "medium", expressionName: "Newton iteration" },
+  { latex: "p_n(x)=\\sum_{k=0}^{n} y_k\\prod_{j\\ne k}\\frac{x-x_j}{x_k-x_j}", difficulty: "hard", expressionName: "Lagrange interpolation polynomial" },
+  { latex: "|f(x)-p_n(x)|\\le\\frac{M}{(n+1)!}\\prod_{k=0}^{n}|x-x_k|", difficulty: "hard", expressionName: "Interpolation error bound" },
+  { latex: "u_t-\\alpha u_{xx}=0", difficulty: "medium", expressionName: "Heat equation" },
+  { latex: "u_{tt}=c^2u_{xx}", difficulty: "medium", expressionName: "Wave equation" },
+  { latex: "-\\Delta u=f\\ \\text{in}\\ \\Omega,\\ u|_{\\partial\\Omega}=0", difficulty: "hard", expressionName: "Poisson equation with Dirichlet boundary" },
+  { latex: "H(X)=-\\sum_x p(x)\\log p(x)", difficulty: "medium", expressionName: "Shannon entropy" },
+  { latex: "D_{KL}(P\\|Q)=\\sum_x P(x)\\log\\frac{P(x)}{Q(x)}", difficulty: "hard", expressionName: "KL divergence" },
+  { latex: "I(X;Y)=\\sum_{x,y}p(x,y)\\log\\frac{p(x,y)}{p(x)p(y)}", difficulty: "hard", expressionName: "Mutual information" },
+  { latex: "\\mathcal{L}(\\theta)=\\frac{1}{m}\\sum_{i=1}^{m}\\ell(f_{\\theta}(x_i),y_i)", difficulty: "hard", expressionName: "Empirical risk" },
+  { latex: "\\nabla_{\\theta}J(\\theta)=\\frac{1}{m}\\sum_{i=1}^{m}(\\hat y_i-y_i)x_i", difficulty: "hard", expressionName: "Gradient of linear-model loss" },
+  { latex: "H_{ij}=\\frac{\\partial^2 f}{\\partial x_i\\partial x_j}", difficulty: "medium", expressionName: "Hessian entry definition" },
+  { latex: "\\mathcal{L}(\\theta)=\\frac{1}{m}\\sum_{i=1}^{m}\\left(y_i\\log\\hat y_i+(1-y_i)\\log(1-\\hat y_i)\\right)", difficulty: "hard", expressionName: "Binary cross-entropy loss" },
+  { latex: "\\left(\\int_{\\Omega}|u-v|^2\\,dx\\right)^{1/2} \\le C\\left(\\int_{\\Omega}|\\nabla(u-v)|^2\\,dx\\right)^{1/2}", difficulty: "hard", expressionName: "Energy norm stability inequality" },
+  { latex: "\\left\\|x-x^{(k)}\\right\\| \\le \\frac{\\|B\\|^k}{1-\\|B\\|}\\left\\|x^{(1)}-x^{(0)}\\right\\|", difficulty: "hard", expressionName: "Fixed-point iteration error bound" }
 ];
 
 const inferredNames: Array<{ pattern: RegExp; name: string }> = [
@@ -228,10 +255,26 @@ const manualTopicOverrides: Array<{ pattern: RegExp; topics: TopicId[] }> = [
   { pattern: /\\oint|\\mathrm\{Re\}|\\mathrm\{Im\}|i\\theta|z\}|\\operatorname\{Res\}|\\oint_\{\\|z\\|=1\}/, topics: ["complex-analysis"] },
   { pattern: /mc\^2|\\epsilon_0|Navier|Boltzmann|Einstein|Yang-Mills|Black-Scholes|Wheeler-DeWitt|\\hat\{H\}/, topics: ["mathematical-physics"] },
   { pattern: /\\pi r\^\{2\}|cone|sphere|ellipsoid|B_a\(r\)|Pythagorean/, topics: ["geometry"] },
-  { pattern: /L\(x,\\lambda\)|KKT|Lagrange|\\lambda\^\{t-i\}/, topics: ["optimization"] }
+  { pattern: /L\(x,\\lambda\)|KKT|Lagrange|\\lambda\^\{t-i\}/, topics: ["optimization"] },
+  { pattern: /\\deg\(v\)|a_\{n-1\}|a_\{n-2\}|\\sum_\{v \\in V\}|generating/, topics: ["discrete-math"] },
+  { pattern: /\\partial\(\\partial M\)|\\overline\{A\}|compact|closed/, topics: ["topology"] },
+  { pattern: /L\^1|d\\mu|\\limsup|\\|f\\|_p/, topics: ["real-analysis"] },
+  { pattern: /\\ker|\\trianglelefteq|\[G:H\]|F\[x\]\/\(p\(x\)\)/, topics: ["abstract-algebra"] },
+  { pattern: /x_\{n\+1\}=x_n-|p_n\(x\)|x\^\{\(k\)\}|interpolation|error bound/, topics: ["numerical-methods"] },
+  { pattern: /u_t-|u_\{tt\}|\\Delta u|\\Omega|\\partial\\Omega/, topics: ["pdes"] },
+  { pattern: /H\(X\)|D_\{KL\}|I\(X;Y\)|entropy|mutual information/, topics: ["information-theory"] },
+  { pattern: /\\mathcal\{L\}\(\\theta\)|\\nabla_\{\\theta\}|H_\{ij\}|empirical risk|hessian/, topics: ["machine-learning-math"] }
 ];
 
 const TOPIC_PRIORITY: TopicId[] = [
+  "machine-learning-math",
+  "information-theory",
+  "pdes",
+  "numerical-methods",
+  "real-analysis",
+  "topology",
+  "abstract-algebra",
+  "discrete-math",
   "number-theory",
   "complex-analysis",
   "special-functions",
@@ -250,6 +293,36 @@ const TOPIC_PRIORITY: TopicId[] = [
 ];
 
 const SUBTOPIC_PRIORITY: string[] = [
+  "optimization identities",
+  "hessians",
+  "gradients",
+  "losses",
+  "mutual information",
+  "kl divergence",
+  "entropy",
+  "boundary conditions",
+  "elliptic",
+  "parabolic",
+  "hyperbolic",
+  "iterative methods",
+  "error bounds",
+  "interpolation",
+  "root finding",
+  "modules",
+  "fields",
+  "rings",
+  "groups",
+  "functional sequences",
+  "convergence modes",
+  "measure integration",
+  "manifolds",
+  "connectedness",
+  "compactness",
+  "open and closed sets",
+  "generating functions",
+  "recurrences",
+  "graph theory",
+  "combinatorics",
   "analytic number theory",
   "modular arithmetic",
   "contour methods",
@@ -403,6 +476,78 @@ function inferTopics(entry: RawExpression): TopicId[] {
     topics.add("optimization");
   }
 
+  if (
+    entry.latex.includes("\\deg(v)") ||
+    entry.latex.includes("a_{n-1}") ||
+    entry.latex.includes("a_{n-2}") ||
+    entry.latex.includes("\\sum_{v \\in V}") ||
+    entry.latex.includes("\\sum_{n=0}^{\\infty} x^n") ||
+    entry.latex.includes("\\binom")
+  ) {
+    topics.add("discrete-math");
+  }
+
+  if (
+    entry.latex.includes("\\partial(\\partial M)") ||
+    entry.latex.includes("\\overline{A}") ||
+    entry.latex.includes("\\text{compact}") ||
+    entry.latex.includes("\\text{closed}")
+  ) {
+    topics.add("topology");
+  }
+
+  if (
+    entry.latex.includes("L^1") ||
+    entry.latex.includes("d\\mu") ||
+    entry.latex.includes("\\limsup") ||
+    entry.latex.includes("\\|f\\|_p")
+  ) {
+    topics.add("real-analysis");
+  }
+
+  if (
+    entry.latex.includes("\\ker") ||
+    entry.latex.includes("\\trianglelefteq") ||
+    entry.latex.includes("[G:H]") ||
+    entry.latex.includes("F[x]/(p(x))")
+  ) {
+    topics.add("abstract-algebra");
+  }
+
+  if (
+    entry.latex.includes("x_{n+1}=x_n-") ||
+    entry.latex.includes("p_n(x)=") ||
+    entry.latex.includes("|f(x)-p_n(x)|") ||
+    entry.latex.includes("x^{(k)}")
+  ) {
+    topics.add("numerical-methods");
+  }
+
+  if (
+    entry.latex.includes("u_t-\\alpha u_{xx}") ||
+    entry.latex.includes("u_{tt}=c^2u_{xx}") ||
+    entry.latex.includes("\\Delta u=f") ||
+    entry.latex.includes("\\partial\\Omega")
+  ) {
+    topics.add("pdes");
+  }
+
+  if (
+    entry.latex.includes("H(X)") ||
+    entry.latex.includes("D_{KL}") ||
+    entry.latex.includes("I(X;Y)")
+  ) {
+    topics.add("information-theory");
+  }
+
+  if (
+    entry.latex.includes("\\mathcal{L}(\\theta)") ||
+    entry.latex.includes("\\nabla_{\\theta}") ||
+    entry.latex.includes("H_{ij}=\\frac{\\partial^2")
+  ) {
+    topics.add("machine-learning-math");
+  }
+
   if (topics.size === 0) {
     topics.add("algebra");
   }
@@ -437,6 +582,9 @@ function inferSubtopics(entry: RawExpression, topics: TopicId[]): string[] {
   if (latex.includes("\\sum")) {
     subtopics.add("series");
   }
+  if (latex.includes("\\binom")) {
+    subtopics.add("combinatorics");
+  }
   if (latex.includes("\\prod")) {
     subtopics.add("products");
   }
@@ -470,9 +618,97 @@ function inferSubtopics(entry: RawExpression, topics: TopicId[]): string[] {
   if (latex.includes("\\pmod") || latex.includes("\\equiv")) {
     subtopics.add("modular arithmetic");
   }
+  if (latex.includes("\\deg(v)") || latex.includes("|E|")) {
+    subtopics.add("graph theory");
+  }
+  if (latex.includes("a_{n-1}") || latex.includes("a_{n-2}")) {
+    subtopics.add("recurrences");
+  }
+  if (latex.includes("\\sum_{n=0}^{\\infty} x^n")) {
+    subtopics.add("generating functions");
+  }
+  if (latex.includes("\\partial(\\partial M)") || latex.includes("\\overline{A}")) {
+    subtopics.add("open and closed sets");
+  }
+  if (latex.includes("\\text{compact}")) {
+    subtopics.add("compactness");
+  }
+  if (latex.includes("d\\mu") || latex.includes("\\|f\\|_p")) {
+    subtopics.add("measure integration");
+  }
+  if (latex.includes("\\limsup") || latex.includes("f_n \\to f")) {
+    subtopics.add("convergence modes");
+  }
+  if (latex.includes("\\ker") || latex.includes("\\trianglelefteq") || latex.includes("[G:H]")) {
+    subtopics.add("groups");
+  }
+  if (latex.includes("F[x]/(p(x))")) {
+    subtopics.add("rings");
+  }
+  if (latex.includes("x_{n+1}=x_n-")) {
+    subtopics.add("root finding");
+    subtopics.add("iterative methods");
+  }
+  if (latex.includes("x^{(k)}")) {
+    subtopics.add("iterative methods");
+    subtopics.add("error bounds");
+  }
+  if (latex.includes("p_n(x)=")) {
+    subtopics.add("interpolation");
+  }
+  if (latex.includes("|f(x)-p_n(x)|")) {
+    subtopics.add("error bounds");
+  }
+  if (latex.includes("u_t-\\alpha u_{xx}")) {
+    subtopics.add("parabolic");
+  }
+  if (latex.includes("u_{tt}=c^2u_{xx}")) {
+    subtopics.add("hyperbolic");
+  }
+  if (latex.includes("\\Delta u=f")) {
+    subtopics.add("elliptic");
+  }
+  if (latex.includes("\\partial\\Omega")) {
+    subtopics.add("boundary conditions");
+  }
+  if (latex.includes("H(X)")) {
+    subtopics.add("entropy");
+  }
+  if (latex.includes("D_{KL}")) {
+    subtopics.add("kl divergence");
+  }
+  if (latex.includes("I(X;Y)")) {
+    subtopics.add("mutual information");
+  }
+  if (latex.includes("\\mathcal{L}(\\theta)")) {
+    subtopics.add("losses");
+    subtopics.add("optimization identities");
+  }
+  if (latex.includes("\\nabla_{\\theta}")) {
+    subtopics.add("gradients");
+  }
+  if (latex.includes("H_{ij}=\\frac{\\partial^2")) {
+    subtopics.add("hessians");
+  }
 
   if (subtopics.size === 0) {
-    if (topics.includes("calculus")) {
+    if (topics.includes("machine-learning-math")) {
+      subtopics.add("optimization identities");
+    } else if (topics.includes("information-theory")) {
+      subtopics.add("entropy");
+    } else if (topics.includes("pdes")) {
+      subtopics.add("boundary conditions");
+    } else if (topics.includes("numerical-methods")) {
+      subtopics.add("iterative methods");
+    } else if (topics.includes("abstract-algebra")) {
+      subtopics.add("groups");
+    } else if (topics.includes("real-analysis")) {
+      subtopics.add("convergence modes");
+    } else if (topics.includes("topology")) {
+      subtopics.add("open and closed sets");
+    } else if (topics.includes("discrete-math")) {
+      subtopics.add("combinatorics");
+    } else if (topics.includes("calculus")) {
       subtopics.add("core analysis");
     } else if (topics.includes("probability")) {
       subtopics.add("probability basics");

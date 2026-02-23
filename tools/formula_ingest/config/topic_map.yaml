@@ -44,3 +44,27 @@ topics:
   optimization:
     keywords: ["lagrange", "kkt", "objective", "constraint"]
     wikidata: []
+  discrete-math:
+    keywords: ["combinatorics", "graph", "recurrence", "generating function", "deg(v)"]
+    wikidata: []
+  topology:
+    keywords: ["topology", "compact", "connected", "open set", "closed set", "manifold"]
+    wikidata: []
+  real-analysis:
+    keywords: ["measure", "limsup", "liminf", "l1", "lp", "convergence"]
+    wikidata: []
+  abstract-algebra:
+    keywords: ["group", "ring", "field", "module", "kernel", "normal subgroup"]
+    wikidata: []
+  numerical-methods:
+    keywords: ["newton method", "interpolation", "error bound", "iterative"]
+    wikidata: []
+  pdes:
+    keywords: ["partial differential", "heat equation", "wave equation", "elliptic", "parabolic", "hyperbolic", "boundary"]
+    wikidata: []
+  information-theory:
+    keywords: ["entropy", "kl divergence", "mutual information", "cross entropy"]
+    wikidata: []
+  machine-learning-math:
+    keywords: ["loss", "gradient", "jacobian", "hessian", "empirical risk", "optimization"]
+    wikidata: []
