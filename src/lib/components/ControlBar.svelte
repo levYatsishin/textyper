@@ -119,6 +119,28 @@
     return settings.selectedTopicIds.length === 1 && settings.selectedTopicIds.includes(topicId);
   }
 
+  function topicMatchesSearch(topic: TopicDefinition, query: string): boolean {
+    if (!query) {
+      return true;
+    }
+    return topic.label.toLowerCase().includes(query) || topic.id.includes(query);
+  }
+
+  function getVisibleSubtopics(topic: TopicDefinition, query: string): Array<{ label: string; count: number }> {
+    const subtopics = topicSubtopicStats[topic.id] ?? [];
+    if (!query || topicMatchesSearch(topic, query)) {
+      return subtopics;
+    }
+    return subtopics.filter((item) => item.label.toLowerCase().includes(query));
+  }
+
+  function hasSubtopicSearchHit(topic: TopicDefinition, query: string): boolean {
+    if (!query || topicMatchesSearch(topic, query)) {
+      return false;
+    }
+    return getVisibleSubtopics(topic, query).length > 0;
+  }
+
   onMount(() => {
     document.addEventListener("mousedown", handleDocumentMouseDown);
     window.addEventListener("keydown", handleWindowKeyDown);
@@ -130,12 +152,22 @@
   });
 
   $: normalizedTopicSearch = topicSearch.trim().toLowerCase();
+  $: activeDifficultyOptions = difficultyOptions.filter((option) => settings.difficulties.includes(option.value));
   $: visibleTopics = topics.filter((topic) => {
     if (!normalizedTopicSearch) {
       return true;
     }
-    return topic.label.toLowerCase().includes(normalizedTopicSearch) || topic.id.includes(normalizedTopicSearch);
+    if (topicMatchesSearch(topic, normalizedTopicSearch)) {
+      return true;
+    }
+    return getVisibleSubtopics(topic, normalizedTopicSearch).length > 0;
   });
+  $: autoExpandedTopicIds = normalizedTopicSearch
+    ? visibleTopics
+      .filter((topic) => hasSubtopicSearchHit(topic, normalizedTopicSearch))
+      .map((topic) => topic.id)
+    : [];
+  $: openTopicIdSet = new Set([...expandedTopicIds, ...autoExpandedTopicIds]);
 </script>
 
 <section class="control-bar">
@@ -206,51 +238,66 @@
       {#if topicsMenuOpen}
         <div class="topics-menu" bind:this={topicsMenuElement}>
           <div class="topics-menu-header">
-            <input class="topics-search" type="text" bind:value={topicSearch} placeholder="search topics..." />
-            <button
-              type="button"
-              class="text-option"
-              on:click={() => dispatch("topicSelectAll")}
-            >
-              all
-            </button>
+            <div class="topics-active-difficulties" aria-hidden="true">
+              {#each activeDifficultyOptions as option, index}
+                <span class={`topics-difficulty ${difficultyClass(option.value)}`}>{option.label.toLowerCase()}</span>
+                {#if index < activeDifficultyOptions.length - 1}
+                  <span class="topics-diff-divider">|</span>
+                {/if}
+              {/each}
+            </div>
+
+            <div class="topics-search-row">
+              <input class="topics-search" type="text" bind:value={topicSearch} placeholder="search topics..." />
+              <button
+                type="button"
+                class="text-option"
+                on:click={() => dispatch("topicSelectAll")}
+              >
+                all
+              </button>
+            </div>
           </div>
 
           <div class="topics-menu-list">
             {#if visibleTopics.length === 0}
               <p class="topics-empty">no topics</p>
             {:else}
-              {#each visibleTopics as topic}
+              {#each visibleTopics as topic (topic.id)}
                 <div class="topic-item">
                   <div class="topic-row-line">
                     <button
                       type="button"
                       class="topic-expand text-option"
-                      aria-label={expandedTopicIds.includes(topic.id) ? `Collapse ${topic.label}` : `Expand ${topic.label}`}
-                      aria-expanded={expandedTopicIds.includes(topic.id)}
+                      aria-label={openTopicIdSet.has(topic.id) ? `Collapse ${topic.label}` : `Expand ${topic.label}`}
+                      aria-expanded={openTopicIdSet.has(topic.id)}
                       on:click={() => toggleTopicExpanded(topic.id)}
                     >
-                      {expandedTopicIds.includes(topic.id) ? "▾" : "▸"}
+                      {openTopicIdSet.has(topic.id) ? "▾" : "▸"}
                     </button>
 
                     <button
                       type="button"
-                      class={`topic-row text-option ${settings.selectedTopicIds.includes(topic.id) ? "active-option" : ""}`}
+                      class="topic-row text-option"
+                      class:active-option={settings.selectedTopicIds.includes(topic.id)}
                       on:click={() => handleTopicToggle(topic.id)}
-                      disabled={isLastSelectedTopic(topic.id)}
+                      aria-disabled={isLastSelectedTopic(topic.id)}
+                      aria-pressed={settings.selectedTopicIds.includes(topic.id)}
                     >
                       <span>{topic.label}</span>
                       <span class="topic-count">{topicCounts[topic.id] ?? 0}</span>
                     </button>
                   </div>
 
-                  {#if expandedTopicIds.includes(topic.id) && (topicSubtopicStats[topic.id]?.length ?? 0) > 0}
+                  {#if openTopicIdSet.has(topic.id) && getVisibleSubtopics(topic, normalizedTopicSearch).length > 0}
                     <div class="topic-sublist" role="group" aria-label={`${topic.label} subtopics`}>
-                      {#each topicSubtopicStats[topic.id] as subtopic}
+                      {#each getVisibleSubtopics(topic, normalizedTopicSearch) as subtopic (subtopic.label)}
                         <button
                           type="button"
-                          class={`subtopic-row text-option ${isSubtopicSelected(topic.id, subtopic.label) ? "active-option" : ""}`}
+                          class="subtopic-row text-option"
+                          class:active-option={isSubtopicSelected(topic.id, subtopic.label)}
                           on:click={() => handleSubtopicToggle(topic.id, subtopic.label)}
+                          aria-pressed={isSubtopicSelected(topic.id, subtopic.label)}
                         >
                           <span>{subtopic.label}</span>
                           <span class="topic-count">{subtopic.count}</span>

@@ -167,17 +167,54 @@ body {
   border: 1px solid var(--line);
   border-radius: 0.5rem;
   background: var(--bg);
-  padding: 0.58rem 0.62rem;
+  padding: 0.58rem 0.62rem 0.56rem;
   display: grid;
-  gap: 0.56rem;
+  gap: 0.44rem;
   z-index: 30;
 }
 
 .topics-menu-header {
   display: grid;
+  gap: 0.24rem;
+}
+
+.topics-active-difficulties {
+  min-height: 0.72rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.24rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.015em;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+.topics-difficulty {
+  color: var(--muted);
+}
+
+.topics-difficulty.diff-easy {
+  color: var(--green);
+}
+
+.topics-difficulty.diff-medium {
+  color: var(--yellow);
+}
+
+.topics-difficulty.diff-hard {
+  color: var(--red);
+}
+
+.topics-diff-divider {
+  color: var(--black);
+}
+
+.topics-search-row {
+  display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.58rem;
+  gap: 0.44rem;
 }
 
 .topics-search {
@@ -203,7 +240,7 @@ body {
 }
 
 .topics-menu-list {
-  max-height: 250px;
+  max-height: 236px;
   overflow-y: auto;
   display: grid;
   gap: 0.24rem;

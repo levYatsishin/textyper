@@ -59,10 +59,28 @@ describe("ControlBar topics menu", () => {
     });
 
     await fireEvent.click(screen.getByRole("button", { name: "topics" }));
-    expect(screen.getByPlaceholderText("search topics...")).toBeTruthy();
+    expect(screen.getByPlaceholderText(/search topics\.\.\./i)).toBeTruthy();
 
     await fireEvent.mouseDown(document.body);
-    expect(screen.queryByPlaceholderText("search topics...")).toBeNull();
+    expect(screen.queryByPlaceholderText(/search topics\.\.\./i)).toBeNull();
+  });
+
+  it("shows active difficulties above topics search", async () => {
+    render(ControlBar, {
+      settings,
+      status: "running",
+      topics,
+      topicCounts,
+      topicSubtopicStats
+    });
+
+    await fireEvent.click(screen.getByRole("button", { name: "topics" }));
+    expect(screen.getByPlaceholderText("search topics...")).toBeTruthy();
+
+    const activeDifficulties = document.querySelector(".topics-active-difficulties");
+    expect(activeDifficulties?.textContent).toContain("easy");
+    expect(activeDifficulties?.textContent).toContain("medium");
+    expect(activeDifficulties?.textContent).toContain("hard");
   });
 
   it("filters topic list by search text", async () => {
@@ -75,11 +93,31 @@ describe("ControlBar topics menu", () => {
     });
 
     await fireEvent.click(screen.getByRole("button", { name: "topics" }));
-    await fireEvent.input(screen.getByPlaceholderText("search topics..."), {
+    await fireEvent.input(screen.getByPlaceholderText(/search topics\.\.\./i), {
       target: { value: "calc" }
     });
 
     expect(screen.getByText("calculus")).toBeTruthy();
+    expect(screen.queryByText("probability")).toBeNull();
+  });
+
+  it("filters topic list by subtopic search text", async () => {
+    render(ControlBar, {
+      settings,
+      status: "running",
+      topics,
+      topicCounts,
+      topicSubtopicStats
+    });
+
+    await fireEvent.click(screen.getByRole("button", { name: "topics" }));
+    await fireEvent.input(screen.getByPlaceholderText(/search topics\.\.\./i), {
+      target: { value: "integral" }
+    });
+
+    expect(screen.getByText("calculus")).toBeTruthy();
+    expect(screen.getByText("integrals")).toBeTruthy();
+    expect(screen.queryByText("algebra")).toBeNull();
     expect(screen.queryByText("probability")).toBeNull();
   });
 
