@@ -24,3 +24,5 @@ pnpm-debug.log*
 tools/formula_ingest/.venv/
 tools/formula_ingest/staging/
 tools/formula_ingest/data/generated/
+
+resources/

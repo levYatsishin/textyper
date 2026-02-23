@@ -12,13 +12,49 @@ export interface TopicDefinition {
   order: number;
 }
 
+export interface LatexComplexityFeatures {
+  nonWhitespaceChars: number;
+  commandCount: number;
+  commandNameChars: number;
+  controlSymbolEscapes: number;
+  delimiterGroupTokens: number;
+  maxGroupDepth: number;
+  scriptOperatorCount: number;
+  maxScriptDepth: number;
+  fracRootBinomCount: number;
+  fracRootBinomDepth: number;
+  largeOperatorCount: number;
+  relationOperatorCount: number;
+  delimiterSizingCount: number;
+  matrixAlignmentComplexity: number;
+  accentDecoratorCount: number;
+  commandRarityLoad: number;
+  unknownCommandCount: number;
+  knownCommandCount: number;
+}
+
+export interface LatexComplexityResult {
+  score: number;
+  band: Difficulty;
+  features: LatexComplexityFeatures;
+}
+
+export interface LatexCommandToken {
+  token: string;
+  isControlSymbol: boolean;
+  position: number;
+}
+
 export interface Expression {
   id: string;
   latex: string;
   difficulty: Difficulty;
+  complexityScore: number;
+  complexityBand: Difficulty;
   name: string;
   topics: TopicId[];
   subtopics: string[];
+  complexityFeatures?: LatexComplexityFeatures;
 }
 
 export interface SessionSettings {

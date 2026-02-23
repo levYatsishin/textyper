@@ -19,4 +19,37 @@ describe("expressions dataset", () => {
       }
     }
   });
+
+  it("stores computed complexity score and band", () => {
+    for (const expression of EXPRESSIONS) {
+      expect(expression.complexityScore).toBeGreaterThanOrEqual(0);
+      expect(expression.complexityScore).toBeLessThanOrEqual(100);
+      expect(expression.complexityBand).toBeDefined();
+      expect(expression.difficulty).toBe(expression.complexityBand);
+    }
+  });
+
+  it("keeps unknown command ratio below threshold", () => {
+    let totalCommandCount = 0;
+    let unknownCommandCount = 0;
+
+    for (const expression of EXPRESSIONS) {
+      if (!expression.complexityFeatures) {
+        continue;
+      }
+      totalCommandCount += expression.complexityFeatures.commandCount;
+      unknownCommandCount += expression.complexityFeatures.unknownCommandCount;
+    }
+
+    const unknownRatio = totalCommandCount === 0 ? 0 : unknownCommandCount / totalCommandCount;
+    expect(unknownRatio).toBeLessThan(0.08);
+  });
+
+  it("keeps hard band within broad sanity range", () => {
+    const hardCount = EXPRESSIONS.filter((expression) => expression.difficulty === "advanced").length;
+    const hardRatio = hardCount / EXPRESSIONS.length;
+
+    expect(hardRatio).toBeGreaterThanOrEqual(0.12);
+    expect(hardRatio).toBeLessThanOrEqual(0.30);
+  });
 });

@@ -1,4 +1,5 @@
 import type { Difficulty, Expression, TopicId } from "../types";
+import { analyzeLatexComplexity } from "../services/complexity";
 
 type RawDifficulty = "easy" | "medium" | "hard";
 
@@ -167,12 +168,6 @@ const rawExpressions: RawExpression[] = [
   { latex: "Z = \\text{Tr} \\left( e^{-\\beta H} \\right)", difficulty: "medium", isUserSubmitted: true, expressionName: "Partition function in quantum statistical mechanics" }
 ];
 
-const difficultyMap: Record<RawDifficulty, Difficulty> = {
-  easy: "beginner",
-  medium: "intermediate",
-  hard: "advanced"
-};
-
 const inferredNames: Array<{ pattern: RegExp; name: string }> = [
   { pattern: /^E = mc\^2$/, name: "Mass-energy equivalence" },
   { pattern: /a\^2 \+ b\^2 = c\^2/, name: "Pythagorean theorem" },
@@ -235,12 +230,6 @@ const manualTopicOverrides: Array<{ pattern: RegExp; topics: TopicId[] }> = [
   { pattern: /\\pi r\^\{2\}|cone|sphere|ellipsoid|B_a\(r\)|Pythagorean/, topics: ["geometry"] },
   { pattern: /L\(x,\\lambda\)|KKT|Lagrange|\\lambda\^\{t-i\}/, topics: ["optimization"] }
 ];
-
-const topicByDifficulty: Record<RawDifficulty, TopicId> = {
-  easy: "algebra",
-  medium: "calculus",
-  hard: "mathematical-physics"
-};
 
 const TOPIC_PRIORITY: TopicId[] = [
   "number-theory",
@@ -415,7 +404,7 @@ function inferTopics(entry: RawExpression): TopicId[] {
   }
 
   if (topics.size === 0) {
-    topics.add(topicByDifficulty[entry.difficulty]);
+    topics.add("algebra");
   }
 
   if (topics.has("number-theory") && topics.has("algebra") && (entry.latex.includes("\\zeta") || entry.latex.includes("\\mu(n)"))) {
@@ -512,12 +501,16 @@ function inferSubtopics(entry: RawExpression, topics: TopicId[]): string[] {
 
 export const EXPRESSIONS: Expression[] = rawExpressions.map((entry, index) => {
   const topics = inferTopics(entry);
+  const complexity = analyzeLatexComplexity(entry.latex);
   return {
     id: `expr-${String(index + 1).padStart(3, "0")}`,
     latex: entry.latex,
-    difficulty: difficultyMap[entry.difficulty],
+    difficulty: complexity.band,
+    complexityScore: complexity.score,
+    complexityBand: complexity.band,
     name: inferName(entry, index),
     topics,
-    subtopics: inferSubtopics(entry, topics)
+    subtopics: inferSubtopics(entry, topics),
+    complexityFeatures: complexity.features
   };
 });
