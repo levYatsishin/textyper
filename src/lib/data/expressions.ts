@@ -1,4 +1,3 @@
-import { ALL_TOPIC_IDS } from "./topics";
 import type { Difficulty, Expression, TopicId } from "../types";
 
 type RawDifficulty = "easy" | "medium" | "hard";
@@ -243,6 +242,49 @@ const topicByDifficulty: Record<RawDifficulty, TopicId> = {
   hard: "mathematical-physics"
 };
 
+const TOPIC_PRIORITY: TopicId[] = [
+  "number-theory",
+  "complex-analysis",
+  "special-functions",
+  "optimization",
+  "differential-equations",
+  "vector-calculus",
+  "linear-algebra",
+  "probability",
+  "statistics",
+  "set-logic",
+  "calculus",
+  "trigonometry",
+  "geometry",
+  "mathematical-physics",
+  "algebra"
+];
+
+const SUBTOPIC_PRIORITY: string[] = [
+  "analytic number theory",
+  "modular arithmetic",
+  "contour methods",
+  "special identities",
+  "lagrangian methods",
+  "field operators",
+  "matrix methods",
+  "random variables",
+  "distributions",
+  "logic rules",
+  "derivatives",
+  "integrals",
+  "limits",
+  "series",
+  "products",
+  "metric geometry",
+  "core analysis",
+  "probability basics",
+  "linear structures",
+  "number theory basics",
+  "physical laws",
+  "fundamentals"
+];
+
 function inferName(entry: RawExpression, index: number): string {
   if (entry.expressionName && entry.expressionName.trim().length > 0) {
     return entry.expressionName.trim();
@@ -376,7 +418,11 @@ function inferTopics(entry: RawExpression): TopicId[] {
     topics.add(topicByDifficulty[entry.difficulty]);
   }
 
-  const normalized = ALL_TOPIC_IDS.filter((topic) => topics.has(topic));
+  if (topics.has("number-theory") && topics.has("algebra") && (entry.latex.includes("\\zeta") || entry.latex.includes("\\mu(n)"))) {
+    topics.delete("algebra");
+  }
+
+  const normalized = TOPIC_PRIORITY.filter((topic) => topics.has(topic));
   return normalized.length > 0 ? normalized : ["algebra"];
 }
 
@@ -395,6 +441,9 @@ function inferSubtopics(entry: RawExpression, topics: TopicId[]): string[] {
   }
   if (latex.includes("\\lim")) {
     subtopics.add("limits");
+  }
+  if (latex.includes("\\zeta") || latex.includes("\\mu(n)") || latex.includes("prime")) {
+    subtopics.add("analytic number theory");
   }
   if (latex.includes("\\sum")) {
     subtopics.add("series");
@@ -429,7 +478,7 @@ function inferSubtopics(entry: RawExpression, topics: TopicId[]): string[] {
   if (latex.includes("L(x,\\lambda)") || latex.includes("\\nabla_{x}L") || latex.includes("\\lambda^{t-i}")) {
     subtopics.add("lagrangian methods");
   }
-  if (latex.includes("\\pmod") || latex.includes("prime") || latex.includes("\\mu(n)")) {
+  if (latex.includes("\\pmod") || latex.includes("\\equiv")) {
     subtopics.add("modular arithmetic");
   }
 
@@ -449,7 +498,16 @@ function inferSubtopics(entry: RawExpression, topics: TopicId[]): string[] {
     }
   }
 
-  return [...subtopics].sort((left, right) => left.localeCompare(right));
+  return [...subtopics].sort((left, right) => {
+    const leftPriority = SUBTOPIC_PRIORITY.indexOf(left);
+    const rightPriority = SUBTOPIC_PRIORITY.indexOf(right);
+    const leftRank = leftPriority === -1 ? Number.MAX_SAFE_INTEGER : leftPriority;
+    const rightRank = rightPriority === -1 ? Number.MAX_SAFE_INTEGER : rightPriority;
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+    return left.localeCompare(right);
+  });
 }
 
 export const EXPRESSIONS: Expression[] = rawExpressions.map((entry, index) => {
