@@ -32,8 +32,18 @@
     game.updateSettings({ mode });
   }
 
-  function handleDifficultyChange(difficulty: Difficulty): void {
-    game.updateSettings({ difficulty });
+  function handleDifficultyToggle(difficulty: Difficulty): void {
+    const selected = new Set(get(game).settings.difficulties);
+    if (selected.has(difficulty)) {
+      if (selected.size === 1) {
+        return;
+      }
+      selected.delete(difficulty);
+    } else {
+      selected.add(difficulty);
+    }
+
+    game.updateSettings({ difficulties: [...selected] });
   }
 
   function handleDurationChange(durationSec: SessionSettings["durationSec"]): void {
@@ -74,7 +84,7 @@
     settings={$game.settings}
     status={$game.status}
     on:modeChange={(event) => handleModeChange(event.detail)}
-    on:difficultyChange={(event) => handleDifficultyChange(event.detail)}
+    on:difficultyToggle={(event) => handleDifficultyToggle(event.detail)}
     on:durationChange={(event) => handleDurationChange(event.detail)}
     on:revealToggle={(event) => handleRevealToggle(event.detail)}
     on:start={handleStart}
@@ -84,13 +94,18 @@
 
   <FormulaStage expression={$game.currentExpression} revealLatex={$game.settings.revealLatex} />
 
+  <div class="formula-skip">
+    <button type="button" class="text-option" on:click={handleSkip} disabled={$game.status !== "running" || $game.isSubmitting}>
+      skip
+    </button>
+  </div>
+
   <InputLane
     status={$game.status}
     isSubmitting={$game.isSubmitting}
     lastResult={$game.lastResult}
     targetLatex={$game.currentExpression?.latex ?? ""}
     on:submit={(event) => handleSubmit(event.detail)}
-    on:skip={handleSkip}
   />
 
   <details class="stats-drawer">

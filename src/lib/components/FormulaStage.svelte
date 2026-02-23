@@ -18,6 +18,16 @@
     }
   }
 
+  function formatDifficulty(difficulty: Expression["difficulty"]): string {
+    if (difficulty === "beginner") {
+      return "easy";
+    }
+    if (difficulty === "intermediate") {
+      return "medium";
+    }
+    return "hard";
+  }
+
   $: renderedExpression = expression ? renderLatex(expression.latex) : "";
 
   function updateFormulaScale(): void {
@@ -64,6 +74,7 @@
 <section class="formula-stage">
   {#if expression}
     <div class="formula-topic">{expression.topic}</div>
+    <div class="formula-difficulty">{formatDifficulty(expression.difficulty)}</div>
     <div class="formula-card">
       <div class="formula-output" aria-live="polite" bind:this={outputContainer}>
         <div class="formula-scale" bind:this={formulaNode} style={`transform: scale(${formulaScale});`}>

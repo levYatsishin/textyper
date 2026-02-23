@@ -11,7 +11,6 @@
 
   const dispatch = createEventDispatcher<{
     submit: string;
-    skip: void;
   }>();
 
   let value = "";
@@ -70,12 +69,6 @@
     on:input={onInput}
     disabled={status !== "running" || isSubmitting}
   ></textarea>
-
-  <div class="lane-actions">
-    <button type="button" class="btn subtle" on:click={() => dispatch("skip")} disabled={status !== "running" || isSubmitting}>
-      Skip
-    </button>
-  </div>
 
   <div class="live-preview" aria-live="polite">
     <p class="preview-label">Live preview</p>

@@ -7,7 +7,7 @@
 
   const dispatch = createEventDispatcher<{
     modeChange: Mode;
-    difficultyChange: Difficulty;
+    difficultyToggle: Difficulty;
     durationChange: SessionSettings["durationSec"];
     revealToggle: boolean;
     start: void;
@@ -15,18 +15,17 @@
     end: void;
   }>();
 
-  function onRevealChange(event: Event): void {
-    dispatch("revealToggle", (event.currentTarget as HTMLInputElement).checked);
+  function toggleReveal(): void {
+    dispatch("revealToggle", !settings.revealLatex);
   }
 
   const difficultyOptions: Array<{ value: Difficulty; label: string }> = [
-    { value: "mixed", label: "Mixed" },
     { value: "beginner", label: "Easy" },
     { value: "intermediate", label: "Medium" },
     { value: "advanced", label: "Hard" }
   ];
 
-  const durationOptions: SessionSettings["durationSec"][] = [60, 120, 300];
+  const durationOptions: SessionSettings["durationSec"][] = [60, 120];
 
   function selectDuration(value: SessionSettings["durationSec"]): void {
     dispatch("modeChange", "timed");
@@ -47,7 +46,7 @@
     if (value === "advanced") {
       return "diff-hard";
     }
-    return "diff-mixed";
+    return "";
   }
 </script>
 
@@ -71,12 +70,13 @@
 
     <span class="bar-divider" aria-hidden="true">|</span>
 
-    <div class="text-group" role="radiogroup" aria-label="Difficulty">
+    <div class="text-group" role="group" aria-label="Difficulties">
       {#each difficultyOptions as option}
         <button
           type="button"
-          class={`text-option difficulty-option ${difficultyClass(option.value)} ${settings.difficulty === option.value ? "active-option" : ""}`}
-          on:click={() => dispatch("difficultyChange", option.value)}
+          class={`text-option difficulty-option ${difficultyClass(option.value)} ${settings.difficulties.includes(option.value) ? "active-option" : ""}`}
+          aria-pressed={settings.difficulties.includes(option.value)}
+          on:click={() => dispatch("difficultyToggle", option.value)}
         >
           {option.label.toLowerCase()}
         </button>
@@ -85,10 +85,9 @@
 
     <span class="bar-divider" aria-hidden="true">|</span>
 
-    <label class="text-toggle">
-      <input type="checkbox" checked={settings.revealLatex} on:change={onRevealChange} />
-      <span>show formula</span>
-    </label>
+    <button type="button" class="text-option text-toggle" class:active-toggle={settings.revealLatex} on:click={toggleReveal}>
+      show formula
+    </button>
 
     <span class="bar-divider" aria-hidden="true">|</span>
 

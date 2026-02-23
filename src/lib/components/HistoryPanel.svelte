@@ -8,6 +8,15 @@
     return new Date(timestamp).toLocaleString();
   }
 
+  function formatDifficulties(difficulties: SessionRecord["settings"]["difficulties"]): string {
+    const labels: Record<string, string> = {
+      beginner: "easy",
+      intermediate: "medium",
+      advanced: "hard"
+    };
+    return difficulties.map((difficulty) => labels[difficulty] ?? difficulty).join("+");
+  }
+
   $: bestEntries = Object.entries(bests);
   $: recent = history.slice(0, 8);
 </script>
@@ -19,9 +28,9 @@
       <p class="muted">No sessions yet.</p>
     {:else}
       <ul>
-        {#each bestEntries as [key, record]}
+        {#each bestEntries as [, record]}
           <li>
-            <strong>{key}</strong> · {record.stats.correct} correct · {record.stats.accuracy}% · {record.stats.formulasPerMin} fpm
+            <strong>{record.settings.mode}/{formatDifficulties(record.settings.difficulties)}</strong> · {record.stats.correct} correct · {record.stats.accuracy}% · {record.stats.formulasPerMin} fpm
           </li>
         {/each}
       </ul>
@@ -36,7 +45,7 @@
       <ul>
         {#each recent as item}
           <li>
-            {formatDate(item.endedAt)} · {item.settings.mode}/{item.settings.difficulty} · {item.stats.correct}/{item.stats.attempts} · {item.stats.accuracy}%
+            {formatDate(item.endedAt)} · {item.settings.mode}/{formatDifficulties(item.settings.difficulties)} · {item.stats.correct}/{item.stats.attempts} · {item.stats.accuracy}%
           </li>
         {/each}
       </ul>

@@ -34,7 +34,7 @@ describe("gameStore", () => {
       now: () => Date.now()
     });
 
-    store.start({ mode: "practice", difficulty: "mixed" });
+    store.start({ mode: "practice", difficulties: ["beginner", "intermediate", "advanced"] });
     await store.submit("x+y");
 
     const state = getState(store);
@@ -52,7 +52,7 @@ describe("gameStore", () => {
       timerIntervalMs: 100
     });
 
-    store.start({ mode: "timed", durationSec: 60, difficulty: "mixed" });
+    store.start({ mode: "timed", durationSec: 60, difficulties: ["beginner", "intermediate", "advanced"] });
     await vi.advanceTimersByTimeAsync(61000);
 
     const state = getState(store);
@@ -80,7 +80,7 @@ describe("gameStore", () => {
       matcher,
       now: () => Date.now()
     });
-    firstStore.start({ mode: "practice", difficulty: "mixed" });
+    firstStore.start({ mode: "practice", difficulties: ["beginner", "intermediate", "advanced"] });
     await firstStore.submit("x+y");
 
     const secondStore = createGameStore(SAMPLE_EXPRESSIONS, {
@@ -103,7 +103,7 @@ describe("gameStore", () => {
       now: () => Date.now()
     });
 
-    store.start({ mode: "practice", difficulty: "mixed" });
+    store.start({ mode: "practice", difficulties: ["beginner", "intermediate", "advanced"] });
     await store.submit("x+y");
     await store.submit("\\frac{3}{4}");
 

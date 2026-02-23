@@ -11,7 +11,7 @@ import {
   saveSettings,
   SETTINGS_STORAGE_KEY
 } from "./persistence";
-import type { SessionRecord } from "../types";
+import type { SessionRecord, SessionSettings } from "../types";
 
 function makeRecord(index: number): SessionRecord {
   return {
@@ -20,7 +20,7 @@ function makeRecord(index: number): SessionRecord {
     settings: {
       mode: "practice",
       durationSec: 60,
-      difficulty: "mixed",
+      difficulties: ["beginner", "intermediate", "advanced"],
       revealLatex: false
     },
     stats: {
@@ -50,12 +50,12 @@ describe("persistence", () => {
   });
 
   it("saves and loads settings", () => {
-    const settings = {
+    const settings: SessionSettings = {
       mode: "timed",
       durationSec: 120,
-      difficulty: "advanced",
+      difficulties: ["advanced"],
       revealLatex: true
-    } as const;
+    };
     saveSettings(settings);
     expect(loadSettings()).toEqual(settings);
   });
@@ -73,10 +73,10 @@ describe("persistence", () => {
   it("computes best scores by mode+difficulty", () => {
     const first = makeRecord(3);
     const second = makeRecord(5);
-    second.settings.difficulty = "advanced";
+    second.settings.difficulties = ["advanced"];
 
     const bests = computeBestScores([first, second]);
-    expect(bests["practice:mixed"].id).toBe(first.id);
+    expect(bests["practice:beginner+intermediate+advanced"].id).toBe(first.id);
     expect(bests["practice:advanced"].id).toBe(second.id);
   });
 

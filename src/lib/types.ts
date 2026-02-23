@@ -1,7 +1,6 @@
 import type { Readable } from "svelte/store";
 
-export type Difficulty = "beginner" | "intermediate" | "advanced" | "mixed";
-export type CoreDifficulty = Exclude<Difficulty, "mixed">;
+export type Difficulty = "beginner" | "intermediate" | "advanced";
 export type Mode = "practice" | "timed";
 export type SessionStatus = "idle" | "running" | "ended";
 export type MatchStrategy = "exact" | "render" | "fail";
@@ -9,14 +8,14 @@ export type MatchStrategy = "exact" | "render" | "fail";
 export interface Expression {
   id: string;
   latex: string;
-  difficulty: CoreDifficulty;
+  difficulty: Difficulty;
   topic: string;
 }
 
 export interface SessionSettings {
   mode: Mode;
-  durationSec: 60 | 120 | 300;
-  difficulty: Difficulty;
+  durationSec: 60 | 120;
+  difficulties: Difficulty[];
   revealLatex: boolean;
 }
 
