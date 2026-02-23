@@ -93,15 +93,24 @@
     on:skip={handleSkip}
   />
 
-  <StatsRail
-    stats={$game.stats}
-    currentStreak={$game.currentStreak}
-    mode={$game.settings.mode}
-    remainingMs={$game.remainingMs}
-    status={$game.status}
-  />
+  <details class="stats-drawer">
+    <summary class="stats-drawer-toggle">
+      <span class="stats-chevron" aria-hidden="true">▸</span>
+      <span class="sr-only">Toggle statistics</span>
+    </summary>
 
-  <HistoryPanel history={$game.history} bests={$game.bests} />
+    <div class="stats-drawer-content">
+      <StatsRail
+        stats={$game.stats}
+        currentStreak={$game.currentStreak}
+        mode={$game.settings.mode}
+        remainingMs={$game.remainingMs}
+        status={$game.status}
+      />
+
+      <HistoryPanel history={$game.history} bests={$game.bests} />
+    </div>
+  </details>
 
   <ResultsModal open={$game.status === "ended"} session={$game.lastSession} on:restart={handleRestart} />
 </main>
