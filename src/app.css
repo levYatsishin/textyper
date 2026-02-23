@@ -118,6 +118,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
+  position: relative;
 }
 
 .text-group {
@@ -196,13 +197,15 @@ body {
 }
 
 .topics-anchor {
-  position: relative;
+  position: static;
 }
 
 .topics-menu {
   position: absolute;
   top: calc(100% + 0.6rem);
-  right: 0;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
   width: min(560px, calc(100vw - 2.4rem));
   border: 1px solid var(--line);
   border-radius: 0.5rem;
