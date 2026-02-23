@@ -37,10 +37,36 @@
     return TOPIC_MAP[topicId]?.label ?? topicId.replaceAll("-", " ");
   }
 
+  function getTopicSubtopicLabels(expression: Expression): string[] {
+    const labels: string[] = [];
+    const seen = new Set<string>();
+
+    for (const topicId of expression.topics) {
+      const topicLabel = formatTopic(topicId);
+      const scopedSubtopics = getTopicScopedSubtopics(expression, topicId);
+      const normalizedSubtopics = scopedSubtopics.length > 0 ? scopedSubtopics : [""];
+
+      for (const subtopic of normalizedSubtopics) {
+        const key = `${topicId}::${subtopic}`;
+        if (seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
+        labels.push(subtopic ? `${topicLabel} · ${subtopic}` : topicLabel);
+      }
+    }
+
+    return labels;
+  }
+
   $: renderedExpression = expression ? renderLatex(expression.latex) : "";
-  $: sourceTopic = expression ? formatTopic(expression.topics[0] ?? "") : "";
-  $: sourceSubtopic = expression ? getTopicScopedSubtopics(expression, expression.topics[0] ?? "")[0] ?? "" : "";
+  $: sourceTopicId = expression?.topics[0] ?? "";
+  $: sourceTopic = expression ? formatTopic(sourceTopicId) : "";
+  $: sourceSubtopic = expression ? getTopicScopedSubtopics(expression, sourceTopicId)[0] ?? "" : "";
   $: sourceLabel = expression ? (sourceSubtopic ? `${sourceTopic} · ${sourceSubtopic}` : sourceTopic) : "";
+  $: additionalSourceLabels = expression
+    ? getTopicSubtopicLabels(expression).filter((label) => label !== sourceLabel)
+    : [];
 
   function updateFormulaScale(): void {
     if (!outputContainer || !formulaNode) {
@@ -85,7 +111,19 @@
 
 <section class="formula-stage">
   {#if expression}
-    <div class="formula-source">{sourceLabel}</div>
+    <div class="formula-source-wrap">
+      <div class="formula-source formula-source-trigger" tabindex={additionalSourceLabels.length > 0 ? 0 : undefined}>
+        {sourceLabel}
+      </div>
+      {#if additionalSourceLabels.length > 0}
+        <div class="formula-source-popout" role="note" aria-label="additional categories">
+          <div class="formula-source-popout-title">also in</div>
+          {#each additionalSourceLabels as label (label)}
+            <div class="formula-source-popout-item">{label}</div>
+          {/each}
+        </div>
+      {/if}
+    </div>
     <div class="formula-topic">{expression.name}</div>
     <div class="formula-difficulty">{formatDifficulty(expression.difficulty)}</div>
     <div class="formula-card">
