@@ -2,7 +2,7 @@
 # math latex typer
 Minimal trainer for typing LaTeX math quickly.
 
-**Heavely** inspired by [typelatex](https://www.typelatex.com) [github](https://github.com/JaidenRatti/type-latex) and therefore, as the geneology, goes by [texnique](https://texnique.xyz) [github](https://github.com/akshayravikumar/TeXnique).
+**Heavily** inspired by [typelatex](https://github.com/JaidenRatti/type-latex) and therefore, as the geneology goes, by [texnique](https://github.com/akshayravikumar/TeXnique).
 ## What it does
 - Shows a rendered target formula.
 - You type LaTeX in the input.
@@ -41,3 +41,17 @@ Open `http://localhost:5173`.
 - `tools/formula_ingest/` – offline dataset ingestion pipeline
 ## Contributing
 Ideas and improvements are always welcome via issues, PRs or even direct messages.
+
+## License
+`math latex typer` is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License, either version 3 of the License, or (at your option) any later version. See the `LICENSE` file for details.
+
+The following libraries and frameworks are used in this software:
+- `katex`, which is MIT licensed.
+- `html2canvas`, which is MIT licensed.
+- `pixelmatch`, which is ISC licensed.
+- `svelte`, which is MIT licensed.
+- `vite`, which is MIT licensed.
+- `typescript`, which is Apache-2.0 licensed.
+- `vitest`, which is MIT licensed.
+- `@testing-library/svelte`, which is MIT licensed.
+- `jsdom`, which is MIT licensed.
