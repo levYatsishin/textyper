@@ -5,11 +5,13 @@ This directory contains a Python pipeline for building larger formula corpora an
 ## Scope
 - Runtime app remains static and local-first.
 - These scripts are **offline tooling** for generating candidate formula datasets.
-- Human review is required before promoting generated formulas into `src/lib/data/expressions.ts`.
+- Human review is required before promoting generated formulas into `src/lib/data/formulas.v1.json`.
 
 ## Folder layout
 - `config/topic_map.yaml` — mapping from extracted metadata/keywords to app topic IDs.
+- `config/wiki_seed_titles.txt` — starter set of Wikipedia pages for API-based extraction.
 - `src/extract_wikipedia.py` — extracts `<math>...</math>` formulas from Wikipedia XML dumps.
+- `src/extract_wikipedia_api.py` — extracts formulas from specific Wikipedia pages via API.
 - `src/enrich_wikidata.py` — enriches formulas with subject metadata (when available).
 - `src/normalize_curate.py` — deduplicates, quality-filters, and classifies to app topics.
 - `src/export_for_app.py` — writes review candidates and app-ready JSON.
@@ -17,7 +19,8 @@ This directory contains a Python pipeline for building larger formula corpora an
 
 ## Expected input/output
 - Input:
-  - Wikipedia dump XML (or XML.bz2 decompressed beforehand)
+  - Wikipedia dump XML (or XML.bz2 decompressed beforehand), **or**
+  - a list of Wikipedia titles for API extraction
   - Optional metadata export to aid Wikidata enrichment
 - Output:
   - `staging/wiki_math.jsonl`
@@ -34,11 +37,23 @@ pip install -r requirements.txt
 ```
 
 ## Run
+Using a Wikipedia dump:
 ```bash
 python src/run_pipeline.py \
   --wiki-dump /path/to/enwiki-pages-articles.xml \
   --staging-dir ../staging \
   --generated-dir ../data/generated
+```
+
+Using seed titles + live Wikidata enrichment:
+```bash
+python src/run_pipeline.py \
+  --wiki-titles-file config/wiki_seed_titles.txt \
+  --staging-dir staging \
+  --generated-dir data/generated \
+  --topic-map config/topic_map.yaml \
+  --live-wikidata \
+  --max-approved 2500
 ```
 
 ## Notes

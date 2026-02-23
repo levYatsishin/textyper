@@ -13,19 +13,42 @@ def stable_expression_id(latex: str) -> str:
   return f"expr-{digest}"
 
 
+def normalize_difficulty(value: str | None) -> str:
+  raw = (value or "").strip().lower()
+  if raw in {"beginner", "easy"}:
+    return "beginner"
+  if raw in {"intermediate", "medium"}:
+    return "intermediate"
+  if raw in {"advanced", "hard"}:
+    return "advanced"
+  return "intermediate"
+
+
+def default_score_for_difficulty(difficulty: str) -> int:
+  if difficulty == "beginner":
+    return 22
+  if difficulty == "advanced":
+    return 70
+  return 45
+
+
 def to_app_record(row: dict) -> dict:
-  difficulty = row.get("difficulty", "intermediate")
+  difficulty = normalize_difficulty(row.get("difficulty"))
+  complexity_band = difficulty
   topics = row.get("topics") if isinstance(row.get("topics"), list) else ["algebra"]
   subtopics = row.get("subtopics") if isinstance(row.get("subtopics"), list) else ["fundamentals"]
   name = (row.get("name") or "").strip() or "Imported formula"
   latex = (row.get("latex") or "").strip()
+  complexity_score = row.get("complexityScore")
+  if not isinstance(complexity_score, (int, float)):
+    complexity_score = default_score_for_difficulty(complexity_band)
 
   return {
     "id": row.get("id") or stable_expression_id(latex),
     "latex": latex,
     "difficulty": difficulty,
-    "complexityBand": row.get("complexityBand", difficulty),
-    "complexityScore": row.get("complexityScore", 0),
+    "complexityBand": complexity_band,
+    "complexityScore": max(0, min(int(round(complexity_score)), 100)),
     "name": name,
     "topics": topics or ["algebra"],
     "subtopics": subtopics or ["fundamentals"],

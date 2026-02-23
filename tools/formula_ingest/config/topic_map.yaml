@@ -57,7 +57,7 @@ topics:
     keywords: ["group", "ring", "field", "module", "kernel", "normal subgroup"]
     wikidata: []
   numerical-methods:
-    keywords: ["newton method", "interpolation", "error bound", "iterative"]
+    keywords: ["newton method", "newton's method", "fixed-point", "lagrange polynomial", "interpolation", "error bound", "iterative"]
     wikidata: []
   pdes:
     keywords: ["partial differential", "heat equation", "wave equation", "elliptic", "parabolic", "hyperbolic", "boundary"]

@@ -19,6 +19,8 @@ pnpm-debug.log*
 .DS_Store
 .idea/
 .vscode/
+__pycache__/
+AGENTS.md
 
 # formula ingestion artifacts
 tools/formula_ingest/.venv/

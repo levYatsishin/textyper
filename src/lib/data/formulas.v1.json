@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "generatedAt": "2026-02-23T19:14:42.289Z",
+  "generatedAt": "2026-02-23T19:38:17.925487+00:00",
   "expressions": [
     {
       "id": "expr-001",
@@ -6524,6 +6524,955 @@
         "commandRarityLoad": 8.000000000000004,
         "unknownCommandCount": 1,
         "knownCommandCount": 5
+      }
+    },
+    {
+      "id": "expr-af55f8f3836e",
+      "latex": "\\sum_{n = 0}^\\infty n^m z^n",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Generating function",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-e79cf16d8a44",
+      "latex": "\\sum_{n = 0}^\\infty F_{mn} z^n",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Generating function",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-e21135e885bb",
+      "latex": "J_{n+1}=\\frac{2n}{z}J_n-J_{n-1}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Recurrence relation",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Recurrence relation",
+        "page_id": "146806",
+        "wikidata_item_id": "Q740970",
+        "page_url": "https://en.wikipedia.org/wiki/Recurrence_relation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-df7b62cefcd6",
+      "latex": "\\sum_{n = 0}^\\infty n! \\cdot z^n",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Generating function",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-54862eb74ad4",
+      "latex": "\\chi_\\mathrm{plus}(x, y) = t = \\frac{y}{1 - x}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Manifold",
+      "topics": [
+        "topology"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Manifold",
+        "page_id": "2073470",
+        "wikidata_item_id": "Q203920",
+        "page_url": "https://en.wikipedia.org/wiki/Manifold",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-0d99493009fc",
+      "latex": "\\chi_\\mathrm{minus}(x, y) = s = \\frac{y}{1 + x}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Manifold",
+      "topics": [
+        "topology"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Manifold",
+        "page_id": "2073470",
+        "wikidata_item_id": "Q203920",
+        "page_url": "https://en.wikipedia.org/wiki/Manifold",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-28cf95cef1cd",
+      "latex": "\\begin{align} x &= \\frac{1 - s^2}{1 + s^2} \\\\[5pt] y &= \\frac{2s}{1 + s^2} \\end{align}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Manifold",
+      "topics": [
+        "topology"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Manifold",
+        "page_id": "2073470",
+        "wikidata_item_id": "Q203920",
+        "page_url": "https://en.wikipedia.org/wiki/Manifold",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-7db0328e35a7",
+      "latex": "t = \\frac{1}{s}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Manifold",
+      "topics": [
+        "topology"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Manifold",
+        "page_id": "2073470",
+        "wikidata_item_id": "Q203920",
+        "page_url": "https://en.wikipedia.org/wiki/Manifold",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-cf29442e2182",
+      "latex": "d_p(x, y) = \\sum_{i=1}^n |x_i - y_i|^p",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Lp space",
+      "topics": [
+        "real-analysis"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lp space",
+        "page_id": "45194",
+        "wikidata_item_id": "Q305936",
+        "page_url": "https://en.wikipedia.org/wiki/Lp_space",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-e36dcc6b122e",
+      "latex": "\\|x\\|_p = \\left(\\sum_{i\\in I} |x_i|^p\\right)^{1/p}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Lp space",
+      "topics": [
+        "real-analysis"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lp space",
+        "page_id": "45194",
+        "wikidata_item_id": "Q305936",
+        "page_url": "https://en.wikipedia.org/wiki/Lp_space",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-acff992ebb9a",
+      "latex": "f \\mapsto \\kappa_p(g)(f) = \\int f g \\, \\mathrm{d}\\mu",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Lp space",
+      "topics": [
+        "real-analysis"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lp space",
+        "page_id": "45194",
+        "wikidata_item_id": "Q305936",
+        "page_url": "https://en.wikipedia.org/wiki/Lp_space",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-479ee968bb0e",
+      "latex": "f_n = \\frac{1}{r_n} \\, f \\,\\mathbf{1}_{(t_{n+1} < f \\leq t_n)}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Lp space",
+      "topics": [
+        "real-analysis"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lp space",
+        "page_id": "45194",
+        "wikidata_item_id": "Q305936",
+        "page_url": "https://en.wikipedia.org/wiki/Lp_space",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-663ca5efabbc",
+      "latex": "\\sum_{i=k}^\\infty a_i x^i \\ (k \\in \\Z, a_i \\in F)",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Field (mathematics)",
+      "topics": [
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Field (mathematics)",
+        "page_id": "10603",
+        "wikidata_item_id": "Q190109",
+        "page_url": "https://en.wikipedia.org/wiki/Field_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-66b4499ffa9d",
+      "latex": "\\bigl\\{\\!\\sum_{i=1}^k r_ix_i \\mathrel{\\big|} r_i \\in R,\\, x_i \\in X\\bigr\\}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Module (mathematics)",
+      "topics": [
+        "number-theory",
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Module (mathematics)",
+        "page_id": "276410",
+        "wikidata_item_id": "Q18848",
+        "page_url": "https://en.wikipedia.org/wiki/Module_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\begin{aligned}m+n&=n+m &&(m,n\\in M)\\\\ (m+n)+p&=m+(n+p)&&(m,n,p\\in M) \\\\ m+0_M &= m&&(m\\in M) \\\\ (-m)+m &= 0_M&&(m\\in M) \\\\ r(sm) &= (rs)m &&(m\\in M,\\;r,s\\in R)\\\\ 1_Rm &=m&&(m\\in M) \\\\ r(m+n)&=rm+rn&&(m,n\\in M,\\;r\\in R) \\\\ (r+s)m &= rm+sm&&(m\\in M,\\;r,s\\in R)\\end{aligned}"
+      }
+    },
+    {
+      "id": "expr-eeda760b0dad",
+      "latex": "e \\cdot e = f \\cdot e = e",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Group (mathematics)",
+      "topics": [
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Group (mathematics)",
+        "page_id": "19447",
+        "wikidata_item_id": "Q83478",
+        "page_url": "https://en.wikipedia.org/wiki/Group_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\begin{aligned}&(\\cdot)\\colon G\\times G\\to G\\\\&\\forall x,y,z\\in G\\colon (x\\cdot y)\\cdot z=x\\cdot(y\\cdot z)\\\\&\\exists1\\in G\\forall x\\in G\\colon 1\\cdot x=x\\cdot1=x\\\\&\\forall x\\in G\\exists y\\in G\\colon x\\cdot y=y\\cdot x=1\\end{aligned}"
+      }
+    },
+    {
+      "id": "expr-2ff2f866a422",
+      "latex": "gH=\\{g\\cdot h\\mid h\\in H\\}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Group (mathematics)",
+      "topics": [
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Group (mathematics)",
+        "page_id": "19447",
+        "wikidata_item_id": "Q83478",
+        "page_url": "https://en.wikipedia.org/wiki/Group_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\begin{aligned}&(\\cdot)\\colon G\\times G\\to G\\\\&\\forall x,y,z\\in G\\colon (x\\cdot y)\\cdot z=x\\cdot(y\\cdot z)\\\\&\\exists1\\in G\\forall x\\in G\\colon 1\\cdot x=x\\cdot1=x\\\\&\\forall x\\in G\\exists y\\in G\\colon x\\cdot y=y\\cdot x=1\\end{aligned}"
+      }
+    },
+    {
+      "id": "expr-d15701685fcf",
+      "latex": "\\sum_{j=0}^k \\ell_j(x) = 1",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Lagrange polynomial",
+      "topics": [
+        "algebra",
+        "optimization",
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lagrange polynomial",
+        "page_id": "217523",
+        "wikidata_item_id": "Q861606",
+        "page_url": "https://en.wikipedia.org/wiki/Lagrange_polynomial",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-de28b80195da",
+      "latex": "L(x) = \\sum_{j=0}^k x^j m_j",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Lagrange polynomial",
+      "topics": [
+        "algebra",
+        "optimization",
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lagrange polynomial",
+        "page_id": "217523",
+        "wikidata_item_id": "Q861606",
+        "page_url": "https://en.wikipedia.org/wiki/Lagrange_polynomial",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-c0ae492b048f",
+      "latex": "g(x) = x - \\frac{f(x)}{f'(x)}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Fixed-point iteration",
+      "topics": [
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Fixed-point iteration",
+        "page_id": "7344320",
+        "wikidata_item_id": "Q1030759",
+        "page_url": "https://en.wikipedia.org/wiki/Fixed-point_iteration",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-d4c4eafe3eee",
+      "latex": "L(x) = \\sum_{j=0}^k l_j(x) y_j",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Lagrange polynomial",
+      "topics": [
+        "algebra",
+        "optimization",
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Lagrange polynomial",
+        "page_id": "217523",
+        "wikidata_item_id": "Q861606",
+        "page_url": "https://en.wikipedia.org/wiki/Lagrange_polynomial",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": null
+      }
+    },
+    {
+      "id": "expr-af3069581ab3",
+      "latex": "\\mathbf{q} = - k \\, \\nabla u",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Heat equation",
+      "topics": [
+        "algebra",
+        "vector-calculus",
+        "pdes"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-655cba52fc3a",
+      "latex": "\\partial u/\\partial t = \\Delta u",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Heat equation",
+      "topics": [
+        "algebra",
+        "differential-equations",
+        "pdes"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-eb386fe4bb21",
+      "latex": "\\mathbf{T} = E \\nabla \\mathbf{u}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Wave equation",
+      "topics": [
+        "algebra",
+        "vector-calculus",
+        "pdes"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Wave equation",
+        "page_id": "33691",
+        "wikidata_item_id": "Q193846",
+        "page_url": "https://en.wikipedia.org/wiki/Wave_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial^2 u}{\\partial t^2} = c^2 \\nabla^2 u"
+      }
+    },
+    {
+      "id": "expr-54fee0585c94",
+      "latex": "q_t(V) = \\int_V Q(x,t)\\,d x \\quad",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Heat equation",
+      "topics": [
+        "algebra",
+        "pdes"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-6b9f1ca3289c",
+      "latex": "k_0 := -\\sum_{l=1}^p w_l x_{il}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Cross-entropy",
+      "topics": [
+        "information-theory"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-987546498f32",
+      "latex": "k_j := -w_0-\\sum_{l \\neq j} w_l x_{il}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Cross-entropy",
+      "topics": [
+        "information-theory"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-09477f1a527d",
+      "latex": "q(x_i) = \\left(\\frac{1}{2}\\right)^{\\ell_i}",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Cross-entropy",
+      "topics": [
+        "information-theory"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-5b2ff3a0a143",
+      "latex": "H(T,q) = -\\sum_{i=1}^N \\frac{1}{N} \\log_2 q(x_i)",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Cross-entropy",
+      "topics": [
+        "information-theory"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-4b74db756b00",
+      "latex": "\\Delta \\mathbf{x} = r \\mathbf{v}",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Hessian matrix",
+      "topics": [
+        "linear-algebra",
+        "machine-learning-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Hessian matrix",
+        "page_id": "412108",
+        "wikidata_item_id": "Q620495",
+        "page_url": "https://en.wikipedia.org/wiki/Hessian_matrix",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\mathbf{H}(f)_{ij}=\\left ( \\frac{\\partial^{2}f}{\\partial x_{i} \\partial x_{j}} \\right )"
+      }
+    },
+    {
+      "id": "expr-1637c805eb06",
+      "latex": "\\mathbf{p}_n = \\nabla f(\\mathbf{a_n})",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Gradient descent",
+      "topics": [
+        "vector-calculus",
+        "machine-learning-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Gradient descent",
+        "page_id": "201489",
+        "wikidata_item_id": "Q1199743",
+        "page_url": "https://en.wikipedia.org/wiki/Gradient_descent",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\mathbf{x}_{n+1} = \\mathbf{x}_n -\\gamma\\nabla F(\\mathbf{x}_n)"
+      }
+    },
+    {
+      "id": "expr-1d9480d34100",
+      "latex": "\\mathbf{J}_{f} = \\nabla^{\\mathsf{T}} f",
+      "difficulty": "beginner",
+      "complexityBand": "beginner",
+      "complexityScore": 22,
+      "name": "Jacobian matrix and determinant",
+      "topics": [
+        "linear-algebra",
+        "vector-calculus",
+        "machine-learning-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Jacobian matrix and determinant",
+        "page_id": "195351",
+        "wikidata_item_id": "Q506041",
+        "page_url": "https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "J \\mathbf{f}(M)= \\begin{pmatrix} \\dfrac{\\partial f_1}{\\partial x_1}(M) & \\cdots & \\dfrac{\\partial f_1}{\\partial x_n}(M) \\\\ \\vdots & \\ddots & \\vdots \\\\ \\dfrac{\\partial f_m}{\\partial x_1}(M) & \\cdots & \\dfrac{\\partial f_m}{\\partial x_n}(M)\\end{pmatrix}"
+      }
+    },
+    {
+      "id": "expr-65d741182e76",
+      "latex": "\\mathbf{a}_{n+1} = \\mathbf{a}_n-\\eta \\nabla f(\\mathbf{a}_n)",
+      "difficulty": "intermediate",
+      "complexityBand": "intermediate",
+      "complexityScore": 45,
+      "name": "Gradient descent",
+      "topics": [
+        "vector-calculus",
+        "machine-learning-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Gradient descent",
+        "page_id": "201489",
+        "wikidata_item_id": "Q1199743",
+        "page_url": "https://en.wikipedia.org/wiki/Gradient_descent",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\mathbf{x}_{n+1} = \\mathbf{x}_n -\\gamma\\nabla F(\\mathbf{x}_n)"
+      }
+    },
+    {
+      "id": "expr-ef88d24e86b1",
+      "latex": "\\frac{\\partial Q}{\\partial t} = - \\frac{\\partial q}{\\partial x}",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Heat equation",
+      "topics": [
+        "algebra",
+        "differential-equations",
+        "pdes"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-b11daab31154",
+      "latex": "\\frac{\\partial}{\\partial w_0}\\ln (1-\\hat{y}_i) = \\frac{\\partial}{\\partial w_0}\\ln \\left(1-\\frac{1}{1+e^{-w_0+k_0}}\\right)=\\frac{-1}{1+e^{-w_0+k_0}} = -\\hat{y}_i",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Cross-entropy",
+      "topics": [
+        "differential-equations",
+        "information-theory"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Cross-entropy",
+        "page_id": "1735250",
+        "wikidata_item_id": "Q1685498",
+        "page_url": "https://en.wikipedia.org/wiki/Cross-entropy",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "H(p,q)=-\\int_Xp(x)\\ln q(x)\\,\\mathrm dx"
+      }
+    },
+    {
+      "id": "expr-82dacfe7f426",
+      "latex": "\\mathbf{H}(\\mathbf{x})\\mathbf{v} = \\frac{1}{r} \\left[\\nabla f(\\mathbf{x} + r \\mathbf{v}) - \\nabla f(\\mathbf{x})\\right] + \\mathcal{O}(r)",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Hessian matrix",
+      "topics": [
+        "linear-algebra",
+        "vector-calculus",
+        "machine-learning-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Hessian matrix",
+        "page_id": "412108",
+        "wikidata_item_id": "Q620495",
+        "page_url": "https://en.wikipedia.org/wiki/Hessian_matrix",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\mathbf{H}(f)_{ij}=\\left ( \\frac{\\partial^{2}f}{\\partial x_{i} \\partial x_{j}} \\right )"
+      }
+    },
+    {
+      "id": "expr-e5f018988860",
+      "latex": "(Q_k)_{i,j} = \\sum_{\\ell} ((D^2 f)^{-1})_{i,\\ell} \\frac{\\partial^3f}{\\partial x_j \\partial x_k \\partial x_\\ell}",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Newton's method",
+      "topics": [
+        "differential-equations",
+        "numerical-methods"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Newton's method",
+        "page_id": "22145",
+        "wikidata_item_id": "Q374195",
+        "page_url": "https://en.wikipedia.org/wiki/Newton%27s_method",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "x_{n+1} = x_{n} - \\frac{f(x_{n})}{f'(x_{n})}"
+      }
+    },
+    {
+      "id": "expr-751c24952f95",
+      "latex": "\\operatorname{Conv}_h(z) := \\frac{P_h(z)}{Q_h(z)} = j_0 + j_1 z + \\cdots + j_{2h-1} z^{2h-1} + \\sum_{n = 2h}^\\infty \\widetilde{j}_{h,n} z^n",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Generating function",
+      "topics": [
+        "discrete-math"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Generating function",
+        "page_id": "160993",
+        "wikidata_item_id": "Q860609",
+        "page_url": "https://en.wikipedia.org/wiki/Generating_function",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "G(a_n;x)=\\sum_{n=0}^\\infty a_nx^n"
+      }
+    },
+    {
+      "id": "expr-fcada9fbcd62",
+      "latex": "\\frac{\\partial u}{\\partial t} = \\alpha\\left(\\frac{\\partial^2u}{\\partial x^2}+\\frac{\\partial^2u}{\\partial y^2}+\\frac{\\partial^2u}{\\partial z^2}\\right)",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Heat equation",
+      "topics": [
+        "algebra",
+        "differential-equations",
+        "real-analysis",
+        "pdes"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Heat equation",
+        "page_id": "166415",
+        "wikidata_item_id": "Q6510488",
+        "page_url": "https://en.wikipedia.org/wiki/Heat_equation",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\frac{\\partial u}{\\partial t} - \\alpha \\nabla^2 u = 0"
+      }
+    },
+    {
+      "id": "expr-a550eba9ed07",
+      "latex": "R = \\mathfrak{a}_1 \\oplus \\cdots \\oplus \\mathfrak{a}_n, \\quad \\mathfrak{a}_i \\mathfrak{a}_j = 0, i \\ne j, \\quad \\mathfrak{a}_i^2 \\subseteq \\mathfrak{a}_i",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Ring (mathematics)",
+      "topics": [
+        "set-logic",
+        "abstract-algebra"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Ring (mathematics)",
+        "page_id": "48404",
+        "wikidata_item_id": "Q161172",
+        "page_url": "https://en.wikipedia.org/wiki/Ring_%28mathematics%29",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\begin{aligned}(r+s)+t&=r+(s+t)\\\\r+s&=s+r\\\\r+0&=r\\\\r+(-r)&=0\\\\(rs)t&=r(st)\\\\1r=r1&=r\\\\r(s+t)&=rs+rt\\\\(r+s)t&=rt+st\\end{aligned}"
+      }
+    },
+    {
+      "id": "expr-05c23ea74a56",
+      "latex": "X=\\left(Y \\cup X_{1}\\right) \\cup X_{2}=\\left(Z_{1} \\cup Z_{2}\\right) \\cup X_{2}=\\left(Z_{1} \\cup X_{2}\\right) \\cup\\left(Z_{2} \\cap X_{1}\\right)",
+      "difficulty": "advanced",
+      "complexityBand": "advanced",
+      "complexityScore": 70,
+      "name": "Connected space",
+      "topics": [
+        "topology"
+      ],
+      "subtopics": [
+        "fundamentals"
+      ],
+      "source": "wikipedia-api",
+      "metadata": {
+        "page_title": "Connected space",
+        "page_id": "6233",
+        "wikidata_item_id": "Q1491995",
+        "page_url": "https://en.wikipedia.org/wiki/Connected_space",
+        "wikidata_subjects": [],
+        "wikidata_defining_formula": "\\forall U\\in\\operatorname{Open}(X)\\colon (X\\setminus U\\in\\operatorname{Open}(X) \\iff U\\in\\{\\varnothing,X\\})"
       }
     }
   ]

@@ -1,0 +1,43 @@
+# Discrete math
+Handshaking lemma
+Recurrence relation
+Generating function
+
+# Topology
+Open set
+Compact space
+Connected space
+Manifold
+
+# Real analysis
+Dominated convergence theorem
+Lp space
+Limit superior and limit inferior
+
+# Abstract algebra
+Group (mathematics)
+Ring (mathematics)
+Field (mathematics)
+Module (mathematics)
+
+# Numerical methods
+Newton's method
+Lagrange polynomial
+Fixed-point iteration
+
+# PDEs
+Heat equation
+Wave equation
+Poisson's equation
+
+# Information theory
+Entropy (information theory)
+Kullback-Leibler divergence
+Mutual information
+
+# Machine learning math
+Cross-entropy
+Softmax function
+Gradient descent
+Hessian matrix
+Jacobian matrix and determinant
