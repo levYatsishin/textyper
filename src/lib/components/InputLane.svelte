@@ -16,6 +16,7 @@
   let value = "";
   let inputElement: HTMLTextAreaElement | null = null;
   let isAutoSubmitting = false;
+  let lastFocusedTarget = "";
 
   function renderLivePreview(latex: string): string {
     if (!latex.trim()) {
@@ -53,6 +54,11 @@
   }
 
   $: if (status === "running") {
+    tick().then(() => inputElement?.focus());
+  }
+
+  $: if (status === "running" && targetLatex !== lastFocusedTarget) {
+    lastFocusedTarget = targetLatex;
     tick().then(() => inputElement?.focus());
   }
 
