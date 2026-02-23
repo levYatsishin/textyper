@@ -75,7 +75,6 @@
     <button type="button" class="btn subtle" on:click={() => dispatch("skip")} disabled={status !== "running" || isSubmitting}>
       Skip
     </button>
-    <p class="typing-note">Type until correct. Advances automatically.</p>
   </div>
 
   <div class="live-preview" aria-live="polite">

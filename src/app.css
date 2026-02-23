@@ -221,6 +221,8 @@ body {
 
 .formula-output {
   width: min(100%, 760px);
+  max-width: 100%;
+  min-width: 0;
   margin: 0 auto;
   min-height: 120px;
   display: grid;
@@ -232,16 +234,23 @@ body {
 .formula-scale {
   transform-origin: center center;
   transition: transform 0.12s ease-out;
-  width: max-content;
-  max-width: none;
+  width: 100%;
+  max-width: 100%;
 }
 
 .formula-output .katex-display {
   margin: 0;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
 }
 
 .formula-output .katex {
   font-size: clamp(1.2rem, 1rem + 1vw, 1.9rem);
+  white-space: normal !important;
+}
+
+.formula-output .katex-html {
+  white-space: normal !important;
 }
 
 .formula-error {
@@ -270,6 +279,7 @@ body {
 
 .input-lane textarea {
   width: 100%;
+  min-width: 0;
   min-height: 88px;
   resize: vertical;
   border: none;
@@ -281,6 +291,10 @@ body {
   font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
   font-size: 1.02rem;
   padding: 0.45rem 0;
+  white-space: pre-wrap;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 
 .input-lane textarea:focus {
@@ -297,12 +311,6 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.42rem;
-}
-
-.typing-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.82rem;
 }
 
 .live-preview {
@@ -322,15 +330,24 @@ body {
 
 .preview-output {
   margin-top: 0.5rem;
-  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .preview-output .katex-display {
   margin: 0;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
 }
 
 .preview-output .katex {
   font-size: clamp(1.2rem, 1rem + 0.8vw, 1.68rem);
+  white-space: normal !important;
+}
+
+.preview-output .katex-html {
+  white-space: normal !important;
 }
 
 .preview-placeholder {
