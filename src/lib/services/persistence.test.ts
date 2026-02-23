@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ALL_TOPIC_IDS } from "../data/topics";
 import {
   BESTS_STORAGE_KEY,
   computeBestScores,
@@ -21,6 +22,7 @@ function makeRecord(index: number): SessionRecord {
       mode: "practice",
       durationSec: 60,
       difficulties: ["beginner", "intermediate", "advanced"],
+      selectedTopicIds: [...ALL_TOPIC_IDS],
       revealLatex: false
     },
     stats: {
@@ -44,6 +46,21 @@ describe("persistence", () => {
     });
   });
 
+  it("falls back to all topics when selectedTopicIds are invalid", () => {
+    const sanitized = sanitizeSettings({
+      mode: "practice",
+      selectedTopicIds: ["not-a-topic"]
+    });
+    expect(sanitized.selectedTopicIds).toEqual(ALL_TOPIC_IDS);
+  });
+
+  it("supports legacy single topic migration", () => {
+    const sanitized = sanitizeSettings({
+      topic: "probability"
+    });
+    expect(sanitized.selectedTopicIds).toEqual(["probability"]);
+  });
+
   it("loads default settings for broken JSON", () => {
     localStorage.setItem(SETTINGS_STORAGE_KEY, "{broken-json");
     expect(loadSettings()).toEqual(DEFAULT_SETTINGS);
@@ -54,10 +71,11 @@ describe("persistence", () => {
       mode: "timed",
       durationSec: 120,
       difficulties: ["advanced"],
+      selectedTopicIds: ["mathematical-physics", "differential-equations"],
       revealLatex: true
     };
     saveSettings(settings);
-    expect(loadSettings()).toEqual(settings);
+    expect(loadSettings()).toEqual(sanitizeSettings(settings));
   });
 
   it("caps saved history to last 50 sessions", () => {
@@ -76,8 +94,8 @@ describe("persistence", () => {
     second.settings.difficulties = ["advanced"];
 
     const bests = computeBestScores([first, second]);
-    expect(bests["practice:beginner+intermediate+advanced"].id).toBe(first.id);
-    expect(bests["practice:advanced"].id).toBe(second.id);
+    expect(bests[`practice:beginner+intermediate+advanced:${ALL_TOPIC_IDS.join("+")}`].id).toBe(first.id);
+    expect(bests[`practice:advanced:${ALL_TOPIC_IDS.join("+")}`].id).toBe(second.id);
   });
 
   it("returns empty history and bests when storage is empty", () => {

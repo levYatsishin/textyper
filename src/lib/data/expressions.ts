@@ -1,4 +1,5 @@
-import type { Difficulty, Expression } from "../types";
+import { ALL_TOPIC_IDS } from "./topics";
+import type { Difficulty, Expression, TopicId } from "../types";
 
 type RawDifficulty = "easy" | "medium" | "hard";
 
@@ -173,61 +174,83 @@ const difficultyMap: Record<RawDifficulty, Difficulty> = {
   hard: "advanced"
 };
 
-const inferredTopics: Array<{ pattern: RegExp; topic: string }> = [
-  { pattern: /^E = mc\^2$/, topic: "Mass-energy equivalence" },
-  { pattern: /a\^2 \+ b\^2 = c\^2/, topic: "Pythagorean theorem" },
-  { pattern: /\\sqrt\{-1\}/, topic: "Imaginary unit definition" },
-  { pattern: /F - E \+ V = 2/, topic: "Euler characteristic formula" },
-  { pattern: /\\phi = \\frac\{1 \+ \\sqrt\{5\}\}\{2\}/, topic: "Golden ratio definition" },
-  { pattern: /\\sin\^2\\theta \+ \\cos\^2\\theta = 1/, topic: "Pythagorean trigonometric identity" },
-  { pattern: /\\log\(ab\)/, topic: "Log product rule" },
-  { pattern: /^y = mx \+ b$/, topic: "Slope-intercept form" },
-  { pattern: /e\^\{i\\pi\} \+ 1 = 0/, topic: "Euler identity" },
-  { pattern: /\\cos 2\\theta/, topic: "Cosine double-angle identity" },
-  { pattern: /v = u \+ at/, topic: "First equation of motion" },
-  { pattern: /s = ut \+ \\frac\{1\}\{2\}at\^2/, topic: "Second equation of motion" },
-  { pattern: /\\sum_\{k=1\}\^\{n\} k/, topic: "Sum of first n integers" },
-  { pattern: /\\int_0\^\{1\} \\ln x/, topic: "Log integral on unit interval" },
-  { pattern: /\\text\{Rank\}\(A\) \+ \\text\{Nullity\}\(A\)/, topic: "Rank-nullity theorem" },
-  { pattern: /\\frac\{1\}\{2\} \+ \\frac\{1\}\{3\}/, topic: "Fraction addition example" },
-  { pattern: /\\binom\{n\}\{k\}/, topic: "Binomial coefficient formula" },
-  { pattern: /F = G \\frac\{m_1 m_2\}\{r\^2\}/, topic: "Newton law of gravitation" },
-  { pattern: /\\nabla \\cdot \\mathbf\{E\}/, topic: "Gauss law (electrostatics)" },
-  { pattern: /\\oint_C \\frac\{1\}\{z\} dz = 2\\pi i/, topic: "Cauchy integral over 1/z" },
-  { pattern: /\\det\(A\) = \\prod_\{i=1\}\^n \\lambda_i/, topic: "Determinant-eigenvalue product" },
-  { pattern: /\\nabla \\times \\nabla f = 0/, topic: "Curl of gradient identity" },
-  { pattern: /\\frac\{d\}\{dx\} \\left\( x\^\{x\} \\right \)/, topic: "Derivative of x^x" },
-  { pattern: /\\sum_\{n=1\}\^\{\\infty\} \\frac\{\(-1\)\^\{n\}\}\{n\} = -\\ln 2/, topic: "Alternating harmonic series" },
-  { pattern: /\\mathrm\{Cov\}\(X,Y\)/, topic: "Covariance identity" },
-  { pattern: /\\partial_\{x\}\(uv\)/, topic: "Partial product rule" },
-  { pattern: /\\frac\{1\}\{\\sqrt\{2\\pi \\sigma\^2\}\}/, topic: "Normal distribution density" },
-  { pattern: /\\forall \\epsilon > 0, \\exists \\delta > 0/, topic: "Epsilon-delta limit definition" },
-  { pattern: /\\Gamma\(s\)/, topic: "Gamma integral identity" },
-  { pattern: /\\frac\{\\partial\^2 u\}\{\\partial x\^2\} \+ \\frac\{\\partial\^2 u\}\{\\partial y\^2\}/, topic: "Laplace equation" },
-  { pattern: /\\text\{If \} X \\sim \\text\{Normal\}/, topic: "Fourth moment of normal distribution" },
-  { pattern: /\\rho \\left\( \\frac\{\\partial \\mathbf\{v\}\}\{\\partial t\}/, topic: "Navier-Stokes momentum equation" },
-  { pattern: /\\sum_\{n=1\}\^\{\\infty\} \\frac\{\\mu\(n\)\}\{n\^\{s\}\}/, topic: "Möbius-zeta identity" },
-  { pattern: /\\frac\{1\}\{2\\pi i\} \\oint_\{C\}/, topic: "General Cauchy differentiation formula" },
-  { pattern: /\\frac\{\\sinh x\}\{x\}/, topic: "Infinite product for sinh(x)/x" },
-  { pattern: /Y_\{\\ell\}\^\{m\}/, topic: "Spherical harmonics" },
-  { pattern: /^0\\leq P\(A\)\\leq1$/, topic: "Probability bounds axiom" },
-  { pattern: /^P\(\\Omega\)=1$/, topic: "Probability of sample space" },
-  { pattern: /^P\(\\emptyset\)=0$/, topic: "Probability of empty set" },
-  { pattern: /^P\(\\bar\{A\}\)=1-P\(A\)$/, topic: "Complement probability rule" },
-  { pattern: /V\(\\theta,t\)=\\frac\{1\}\{2\}\\sum/, topic: "Exponentially weighted least squares cost" },
-  { pattern: /\\varphi\^\{T\}\(t\)/, topic: "Jacobian linearization vector" },
-  { pattern: /M_\{m\+1\}\(N_\{ij\}\)/, topic: "Neighborhood update rule" },
-  { pattern: /\\hat\{y\}=\\hat\{f\}\(x\)=\\frac\{\\sum_\{i=1\}\^\{m\} \\tau_\{i\} \\hat\{y\}_\{i\}\}/, topic: "Weighted prediction aggregation" }
+const inferredNames: Array<{ pattern: RegExp; name: string }> = [
+  { pattern: /^E = mc\^2$/, name: "Mass-energy equivalence" },
+  { pattern: /a\^2 \+ b\^2 = c\^2/, name: "Pythagorean theorem" },
+  { pattern: /\\sqrt\{-1\}/, name: "Imaginary unit definition" },
+  { pattern: /F - E \+ V = 2/, name: "Euler characteristic formula" },
+  { pattern: /\\phi = \\frac\{1 \+ \\sqrt\{5\}\}\{2\}/, name: "Golden ratio definition" },
+  { pattern: /\\sin\^2\\theta \+ \\cos\^2\\theta = 1/, name: "Pythagorean trigonometric identity" },
+  { pattern: /\\log\(ab\)/, name: "Log product rule" },
+  { pattern: /^y = mx \+ b$/, name: "Slope-intercept form" },
+  { pattern: /e\^\{i\\pi\} \+ 1 = 0/, name: "Euler identity" },
+  { pattern: /\\cos 2\\theta/, name: "Cosine double-angle identity" },
+  { pattern: /v = u \+ at/, name: "First equation of motion" },
+  { pattern: /s = ut \+ \\frac\{1\}\{2\}at\^2/, name: "Second equation of motion" },
+  { pattern: /\\sum_\{k=1\}\^\{n\} k/, name: "Sum of first n integers" },
+  { pattern: /\\int_0\^\{1\} \\ln x/, name: "Log integral on unit interval" },
+  { pattern: /\\text\{Rank\}\(A\) \+ \\text\{Nullity\}\(A\)/, name: "Rank-nullity theorem" },
+  { pattern: /\\frac\{1\}\{2\} \+ \\frac\{1\}\{3\}/, name: "Fraction addition example" },
+  { pattern: /\\binom\{n\}\{k\}/, name: "Binomial coefficient formula" },
+  { pattern: /F = G \\frac\{m_1 m_2\}\{r\^2\}/, name: "Newton law of gravitation" },
+  { pattern: /\\nabla \\cdot \\mathbf\{E\}/, name: "Gauss law (electrostatics)" },
+  { pattern: /\\oint_C \\frac\{1\}\{z\} dz = 2\\pi i/, name: "Cauchy integral over 1/z" },
+  { pattern: /\\det\(A\) = \\prod_\{i=1\}\^n \\lambda_i/, name: "Determinant-eigenvalue product" },
+  { pattern: /\\nabla \\times \\nabla f = 0/, name: "Curl of gradient identity" },
+  { pattern: /\\frac\{d\}\{dx\} \\left\( x\^\{x\} \\right \)/, name: "Derivative of x^x" },
+  { pattern: /\\sum_\{n=1\}\^\{\\infty\} \\frac\{\(-1\)\^\{n\}\}\{n\} = -\\ln 2/, name: "Alternating harmonic series" },
+  { pattern: /\\mathrm\{Cov\}\(X,Y\)/, name: "Covariance identity" },
+  { pattern: /\\partial_\{x\}\(uv\)/, name: "Partial product rule" },
+  { pattern: /\\frac\{1\}\{\\sqrt\{2\\pi \\sigma\^2\}\}/, name: "Normal distribution density" },
+  { pattern: /\\forall \\epsilon > 0, \\exists \\delta > 0/, name: "Epsilon-delta limit definition" },
+  { pattern: /\\Gamma\(s\)/, name: "Gamma integral identity" },
+  { pattern: /\\frac\{\\partial\^2 u\}\{\\partial x\^2\} \+ \\frac\{\\partial\^2 u\}\{\\partial y\^2\}/, name: "Laplace equation" },
+  { pattern: /\\text\{If \} X \\sim \\text\{Normal\}/, name: "Fourth moment of normal distribution" },
+  { pattern: /\\rho \\left\( \\frac\{\\partial \\mathbf\{v\}\}\{\\partial t\}/, name: "Navier-Stokes momentum equation" },
+  { pattern: /\\sum_\{n=1\}\^\{\\infty\} \\frac\{\\mu\(n\)\}\{n\^\{s\}\}/, name: "Möbius-zeta identity" },
+  { pattern: /\\frac\{1\}\{2\\pi i\} \\oint_\{C\}/, name: "General Cauchy differentiation formula" },
+  { pattern: /\\frac\{\\sinh x\}\{x\}/, name: "Infinite product for sinh(x)/x" },
+  { pattern: /Y_\{\\ell\}\^\{m\}/, name: "Spherical harmonics" },
+  { pattern: /^0\\leq P\(A\)\\leq1$/, name: "Probability bounds axiom" },
+  { pattern: /^P\(\\Omega\)=1$/, name: "Probability of sample space" },
+  { pattern: /^P\(\\emptyset\)=0$/, name: "Probability of empty set" },
+  { pattern: /^P\(\\bar\{A\}\)=1-P\(A\)$/, name: "Complement probability rule" },
+  { pattern: /V\(\\theta,t\)=\\frac\{1\}\{2\}\\sum/, name: "Exponentially weighted least squares cost" },
+  { pattern: /\\varphi\^\{T\}\(t\)/, name: "Jacobian linearization vector" },
+  { pattern: /M_\{m\+1\}\(N_\{ij\}\)/, name: "Neighborhood update rule" },
+  { pattern: /\\hat\{y\}=\\hat\{f\}\(x\)=\\frac\{\\sum_\{i=1\}\^\{m\} \\tau_\{i\} \\hat\{y\}_\{i\}\}/, name: "Weighted prediction aggregation" }
 ];
 
-function inferTopic(entry: RawExpression, index: number): string {
+const manualTopicOverrides: Array<{ pattern: RegExp; topics: TopicId[] }> = [
+  { pattern: /\\sin|\\cos|\\tan/, topics: ["trigonometry"] },
+  { pattern: /\\int|\\frac\{d\}\{dx\}|\\lim/, topics: ["calculus"] },
+  { pattern: /\\partial|\\dot\{q\}|\\nabla\^2 u/, topics: ["differential-equations"] },
+  { pattern: /\\nabla|\\mathbf\{|\\times|\\cdot/, topics: ["vector-calculus"] },
+  { pattern: /\\det|\\lambda|\\text\{Rank\}|\\text\{Nullity\}|\\begin\{pmatrix\}|c_\{ij\}|A\^\{-1\}/, topics: ["linear-algebra"] },
+  { pattern: /P\(|\\mathbb\{E\}|\\mathrm\{Cov\}|\\sigma\(|X \\sim/, topics: ["probability", "statistics"] },
+  { pattern: /\\subseteq|\\forall|\\exists|\\neg|\\iff|\\emptyset|\\Omega|\\wedge|\\vee/, topics: ["set-logic"] },
+  { pattern: /\\zeta|\\mu\(n\)|\\pmod|prime|a\^\{p\}|\\sum_\{n=1\}\^\{\\infty\} \\frac\{1\}\{n\^s\}/, topics: ["number-theory"] },
+  { pattern: /\\Gamma|J_\{\\nu\}|Y_\{\\ell\}\^\{m\}|\\sinh|\\csc|F_\{1\}/, topics: ["special-functions"] },
+  { pattern: /\\oint|\\mathrm\{Re\}|\\mathrm\{Im\}|i\\theta|z\}|\\operatorname\{Res\}|\\oint_\{\\|z\\|=1\}/, topics: ["complex-analysis"] },
+  { pattern: /mc\^2|\\epsilon_0|Navier|Boltzmann|Einstein|Yang-Mills|Black-Scholes|Wheeler-DeWitt|\\hat\{H\}/, topics: ["mathematical-physics"] },
+  { pattern: /\\pi r\^\{2\}|cone|sphere|ellipsoid|B_a\(r\)|Pythagorean/, topics: ["geometry"] },
+  { pattern: /L\(x,\\lambda\)|KKT|Lagrange|\\lambda\^\{t-i\}/, topics: ["optimization"] }
+];
+
+const topicByDifficulty: Record<RawDifficulty, TopicId> = {
+  easy: "algebra",
+  medium: "calculus",
+  hard: "mathematical-physics"
+};
+
+function inferName(entry: RawExpression, index: number): string {
   if (entry.expressionName && entry.expressionName.trim().length > 0) {
     return entry.expressionName.trim();
   }
 
-  const matched = inferredTopics.find((rule) => rule.pattern.test(entry.latex));
+  const matched = inferredNames.find((rule) => rule.pattern.test(entry.latex));
   if (matched) {
-    return matched.topic;
+    return matched.name;
   }
 
   if (entry.latex.includes("\\int")) {
@@ -258,9 +281,109 @@ function inferTopic(entry: RawExpression, index: number): string {
   return entry.isUserSubmitted ? `User submitted formula ${index + 1}` : `Math formula ${index + 1}`;
 }
 
+function inferTopics(entry: RawExpression): TopicId[] {
+  const topics = new Set<TopicId>();
+
+  for (const rule of manualTopicOverrides) {
+    if (rule.pattern.test(entry.latex)) {
+      for (const topic of rule.topics) {
+        topics.add(topic);
+      }
+    }
+  }
+
+  if (entry.latex.includes("\\sum") || entry.latex.includes("\\prod")) {
+    topics.add("algebra");
+  }
+
+  if (entry.latex.includes("\\phi") || entry.latex.includes("\\sqrt{5}")) {
+    topics.add("number-theory");
+  }
+
+  if (entry.latex.includes("\\sin") || entry.latex.includes("\\cos") || entry.latex.includes("\\tan")) {
+    topics.add("trigonometry");
+  }
+
+  if (entry.latex.includes("\\int") || entry.latex.includes("\\lim") || entry.latex.includes("\\frac{d}{dx}")) {
+    topics.add("calculus");
+  }
+
+  if (entry.latex.includes("\\partial") || entry.latex.includes("\\nabla^2") || entry.latex.includes("\\frac{\\partial")) {
+    topics.add("differential-equations");
+  }
+
+  if (entry.latex.includes("\\nabla") || entry.latex.includes("\\mathbf{")) {
+    topics.add("vector-calculus");
+  }
+
+  if (entry.latex.includes("\\det") || entry.latex.includes("\\lambda") || entry.latex.includes("\\text{Rank}")) {
+    topics.add("linear-algebra");
+  }
+
+  if (entry.latex.includes("P(") || entry.latex.includes("\\mathbb{E}") || entry.latex.includes("\\mathrm{Cov}")) {
+    topics.add("probability");
+  }
+
+  if (entry.latex.includes("\\sigma") || entry.latex.includes("X \\sim")) {
+    topics.add("statistics");
+  }
+
+  if (entry.latex.includes("\\pmod") || entry.latex.includes("\\zeta") || entry.latex.includes("prime")) {
+    topics.add("number-theory");
+  }
+
+  if (
+    entry.latex.includes("\\subseteq") ||
+    entry.latex.includes("\\forall") ||
+    entry.latex.includes("\\exists") ||
+    entry.latex.includes("\\neg")
+  ) {
+    topics.add("set-logic");
+  }
+
+  if (entry.latex.includes("\\Gamma") || entry.latex.includes("J_{\\nu}") || entry.latex.includes("Y_{\\ell}^{m}")) {
+    topics.add("special-functions");
+  }
+
+  if (
+    entry.latex.includes("\\oint") ||
+    entry.latex.includes("\\mathrm{Re}") ||
+    entry.latex.includes("\\mathrm{Im}") ||
+    entry.latex.includes("\\operatorname{Res}")
+  ) {
+    topics.add("complex-analysis");
+  }
+
+  if (
+    entry.latex.includes("mc^2") ||
+    entry.latex.includes("\\epsilon_0") ||
+    entry.latex.includes("\\hat{H}") ||
+    entry.latex.includes("R_{\\mu") ||
+    entry.latex.includes("\\rho \\left")
+  ) {
+    topics.add("mathematical-physics");
+  }
+
+  if (entry.latex.includes("\\pi r") || entry.latex.includes("B_a(r)") || entry.latex.includes("a^2 + b^2 = c^2")) {
+    topics.add("geometry");
+  }
+
+  if (entry.latex.includes("L(x,\\lambda)") || entry.latex.includes("\\nabla_{x}L") || entry.latex.includes("\\lambda^{t-i}")) {
+    topics.add("optimization");
+  }
+
+  if (topics.size === 0) {
+    topics.add(topicByDifficulty[entry.difficulty]);
+  }
+
+  const normalized = ALL_TOPIC_IDS.filter((topic) => topics.has(topic));
+  return normalized.length > 0 ? normalized : ["algebra"];
+}
+
 export const EXPRESSIONS: Expression[] = rawExpressions.map((entry, index) => ({
   id: `expr-${String(index + 1).padStart(3, "0")}`,
   latex: entry.latex,
   difficulty: difficultyMap[entry.difficulty],
-  topic: inferTopic(entry, index)
+  name: inferName(entry, index),
+  topics: inferTopics(entry)
 }));

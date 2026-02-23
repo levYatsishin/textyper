@@ -1,19 +1,27 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
-  import type { Difficulty, Mode, SessionSettings, SessionStatus } from "../types";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import type { Difficulty, Mode, SessionSettings, SessionStatus, TopicDefinition, TopicId } from "../types";
 
   export let settings: SessionSettings;
   export let status: SessionStatus;
+  export let topics: TopicDefinition[] = [];
+  export let topicCounts: Record<TopicId, number> = {};
 
   const dispatch = createEventDispatcher<{
     modeChange: Mode;
     difficultyToggle: Difficulty;
     durationChange: SessionSettings["durationSec"];
     revealToggle: boolean;
+    topicToggle: TopicId;
+    topicSelectAll: void;
     start: void;
     restart: void;
     end: void;
   }>();
+  let topicsButtonElement: HTMLButtonElement | null = null;
+  let topicsMenuElement: HTMLDivElement | null = null;
+  let topicsMenuOpen = false;
+  let topicSearch = "";
 
   function toggleReveal(): void {
     dispatch("revealToggle", !settings.revealLatex);
@@ -48,6 +56,66 @@
     }
     return "";
   }
+
+  function toggleTopicsMenu(): void {
+    topicsMenuOpen = !topicsMenuOpen;
+    if (!topicsMenuOpen) {
+      topicSearch = "";
+    }
+  }
+
+  function closeTopicsMenu(): void {
+    topicsMenuOpen = false;
+    topicSearch = "";
+  }
+
+  function handleTopicToggle(topicId: TopicId): void {
+    dispatch("topicToggle", topicId);
+  }
+
+  function handleDocumentMouseDown(event: MouseEvent): void {
+    if (!topicsMenuOpen) {
+      return;
+    }
+    const target = event.target as Node | null;
+    if (!target) {
+      return;
+    }
+    const clickedToggle = !!topicsButtonElement?.contains(target);
+    const clickedMenu = !!topicsMenuElement?.contains(target);
+    if (!clickedToggle && !clickedMenu) {
+      closeTopicsMenu();
+    }
+  }
+
+  function handleWindowKeyDown(event: KeyboardEvent): void {
+    if (topicsMenuOpen && event.key === "Escape") {
+      closeTopicsMenu();
+    }
+  }
+
+  function isLastSelectedTopic(topicId: TopicId): boolean {
+    return settings.selectedTopicIds.length === 1 && settings.selectedTopicIds.includes(topicId);
+  }
+
+  onMount(() => {
+    document.addEventListener("mousedown", handleDocumentMouseDown);
+    window.addEventListener("keydown", handleWindowKeyDown);
+  });
+
+  onDestroy(() => {
+    document.removeEventListener("mousedown", handleDocumentMouseDown);
+    window.removeEventListener("keydown", handleWindowKeyDown);
+  });
+
+  $: normalizedTopicSearch = topicSearch.trim().toLowerCase();
+  $: visibleTopics = topics.filter((topic) => {
+    if (!normalizedTopicSearch) {
+      return true;
+    }
+    return topic.label.toLowerCase().includes(normalizedTopicSearch) || topic.id.includes(normalizedTopicSearch);
+  });
+  $: allTopicsSelected = settings.selectedTopicIds.length === topics.length;
 </script>
 
 <section class="control-bar">
@@ -100,6 +168,54 @@
         </button>
       {/if}
       <button type="button" class="text-option active-option" on:click={() => dispatch("restart")}>restart</button>
+    </div>
+
+    <span class="bar-divider" aria-hidden="true">|</span>
+
+    <div class="topics-anchor">
+      <button
+        type="button"
+        class="text-option"
+        class:active-option={topicsMenuOpen}
+        bind:this={topicsButtonElement}
+        on:click={toggleTopicsMenu}
+      >
+        topics
+      </button>
+
+      {#if topicsMenuOpen}
+        <div class="topics-menu" bind:this={topicsMenuElement}>
+          <div class="topics-menu-header">
+            <input class="topics-search" type="text" bind:value={topicSearch} placeholder="search topics..." />
+            <button
+              type="button"
+              class="text-option"
+              on:click={() => dispatch("topicSelectAll")}
+              disabled={allTopicsSelected}
+            >
+              all
+            </button>
+          </div>
+
+          <div class="topics-menu-list">
+            {#if visibleTopics.length === 0}
+              <p class="topics-empty">no topics</p>
+            {:else}
+              {#each visibleTopics as topic}
+                <button
+                  type="button"
+                  class={`topic-row text-option ${settings.selectedTopicIds.includes(topic.id) ? "active-option" : ""}`}
+                  on:click={() => handleTopicToggle(topic.id)}
+                  disabled={isLastSelectedTopic(topic.id)}
+                >
+                  <span>{topic.label}</span>
+                  <span class="topic-count">{topicCounts[topic.id] ?? 0}</span>
+                </button>
+              {/each}
+            {/if}
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
 </section>

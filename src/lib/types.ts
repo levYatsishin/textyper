@@ -4,18 +4,27 @@ export type Difficulty = "beginner" | "intermediate" | "advanced";
 export type Mode = "practice" | "timed";
 export type SessionStatus = "idle" | "running" | "ended";
 export type MatchStrategy = "exact" | "render" | "fail";
+export type TopicId = string;
+
+export interface TopicDefinition {
+  id: TopicId;
+  label: string;
+  order: number;
+}
 
 export interface Expression {
   id: string;
   latex: string;
   difficulty: Difficulty;
-  topic: string;
+  name: string;
+  topics: TopicId[];
 }
 
 export interface SessionSettings {
   mode: Mode;
   durationSec: 60 | 120;
   difficulties: Difficulty[];
+  selectedTopicIds: TopicId[];
   revealLatex: boolean;
 }
 

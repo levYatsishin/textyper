@@ -1,4 +1,5 @@
-import type { BestScores, Difficulty, SessionRecord, SessionSettings, SubmissionResult } from "../types";
+import { ALL_TOPIC_IDS } from "../data/topics";
+import type { BestScores, Difficulty, SessionRecord, SessionSettings, SubmissionResult, TopicId } from "../types";
 
 export const SETTINGS_STORAGE_KEY = "mathTyper.settings.v1";
 export const HISTORY_STORAGE_KEY = "mathTyper.history.v1";
@@ -11,6 +12,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
   mode: "practice",
   durationSec: 60,
   difficulties: [...DIFFICULTY_ORDER],
+  selectedTopicIds: [...ALL_TOPIC_IDS],
   revealLatex: false
 };
 
@@ -42,9 +44,18 @@ function isDifficulty(value: unknown): value is Difficulty {
   return value === "beginner" || value === "intermediate" || value === "advanced";
 }
 
+function isTopicId(value: unknown): value is TopicId {
+  return typeof value === "string" && ALL_TOPIC_IDS.includes(value);
+}
+
 function normalizeDifficulties(values: Difficulty[]): Difficulty[] {
   const unique = [...new Set(values)];
   return DIFFICULTY_ORDER.filter((difficulty) => unique.includes(difficulty));
+}
+
+function normalizeTopicIds(values: TopicId[]): TopicId[] {
+  const unique = [...new Set(values)];
+  return ALL_TOPIC_IDS.filter((topicId) => unique.includes(topicId));
 }
 
 function sanitizeDifficulties(raw: unknown, legacyDifficulty: unknown): Difficulty[] {
@@ -66,17 +77,33 @@ function sanitizeDifficulties(raw: unknown, legacyDifficulty: unknown): Difficul
   return [...DEFAULT_SETTINGS.difficulties];
 }
 
+function sanitizeTopicIds(raw: unknown, legacyTopic: unknown): TopicId[] {
+  if (Array.isArray(raw)) {
+    const values = normalizeTopicIds(raw.filter(isTopicId));
+    if (values.length > 0) {
+      return values;
+    }
+  }
+
+  if (isTopicId(legacyTopic)) {
+    return [legacyTopic];
+  }
+
+  return [...DEFAULT_SETTINGS.selectedTopicIds];
+}
+
 export function sanitizeSettings(raw: unknown): SessionSettings {
   if (!raw || typeof raw !== "object") {
     return { ...DEFAULT_SETTINGS };
   }
 
-  const input = raw as Partial<SessionSettings> & { difficulty?: unknown };
+  const input = raw as Partial<SessionSettings> & { difficulty?: unknown; topic?: unknown };
 
   return {
     mode: isMode(input.mode) ? input.mode : DEFAULT_SETTINGS.mode,
     durationSec: isDuration(input.durationSec) ? input.durationSec : DEFAULT_SETTINGS.durationSec,
     difficulties: sanitizeDifficulties(input.difficulties, input.difficulty),
+    selectedTopicIds: sanitizeTopicIds(input.selectedTopicIds, input.topic),
     revealLatex: typeof input.revealLatex === "boolean" ? input.revealLatex : DEFAULT_SETTINGS.revealLatex
   };
 }
@@ -151,15 +178,19 @@ export function saveHistory(history: SessionRecord[]): SessionRecord[] {
   return trimmed;
 }
 
-export function getBestKey(mode: SessionSettings["mode"], difficulties: SessionSettings["difficulties"]): string {
-  return `${mode}:${normalizeDifficulties(difficulties).join("+")}`;
+export function getBestKey(
+  mode: SessionSettings["mode"],
+  difficulties: SessionSettings["difficulties"],
+  selectedTopicIds: SessionSettings["selectedTopicIds"]
+): string {
+  return `${mode}:${normalizeDifficulties(difficulties).join("+")}:${normalizeTopicIds(selectedTopicIds).join("+")}`;
 }
 
 export function computeBestScores(history: SessionRecord[]): BestScores {
   const bests: BestScores = {};
 
   for (const record of history) {
-    const key = getBestKey(record.settings.mode, record.settings.difficulties);
+    const key = getBestKey(record.settings.mode, record.settings.difficulties, record.settings.selectedTopicIds);
     const currentBest = bests[key];
 
     if (!currentBest || record.stats.correct > currentBest.stats.correct) {
@@ -196,10 +227,26 @@ export function loadBestScores(): BestScores {
 
   const value = parsed as Record<string, SessionRecord>;
   const result: BestScores = {};
-  for (const [key, record] of Object.entries(value)) {
+  for (const [, record] of Object.entries(value)) {
     const sanitized = sanitizeSessionRecord(record);
     if (sanitized) {
-      result[key] = sanitized;
+      const key = getBestKey(
+        sanitized.settings.mode,
+        sanitized.settings.difficulties,
+        sanitized.settings.selectedTopicIds
+      );
+      const currentBest = result[key];
+      if (
+        !currentBest ||
+        sanitized.stats.correct > currentBest.stats.correct ||
+        (sanitized.stats.correct === currentBest.stats.correct &&
+          sanitized.stats.accuracy > currentBest.stats.accuracy) ||
+        (sanitized.stats.correct === currentBest.stats.correct &&
+          sanitized.stats.accuracy === currentBest.stats.accuracy &&
+          sanitized.stats.formulasPerMin > currentBest.stats.formulasPerMin)
+      ) {
+        result[key] = sanitized;
+      }
     }
   }
   return result;

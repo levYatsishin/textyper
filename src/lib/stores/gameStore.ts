@@ -38,8 +38,17 @@ function getTimeLimitMs(settings: SessionSettings): number | null {
   return settings.mode === "timed" ? settings.durationSec * 1000 : null;
 }
 
-function getExpressionPool(expressions: Expression[], difficulties: SessionSettings["difficulties"]): Expression[] {
-  return expressions.filter((item) => difficulties.includes(item.difficulty));
+function getExpressionPool(
+  expressions: Expression[],
+  difficulties: SessionSettings["difficulties"],
+  selectedTopicIds: SessionSettings["selectedTopicIds"]
+): Expression[] {
+  const selectedTopics = new Set(selectedTopicIds);
+  return expressions.filter(
+    (item) =>
+      difficulties.includes(item.difficulty) &&
+      item.topics.some((topicId) => selectedTopics.has(topicId))
+  );
 }
 
 function hasSameDifficulties(
@@ -50,6 +59,16 @@ function hasSameDifficulties(
     return false;
   }
   return left.every((difficulty, index) => difficulty === right[index]);
+}
+
+function hasSameTopicIds(
+  left: SessionSettings["selectedTopicIds"],
+  right: SessionSettings["selectedTopicIds"]
+): boolean {
+  if (left.length !== right.length) {
+    return false;
+  }
+  return left.every((topicId, index) => topicId === right[index]);
 }
 
 function createSessionRecord(endedAt: number, settings: SessionSettings, stats: GameState["stats"]): SessionRecord {
@@ -77,17 +96,24 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   let seenExpressionIds = new Set<string>();
   let seenExpressionKey = "";
 
-  function getDifficultiesKey(difficulties: SessionSettings["difficulties"]): string {
-    return difficulties.join("|");
+  function getFilterKey(
+    difficulties: SessionSettings["difficulties"],
+    selectedTopicIds: SessionSettings["selectedTopicIds"]
+  ): string {
+    return `${difficulties.join("|")}::${selectedTopicIds.join("|")}`;
   }
 
-  function pickNextExpression(difficulties: SessionSettings["difficulties"], previousId: string | null): Expression | null {
-    const pool = getExpressionPool(expressions, difficulties);
+  function pickNextExpression(
+    difficulties: SessionSettings["difficulties"],
+    selectedTopicIds: SessionSettings["selectedTopicIds"],
+    previousId: string | null
+  ): Expression | null {
+    const pool = getExpressionPool(expressions, difficulties, selectedTopicIds);
     if (pool.length === 0) {
       return null;
     }
 
-    const key = getDifficultiesKey(difficulties);
+    const key = getFilterKey(difficulties, selectedTopicIds);
     if (key !== seenExpressionKey) {
       seenExpressionKey = key;
       seenExpressionIds = new Set();
@@ -110,8 +136,12 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     return picked;
   }
 
-  function resetExpressionCycle(difficulties: SessionSettings["difficulties"], currentExpressionId: string | null = null): void {
-    seenExpressionKey = getDifficultiesKey(difficulties);
+  function resetExpressionCycle(
+    difficulties: SessionSettings["difficulties"],
+    selectedTopicIds: SessionSettings["selectedTopicIds"],
+    currentExpressionId: string | null = null
+  ): void {
+    seenExpressionKey = getFilterKey(difficulties, selectedTopicIds);
     seenExpressionIds = new Set(currentExpressionId ? [currentExpressionId] : []);
   }
 
@@ -139,7 +169,9 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     ? findExpressionById(expressions, activeSnapshot.currentExpressionId)
     : null;
   const hasRestoredExpression =
-    !!restoredExpression && !!restoredSettings?.difficulties.includes(restoredExpression.difficulty);
+    !!restoredExpression &&
+    !!restoredSettings?.difficulties.includes(restoredExpression.difficulty) &&
+    restoredExpression.topics.some((topicId) => restoredSettings.selectedTopicIds.includes(topicId));
 
   let state: GameState = canRestoreActiveSession && activeSnapshot && restoredSettings
     ? {
@@ -155,7 +187,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
         }),
         currentExpression:
           (hasRestoredExpression ? restoredExpression : null) ??
-          pickNextExpression(restoredSettings.difficulties, null),
+          pickNextExpression(restoredSettings.difficulties, restoredSettings.selectedTopicIds, null),
         remainingMs:
           restoredLimitMs === null ? null : Math.max(0, restoredLimitMs - restoredElapsedMs),
         currentStreak: activeSnapshot.currentStreak,
@@ -182,7 +214,11 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   };
 
   if (state.status === "running") {
-    resetExpressionCycle(state.settings.difficulties, state.currentExpression?.id ?? null);
+    resetExpressionCycle(
+      state.settings.difficulties,
+      state.settings.selectedTopicIds,
+      state.currentExpression?.id ?? null
+    );
   }
 
   const store = writable<GameState>(state);
@@ -298,8 +334,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   function start(settings?: Partial<SessionSettings>): void {
     const nextSettings = normalizeSettings(settings ?? {});
     const startedAt = now();
-    resetExpressionCycle(nextSettings.difficulties);
-    const firstExpression = pickNextExpression(nextSettings.difficulties, null);
+    resetExpressionCycle(nextSettings.difficulties, nextSettings.selectedTopicIds);
+    const firstExpression = pickNextExpression(nextSettings.difficulties, nextSettings.selectedTopicIds, null);
 
     setState({
       ...state,
@@ -374,7 +410,11 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       typedChars,
       isSubmitting: false,
       currentStreak,
-      currentExpression: pickNextExpression(state.settings.difficulties, targetExpression.id),
+      currentExpression: pickNextExpression(
+        state.settings.difficulties,
+        state.settings.selectedTopicIds,
+        targetExpression.id
+      ),
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs),
       lastResult: {
         isCorrect: result.isMatch,
@@ -413,7 +453,11 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       ...state,
       stats,
       currentStreak: 0,
-      currentExpression: pickNextExpression(state.settings.difficulties, state.currentExpression.id),
+      currentExpression: pickNextExpression(
+        state.settings.difficulties,
+        state.settings.selectedTopicIds,
+        state.currentExpression.id
+      ),
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs),
       lastResult: {
         isCorrect: false,
@@ -450,6 +494,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     const elapsedMs = state.status === "running" ? Math.max(0, now() - state.stats.startedAt) : 0;
     const limitMs = getTimeLimitMs(nextSettings);
     const difficultiesChanged = !hasSameDifficulties(nextSettings.difficulties, previousSettings.difficulties);
+    const topicsChanged = !hasSameTopicIds(nextSettings.selectedTopicIds, previousSettings.selectedTopicIds);
+    const filtersChanged = difficultiesChanged || topicsChanged;
 
     let nextState: GameState = {
       ...state,
@@ -462,11 +508,19 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
           : limitMs
     };
 
-    if (state.status === "running" && difficultiesChanged) {
-      resetExpressionCycle(nextSettings.difficulties, state.currentExpression?.id ?? null);
+    if (state.status === "running" && filtersChanged) {
+      resetExpressionCycle(
+        nextSettings.difficulties,
+        nextSettings.selectedTopicIds,
+        state.currentExpression?.id ?? null
+      );
       nextState = {
         ...nextState,
-        currentExpression: pickNextExpression(nextSettings.difficulties, state.currentExpression?.id ?? null)
+        currentExpression: pickNextExpression(
+          nextSettings.difficulties,
+          nextSettings.selectedTopicIds,
+          state.currentExpression?.id ?? null
+        )
       };
     }
 

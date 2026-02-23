@@ -19,3 +19,8 @@ pnpm-debug.log*
 .DS_Store
 .idea/
 .vscode/
+
+# formula ingestion artifacts
+tools/formula_ingest/.venv/
+tools/formula_ingest/staging/
+tools/formula_ingest/data/generated/

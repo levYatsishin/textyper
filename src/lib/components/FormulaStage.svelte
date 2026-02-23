@@ -73,7 +73,7 @@
 
 <section class="formula-stage">
   {#if expression}
-    <div class="formula-topic">{expression.topic}</div>
+    <div class="formula-topic">{expression.name}</div>
     <div class="formula-difficulty">{formatDifficulty(expression.difficulty)}</div>
     <div class="formula-card">
       <div class="formula-output" aria-live="polite" bind:this={outputContainer}>

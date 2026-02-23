@@ -1,0 +1,46 @@
+topics:
+  algebra:
+    keywords: ["equation", "polynomial", "factorization", "identity"]
+    wikidata: []
+  geometry:
+    keywords: ["triangle", "circle", "sphere", "distance", "volume", "area"]
+    wikidata: []
+  trigonometry:
+    keywords: ["sin", "cos", "tan", "theta"]
+    wikidata: []
+  calculus:
+    keywords: ["integral", "derivative", "limit", "dx"]
+    wikidata: []
+  linear-algebra:
+    keywords: ["matrix", "determinant", "eigenvalue", "rank", "nullity"]
+    wikidata: []
+  differential-equations:
+    keywords: ["partial", "laplace", "ode", "pde"]
+    wikidata: []
+  probability:
+    keywords: ["probability", "random variable", "bayes", "expectation"]
+    wikidata: []
+  statistics:
+    keywords: ["variance", "covariance", "normal distribution", "standard deviation"]
+    wikidata: []
+  number-theory:
+    keywords: ["prime", "mod", "zeta", "congruence", "mobius"]
+    wikidata: []
+  set-logic:
+    keywords: ["subset", "forall", "exists", "boolean", "logic"]
+    wikidata: []
+  complex-analysis:
+    keywords: ["contour", "residue", "holomorphic", "cauchy", "complex"]
+    wikidata: []
+  vector-calculus:
+    keywords: ["nabla", "gradient", "divergence", "curl"]
+    wikidata: []
+  mathematical-physics:
+    keywords: ["quantum", "einstein", "yang-mills", "maxwell", "boltzmann"]
+    wikidata: []
+  special-functions:
+    keywords: ["gamma", "bessel", "spherical harmonic", "hypergeometric"]
+    wikidata: []
+  optimization:
+    keywords: ["lagrange", "kkt", "objective", "constraint"]
+    wikidata: []
