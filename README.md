@@ -8,17 +8,21 @@ Minimal trainer for typing LaTeX math quickly.
 **Heavily** inspired by [typelatex](https://github.com/JaidenRatti/type-latex) and therefore, as the geneology goes, by [texnique](https://github.com/akshayravikumar/TeXnique).
 ## What it does
 - Shows a rendered target formula.
-- You type LaTeX in the input.
+- You type LaTeX in the input that must produce the same render.
 - It auto-advances when your input is correct.
 - You can filter formulas by difficulty, topic and subtopic.
 - Progress and best scores are saved locally in your browser.
+## Other features
+- When you’re learning, you can enable “show formula”, so you can just retype the answer and learn the symbols.
 ## Comparison
 **TODO**
 ## FAQ
 ### About difficulty 
 Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read about it more in ... **TODO** 
-### About numbers of formulas in categories 
+### About number of formulas in categories 
 A single formula can belong to multiple topics/subtopics. Counts are membership totals, not mutually exclusive buckets.
+
+Also note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
 ## Planned features
 - Render-aware correctness check 
 - scores for zen, and time counter. better statistics
@@ -30,8 +34,10 @@ A single formula can belong to multiple topics/subtopics. Counts are membership 
 - integrate auto-shortcuts 
 - better ontology and llm auto classification
 - Gamefication mode: add rarity to formulas and probability of them appearing (for the first time / after they appeared once) with some collors and little effects. Bestiary/collection.
-## Quick start
+## Run it yourself 
 ```bash
+git clone https://github.com/levYatsishin/textyper.git
+cd textyper 
 npm install
 npm run dev
 ```
