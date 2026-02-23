@@ -69,6 +69,29 @@ describe("gameStore", () => {
     expect(state.settings.revealLatex).toBe(true);
   });
 
+  it("restores active session progress after reload", async () => {
+    const matcher = vi.fn().mockResolvedValue({
+      isMatch: true,
+      mismatchRatio: 0,
+      strategy: "exact"
+    });
+
+    const firstStore = createGameStore(SAMPLE_EXPRESSIONS, {
+      matcher,
+      now: () => Date.now()
+    });
+    firstStore.start({ mode: "practice", difficulty: "mixed" });
+    await firstStore.submit("x+y");
+
+    const secondStore = createGameStore(SAMPLE_EXPRESSIONS, {
+      now: () => Date.now()
+    });
+    const restored = getState(secondStore);
+    expect(restored.status).toBe("running");
+    expect(restored.stats.attempts).toBe(1);
+    expect(restored.stats.correct).toBe(1);
+  });
+
   it("resets active streak on incorrect submissions", async () => {
     const matcher = vi
       .fn()

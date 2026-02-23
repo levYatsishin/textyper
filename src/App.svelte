@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { get } from "svelte/store";
   import ControlBar from "./lib/components/ControlBar.svelte";
   import FormulaStage from "./lib/components/FormulaStage.svelte";
   import HistoryPanel from "./lib/components/HistoryPanel.svelte";
@@ -12,9 +13,19 @@
 
   const game = createGameStore(EXPRESSIONS);
 
+  function handleBeforeUnload(): void {
+    game.end();
+  }
+
   onMount(() => {
     game.loadHistory();
-    game.start();
+    if (get(game).status === "idle") {
+      game.start();
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   });
 
   function handleModeChange(mode: Mode): void {
@@ -56,8 +67,7 @@
 
 <main class="app-shell">
   <header class="app-header">
-    <h1>Math LaTeX Typer</h1>
-    <p>Practice math expression typing with render-aware scoring.</p>
+    <h1>math latex typer</h1>
   </header>
 
   <ControlBar

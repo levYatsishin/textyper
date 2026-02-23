@@ -1,8 +1,9 @@
-import type { BestScores, SessionRecord, SessionSettings } from "../types";
+import type { BestScores, SessionRecord, SessionSettings, SubmissionResult } from "../types";
 
 export const SETTINGS_STORAGE_KEY = "mathTyper.settings.v1";
 export const HISTORY_STORAGE_KEY = "mathTyper.history.v1";
 export const BESTS_STORAGE_KEY = "mathTyper.bests.v1";
+export const ACTIVE_SESSION_STORAGE_KEY = "mathTyper.activeSession.v1";
 const HISTORY_LIMIT = 50;
 
 export const DEFAULT_SETTINGS: SessionSettings = {
@@ -160,4 +161,82 @@ export function saveBestScores(bests: BestScores): void {
   }
 
   localStorage.setItem(BESTS_STORAGE_KEY, JSON.stringify(bests));
+}
+
+export interface ActiveSessionSnapshot {
+  savedAt: number;
+  settings: SessionSettings;
+  startedAt: number;
+  attempts: number;
+  correct: number;
+  bestStreak: number;
+  typedChars: number;
+  currentStreak: number;
+  currentExpressionId: string | null;
+  lastResult: SubmissionResult | null;
+}
+
+function isSubmissionResult(raw: unknown): raw is SubmissionResult {
+  if (!raw || typeof raw !== "object") {
+    return false;
+  }
+  const value = raw as SubmissionResult;
+  return (
+    typeof value.isCorrect === "boolean" &&
+    typeof value.strategy === "string" &&
+    typeof value.mismatchRatio === "number" &&
+    typeof value.inputLatex === "string" &&
+    typeof value.targetLatex === "string"
+  );
+}
+
+function isActiveSessionSnapshot(raw: unknown): raw is ActiveSessionSnapshot {
+  if (!raw || typeof raw !== "object") {
+    return false;
+  }
+
+  const value = raw as ActiveSessionSnapshot;
+  return (
+    typeof value.savedAt === "number" &&
+    typeof value.startedAt === "number" &&
+    typeof value.attempts === "number" &&
+    typeof value.correct === "number" &&
+    typeof value.bestStreak === "number" &&
+    typeof value.typedChars === "number" &&
+    typeof value.currentStreak === "number" &&
+    (typeof value.currentExpressionId === "string" || value.currentExpressionId === null) &&
+    (value.lastResult === null || isSubmissionResult(value.lastResult))
+  );
+}
+
+export function loadActiveSession(): ActiveSessionSnapshot | null {
+  if (!hasLocalStorage()) {
+    return null;
+  }
+
+  const parsed = safeParseJson<unknown>(localStorage.getItem(ACTIVE_SESSION_STORAGE_KEY));
+  if (!isActiveSessionSnapshot(parsed)) {
+    return null;
+  }
+
+  return {
+    ...parsed,
+    settings: sanitizeSettings(parsed.settings)
+  };
+}
+
+export function saveActiveSession(snapshot: ActiveSessionSnapshot): void {
+  if (!hasLocalStorage()) {
+    return;
+  }
+
+  localStorage.setItem(ACTIVE_SESSION_STORAGE_KEY, JSON.stringify(snapshot));
+}
+
+export function clearActiveSession(): void {
+  if (!hasLocalStorage()) {
+    return;
+  }
+
+  localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY);
 }

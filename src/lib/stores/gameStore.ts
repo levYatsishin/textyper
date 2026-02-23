@@ -2,11 +2,14 @@ import { writable } from "svelte/store";
 import { compareLatex } from "../services/matcher";
 import { createEmptyStats, toSessionStats } from "../services/metrics";
 import {
+  clearActiveSession,
   computeBestScores,
   DEFAULT_SETTINGS,
+  loadActiveSession,
   loadBestScores,
   loadHistory,
   loadSettings,
+  saveActiveSession,
   sanitizeSettings,
   saveBestScores,
   saveHistory,
@@ -66,6 +69,13 @@ function createSessionRecord(endedAt: number, settings: SessionSettings, stats: 
   };
 }
 
+function findExpressionById(expressions: Expression[], expressionId: string | null): Expression | null {
+  if (!expressionId) {
+    return null;
+  }
+  return expressions.find((item) => item.id === expressionId) ?? null;
+}
+
 export function createGameStore(expressions: Expression[], options: GameStoreOptions = {}): GameStore {
   const now = options.now ?? (() => Date.now());
   const matcher = options.matcher ?? compareLatex;
@@ -81,7 +91,44 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     saveBestScores(initialBests);
   }
 
-  let state: GameState = {
+  const activeSnapshot = loadActiveSession();
+  const restoredSettings = activeSnapshot ? sanitizeSettings(activeSnapshot.settings) : null;
+  const restoredElapsedMs = activeSnapshot ? Math.max(0, now() - activeSnapshot.startedAt) : 0;
+  const restoredLimitMs =
+    restoredSettings && restoredSettings.mode === "timed" ? restoredSettings.durationSec * 1000 : null;
+  const canRestoreActiveSession =
+    !!activeSnapshot && !(restoredLimitMs !== null && restoredElapsedMs >= restoredLimitMs);
+
+  if (activeSnapshot && !canRestoreActiveSession) {
+    clearActiveSession();
+  }
+
+  let state: GameState = canRestoreActiveSession && activeSnapshot && restoredSettings
+    ? {
+        status: "running",
+        settings: restoredSettings,
+        stats: toSessionStats({
+          startedAt: activeSnapshot.startedAt,
+          elapsedMs: restoredElapsedMs,
+          attempts: activeSnapshot.attempts,
+          correct: activeSnapshot.correct,
+          bestStreak: activeSnapshot.bestStreak,
+          typedChars: activeSnapshot.typedChars
+        }),
+        currentExpression:
+          findExpressionById(expressions, activeSnapshot.currentExpressionId) ??
+          pickExpression(expressions, restoredSettings.difficulty, null),
+        remainingMs:
+          restoredLimitMs === null ? null : Math.max(0, restoredLimitMs - restoredElapsedMs),
+        currentStreak: activeSnapshot.currentStreak,
+        typedChars: activeSnapshot.typedChars,
+        isSubmitting: false,
+        lastResult: activeSnapshot.lastResult,
+        history: initialHistory,
+        bests: initialBests,
+        lastSession: null
+      }
+    : {
     status: "idle",
     settings: initialSettings,
     stats: createEmptyStats(now()),
@@ -100,6 +147,23 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   let timer: ReturnType<typeof setInterval> | null = null;
 
   function setState(nextState: GameState): void {
+    if (nextState.status === "running") {
+      saveActiveSession({
+        savedAt: now(),
+        settings: nextState.settings,
+        startedAt: nextState.stats.startedAt,
+        attempts: nextState.stats.attempts,
+        correct: nextState.stats.correct,
+        bestStreak: nextState.stats.bestStreak,
+        typedChars: nextState.typedChars,
+        currentStreak: nextState.currentStreak,
+        currentExpressionId: nextState.currentExpression?.id ?? null,
+        lastResult: nextState.lastResult
+      });
+    } else {
+      clearActiveSession();
+    }
+
     state = nextState;
     store.set(nextState);
   }
@@ -122,10 +186,16 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       typedChars: currentState.typedChars
     });
 
-    const record = createSessionRecord(endedAt, currentState.settings, finalStats);
-    const history = saveHistory([record, ...currentState.history]);
-    const bests = computeBestScores(history);
-    saveBestScores(bests);
+    let record: SessionRecord | null = null;
+    let history = currentState.history;
+    let bests = currentState.bests;
+
+    if (finalStats.attempts > 0) {
+      record = createSessionRecord(endedAt, currentState.settings, finalStats);
+      history = saveHistory([record, ...currentState.history]);
+      bests = computeBestScores(history);
+      saveBestScores(bests);
+    }
     saveSettings(currentState.settings);
     stopTimer();
 
@@ -397,6 +467,10 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       history,
       bests
     });
+  }
+
+  if (state.status === "running" && state.settings.mode === "timed") {
+    startTimerLoop();
   }
 
   return {
