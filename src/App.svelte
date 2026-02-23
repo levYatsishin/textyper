@@ -23,6 +23,8 @@
   }
 
   type TopicSubtopicStats = Record<TopicId, TopicSubtopicStat[]>;
+  type ThemeMode = "dark" | "light";
+  const THEME_STORAGE_KEY = "mathTyper.theme.v1";
 
   function getAllSubtopicsByTopic(): Record<TopicId, string[]> {
     const byTopic = TOPICS.reduce<Record<TopicId, Set<string>>>((accumulator, topic) => {
@@ -50,12 +52,37 @@
 
   const game = createGameStore(EXPRESSIONS);
   const allSubtopicsByTopic = getAllSubtopicsByTopic();
+  let themeMode: ThemeMode = "dark";
+
+  function isThemeMode(value: unknown): value is ThemeMode {
+    return value === "dark" || value === "light";
+  }
+
+  function applyTheme(mode: ThemeMode): void {
+    document.documentElement.setAttribute("data-theme", mode);
+  }
+
+  function loadThemePreference(): ThemeMode {
+    if (typeof window === "undefined") {
+      return "dark";
+    }
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return isThemeMode(stored) ? stored : "dark";
+  }
+
+  function toggleTheme(): void {
+    themeMode = themeMode === "dark" ? "light" : "dark";
+    applyTheme(themeMode);
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }
 
   function handleBeforeUnload(): void {
     game.end();
   }
 
   onMount(() => {
+    themeMode = loadThemePreference();
+    applyTheme(themeMode);
     game.loadHistory();
     if (get(game).status === "idle") {
       game.start();
@@ -379,6 +406,15 @@
 </script>
 
 <main class="app-shell">
+  <button
+    type="button"
+    class="theme-toggle text-option"
+    aria-label={themeMode === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+    on:click={toggleTheme}
+  >
+    {themeMode === "dark" ? "☾" : "☀"}
+  </button>
+
   <header class="app-header">
     <h1>math latex typer</h1>
   </header>

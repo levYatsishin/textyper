@@ -25,6 +25,32 @@
   --panel-soft: var(--bg-soft);
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg-hard: #f9f5d7;
+  --bg: #fbf1c7;
+  --bg-soft: #f2e5bc;
+  --fg: #654735;
+  --black: #504945;
+  --gray: #928374;
+  --white: #d4be98;
+  --red: #c14a4a;
+  --orange: #c35e0a;
+  --yellow: #b47109;
+  --green: #6c782e;
+  --aqua: #4c7a5d;
+  --blue: #45707a;
+  --purple: #945e80;
+  --line: var(--black);
+  --text: var(--fg);
+  --muted: var(--gray);
+  --muted-2: var(--gray);
+  --ok: var(--green);
+  --bad: var(--red);
+  --panel: var(--bg);
+  --panel-soft: var(--bg-soft);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -43,6 +69,20 @@ body {
   padding: 3.2rem 1.2rem 2.4rem;
   display: grid;
   gap: 1.1rem;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 0.8rem;
+  right: 0.95rem;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--muted);
+  z-index: 40;
+}
+
+.theme-toggle:hover {
+  color: var(--fg);
 }
 
 .app-header {

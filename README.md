@@ -6,3 +6,5 @@
 - light theme
 - hover on symbol to show latex for it
 - load custom user formulas
+- symbols library as a separate page
+- integrate auto-shortcuts 
