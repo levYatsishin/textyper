@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from "svelte";
   import katex from "katex";
+  import { TOPIC_MAP } from "../data/topics";
   import type { Expression } from "../types";
 
   export let expression: Expression | null = null;
@@ -28,7 +29,17 @@
     return "hard";
   }
 
+  function formatTopic(topicId: string): string {
+    if (!topicId) {
+      return "general";
+    }
+    return TOPIC_MAP[topicId]?.label ?? topicId.replaceAll("-", " ");
+  }
+
   $: renderedExpression = expression ? renderLatex(expression.latex) : "";
+  $: sourceTopic = expression ? formatTopic(expression.topics[0] ?? "") : "";
+  $: sourceSubtopic = expression?.subtopics[0] ?? "";
+  $: sourceLabel = expression ? (sourceSubtopic ? `${sourceTopic} · ${sourceSubtopic}` : sourceTopic) : "";
 
   function updateFormulaScale(): void {
     if (!outputContainer || !formulaNode) {
@@ -73,6 +84,7 @@
 
 <section class="formula-stage">
   {#if expression}
+    <div class="formula-source">{sourceLabel}</div>
     <div class="formula-topic">{expression.name}</div>
     <div class="formula-difficulty">{formatDifficulty(expression.difficulty)}</div>
     <div class="formula-card">
