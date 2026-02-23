@@ -23,7 +23,7 @@ This directory contains a Python pipeline for building larger formula corpora an
   - `staging/wiki_math.jsonl`
   - `staging/wiki_math_enriched.jsonl`
   - `data/generated/formulas_candidates.jsonl`
-  - `data/generated/formulas_approved.json`
+  - `data/generated/formulas_approved.json` (runtime payload shape: `{ version, generatedAt, expressions[] }`)
 
 ## Install
 ```bash

@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from enrich_wikidata import enrich_rows, load_subject_map
-from export_for_app import to_app_record
+from export_for_app import to_runtime_payload
 from extract_wikipedia import extract_from_wikipedia_dump
 from io_utils import read_jsonl, write_json, write_jsonl
 from normalize_curate import curate, load_topic_map
@@ -41,8 +41,8 @@ def main() -> None:
   write_jsonl(curated_path, curated_rows)
 
   write_jsonl(candidates_path, curated_rows)
-  approved_rows = [to_app_record(row) for row in curated_rows[: max(0, args.max_approved)]]
-  write_json(approved_path, approved_rows)
+  approved_payload = to_runtime_payload(curated_rows, args.max_approved)
+  write_json(approved_path, approved_payload)
 
   print(f"Extracted rows: {len(extracted_rows)}")
   print(f"Curated rows: {len(curated_rows)}")

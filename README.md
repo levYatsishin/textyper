@@ -43,11 +43,19 @@ npm run dev
 ```
 Open `http://localhost:5173`.
 ## Project structure
-- `src/lib/data/expressions.ts` – formula dataset
+- `src/lib/data/formulas.v1.json` – runtime formula source of truth
+- `src/lib/data/expressions.ts` – JSON-backed dataset export
+- `src/lib/data/expressionsLoader.ts` – JSON schema validation/loader
 - `src/lib/services/` – matcher, persistence, complexity scoring
 - `src/lib/stores/gameStore.ts` – game/session state
 - `tools/complexity/` – scoring diagnostics/tooling
 - `tools/formula_ingest/` – offline dataset ingestion pipeline
+
+## Formula dataset workflow
+- Runtime reads formulas from `src/lib/data/formulas.v1.json`.
+- `expressionsLoader` validates every record (difficulty enums, score range, non-empty topics/subtopics, known topic IDs, unique IDs).
+- Offline ingestion can export app-ready payloads in the same shape via `tools/formula_ingest/src/export_for_app.py`.
+- After dataset updates, run `npm run check && npm run test:run` to validate schema and app compatibility.
 ## Contributing
 Ideas and improvements are always welcome via issues, PRs or even direct messages.
 

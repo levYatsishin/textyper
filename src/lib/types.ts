@@ -57,6 +57,14 @@ export interface Expression {
   complexityFeatures?: LatexComplexityFeatures;
 }
 
+export interface ExpressionJsonRecord extends Expression {}
+
+export interface ExpressionsJsonPayload {
+  version: string;
+  generatedAt: string;
+  expressions: ExpressionJsonRecord[];
+}
+
 export interface SessionSettings {
   mode: Mode;
   durationSec: 60 | 120;
