@@ -51,11 +51,17 @@
   const durationOptions: SessionSettings["durationSec"][] = [60, 120];
 
   function selectDuration(value: SessionSettings["durationSec"]): void {
+    if (status === "running") {
+      return;
+    }
     dispatch("modeChange", "timed");
     dispatch("durationChange", value);
   }
 
   function selectZenMode(): void {
+    if (status === "running") {
+      return;
+    }
     dispatch("modeChange", "practice");
   }
 
@@ -190,12 +196,19 @@
           type="button"
           class="text-option"
           class:active-option={settings.mode === "timed" && settings.durationSec === value}
+          disabled={status === "running"}
           on:click={() => selectDuration(value)}
         >
           {value}
         </button>
       {/each}
-      <button type="button" class="text-option" class:active-option={settings.mode === "practice"} on:click={selectZenMode}>
+      <button
+        type="button"
+        class="text-option"
+        class:active-option={settings.mode === "practice"}
+        disabled={status === "running"}
+        on:click={selectZenMode}
+      >
         zen
       </button>
     </div>

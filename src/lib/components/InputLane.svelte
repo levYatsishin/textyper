@@ -107,7 +107,9 @@
   </div>
   <div class="preview-run-controls">
     <span class="preview-run-indicator">{runModeLabel}</span>
-    <p class="preview-run-elapsed" class:preview-run-elapsed-zen={mode === "practice"}>{runCounter}</p>
+    <p class="preview-run-elapsed" class:preview-run-elapsed-zen={mode === "practice" && status === "running"}>
+      {runCounter}
+    </p>
   </div>
 
   {#if lastResult}

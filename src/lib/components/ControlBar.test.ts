@@ -49,6 +49,34 @@ const topicSubtopicStats = {
 };
 
 describe("ControlBar topics menu", () => {
+  it("disables mode buttons while session is running", async () => {
+    render(ControlBar, {
+      settings,
+      status: "running",
+      topics,
+      topicCounts,
+      topicSubtopicStats
+    });
+
+    expect(screen.getByRole("button", { name: "60" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "120" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "zen" }).hasAttribute("disabled")).toBe(true);
+  });
+
+  it("enables mode buttons when session is ended", async () => {
+    render(ControlBar, {
+      settings,
+      status: "ended",
+      topics,
+      topicCounts,
+      topicSubtopicStats
+    });
+
+    expect(screen.getByRole("button", { name: "60" }).hasAttribute("disabled")).toBe(false);
+    expect(screen.getByRole("button", { name: "120" }).hasAttribute("disabled")).toBe(false);
+    expect(screen.getByRole("button", { name: "zen" }).hasAttribute("disabled")).toBe(false);
+  });
+
   it("opens and closes the topics menu", async () => {
     render(ControlBar, {
       settings,
