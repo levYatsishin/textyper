@@ -34,14 +34,24 @@ describe("InputLane run controls", () => {
     expect(screen.getByText("01:05")).toBeTruthy();
   });
 
-  it("formats zen time as h:mm:ss after one hour", () => {
+  it("formats zen time as hh:mm:ss after one hour", () => {
     render(InputLane, {
       status: "running",
       mode: "practice",
       elapsedMs: 3_661_000
     });
 
-    expect(screen.getByText("1:01:01")).toBeTruthy();
+    expect(screen.getByText("01:01:01")).toBeTruthy();
+  });
+
+  it("formats zen time as d:hh:mm:ss after one day", () => {
+    render(InputLane, {
+      status: "running",
+      mode: "practice",
+      elapsedMs: 97_261_000
+    });
+
+    expect(screen.getByText("1d:03:01:01")).toBeTruthy();
   });
 
   it("shows timed label with seconds counter", () => {

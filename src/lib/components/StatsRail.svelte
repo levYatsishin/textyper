@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { computeMinPerFormula, formatElapsedDuration, roundToTwo } from "../services/statsDisplay";
   import type { Mode, SessionRecord, SessionStats, SessionStatus } from "../types";
 
   export let stats: SessionStats;
@@ -21,10 +22,6 @@
 
   const MEAN_WINDOW = 5;
   let statsView: StatsView = "current";
-
-  function roundToTwo(value: number): number {
-    return Math.round(value * 100) / 100;
-  }
 
   function computeAggregateStats(records: SessionRecord[]): AggregateStats {
     if (records.length === 0) {
@@ -75,7 +72,6 @@
     statsView = view;
   }
 
-  $: remainingSeconds = remainingMs === null ? null : Math.max(0, Math.ceil(remainingMs / 1000));
   $: totalWindow = history.slice(0, MEAN_WINDOW);
   $: aggregateStats = computeAggregateStats(totalWindow);
   $: if (totalWindow.length === 0 && statsView === "total") {
@@ -83,17 +79,19 @@
   }
   $: isTotalView = statsView === "total" && totalWindow.length > 0;
   $: displayAccuracy = isTotalView ? aggregateStats.accuracy : stats.accuracy;
-  $: displayFormulasPerMin = isTotalView ? aggregateStats.formulasPerMin : stats.formulasPerMin;
+  $: displayMinPerFormula = isTotalView
+    ? computeMinPerFormula(aggregateStats.correct, aggregateStats.elapsedMs)
+    : computeMinPerFormula(stats.correct, stats.elapsedMs);
   $: displayCharsPerMin = isTotalView ? aggregateStats.charsPerMin : stats.charsPerMin;
   $: displayBestStreak = isTotalView ? aggregateStats.bestStreak : stats.bestStreak;
   $: displayAttempts = isTotalView ? aggregateStats.attempts : stats.attempts;
   $: displayCorrect = isTotalView ? aggregateStats.correct : stats.correct;
   $: timeTitle = mode === "timed" && !isTotalView ? "Time Left" : "Elapsed";
   $: timeValue = isTotalView
-    ? `${Math.max(0, Math.floor(aggregateStats.elapsedMs / 1000))}s`
+    ? formatElapsedDuration(aggregateStats.elapsedMs)
     : mode === "timed"
-      ? `${remainingSeconds ?? 0}s`
-      : `${Math.floor(stats.elapsedMs / 1000)}s`;
+      ? formatElapsedDuration(remainingMs ?? 0)
+      : formatElapsedDuration(stats.elapsedMs);
 </script>
 
 <div class="stats-view-toggle" role="group" aria-label="Statistics view">
@@ -127,8 +125,8 @@
   </article>
 
   <article class="stat-card">
-    <h3>Formulas/Min</h3>
-    <p>{displayFormulasPerMin}</p>
+    <h3>Min/Formula</h3>
+    <p>{displayMinPerFormula}</p>
   </article>
 
   <article class="stat-card">

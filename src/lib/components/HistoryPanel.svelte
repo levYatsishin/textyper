@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { computeMinPerFormula, formatElapsedDuration } from "../services/statsDisplay";
   import type { BestScores, SessionRecord } from "../types";
 
   export let history: SessionRecord[] = [];
@@ -24,19 +25,6 @@
     return session.settings.mode === "practice"
       ? "zen"
       : `timed · ${session.settings.durationSec}s`;
-  }
-
-  function formatElapsed(ms: number): string {
-    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    if (hours > 0) {
-      return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    }
-
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
 
   function getDisplayDifficulties(session: SessionRecord): SessionRecord["settings"]["difficulties"] {
@@ -180,7 +168,7 @@
                       {/each}
                     </span>
                     {#if record.settings.mode === "practice"}
-                      · time spent: {formatElapsed(record.stats.elapsedMs)}
+                      · time spent: {formatElapsedDuration(record.stats.elapsedMs)}
                     {/if}
                   </div>
                 </div>
@@ -205,8 +193,8 @@
                     <dd>{record.stats.bestStreak}</dd>
                   </div>
                   <div class="result-item">
-                    <dt>Formulas/Min</dt>
-                    <dd>{record.stats.formulasPerMin}</dd>
+                    <dt>Min/Formula</dt>
+                    <dd>{computeMinPerFormula(record.stats.correct, record.stats.elapsedMs)}</dd>
                   </div>
                   <div class="result-item">
                     <dt>Chars/Min</dt>
@@ -282,7 +270,7 @@
                       {/each}
                     </span>
                     {#if item.settings.mode === "practice"}
-                      · time spent: {formatElapsed(item.stats.elapsedMs)}
+                      · time spent: {formatElapsedDuration(item.stats.elapsedMs)}
                     {/if}
                   </div>
                 </div>
@@ -307,8 +295,8 @@
                     <dd>{item.stats.bestStreak}</dd>
                   </div>
                   <div class="result-item">
-                    <dt>Formulas/Min</dt>
-                    <dd>{item.stats.formulasPerMin}</dd>
+                    <dt>Min/Formula</dt>
+                    <dd>{computeMinPerFormula(item.stats.correct, item.stats.elapsedMs)}</dd>
                   </div>
                   <div class="result-item">
                     <dt>Chars/Min</dt>

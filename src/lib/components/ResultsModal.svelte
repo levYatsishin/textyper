@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { computeMinPerFormula, formatElapsedDuration } from "../services/statsDisplay";
   import type { SessionRecord } from "../types";
 
   export let open = false;
@@ -17,19 +18,6 @@
     const hours = String(hours24 % 12 || 12).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${day}/${month}/${year}, ${hours}:${minutes} ${meridiem}`;
-  }
-
-  function formatElapsed(ms: number): string {
-    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    if (hours > 0) {
-      return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    }
-
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
 
   function formatModeLabel(sessionRecord: SessionRecord): string {
@@ -112,7 +100,7 @@
       <div class="session-pills">
         <span class="session-pill">mode: {formatModeLabel(session)}</span>
         {#if session.settings.mode === "practice"}
-          <span class="session-pill">time spent: {formatElapsed(session.stats.elapsedMs)}</span>
+          <span class="session-pill">time spent: {formatElapsedDuration(session.stats.elapsedMs)}</span>
         {:else}
           <span class="session-pill">
             difficulty:
@@ -146,8 +134,8 @@
           <dd>{session.stats.bestStreak}</dd>
         </div>
         <div class="result-item">
-          <dt>Formulas/Min</dt>
-          <dd>{session.stats.formulasPerMin}</dd>
+          <dt>Min/Formula</dt>
+          <dd>{computeMinPerFormula(session.stats.correct, session.stats.elapsedMs)}</dd>
         </div>
         <div class="result-item">
           <dt>Chars/Min</dt>

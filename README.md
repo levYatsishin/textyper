@@ -28,13 +28,14 @@ Moreover, classification was mostly automatic and, to be honest, should not be t
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
 ## Planned features
 - Render-aware correctness check 
-- parse more formulas from wikipedea, wikidata, proof wiki
 - load custom user formulas
-- hover on symbol to show latex for it
-- ? symbols library as a separate page
+- better formulas
+    - better ontology and llm auto classification
+    - parse more formulas from wikipedea, wikidata, proof wiki
 - integrate auto-shortcuts/expansions 
-- better ontology and llm auto classification
-- Gamefication mode: add rarity to formulas and probability of them appearing (for the first time / after they appeared once) with some collors and little effects. Bestiary/collection.
+- ?
+    - symbols library as a separate page
+    - Gamefication mode: add rarity to formulas and probability of them appearing (for the first time / after they appeared once) with some collors and little effects. Bestiary/collection.
 ## Run it yourself 
 ```bash
 git clone https://github.com/levYatsishin/textyper.git

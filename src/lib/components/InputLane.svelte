@@ -2,6 +2,7 @@
   import { createEventDispatcher, tick } from "svelte";
   import katex from "katex";
   import { normalizeLatex } from "../services/matcher";
+  import { formatElapsedDuration } from "../services/statsDisplay";
   import type { Mode, SessionStatus, SubmissionResult } from "../types";
 
   export let status: SessionStatus;
@@ -58,19 +59,6 @@
     void autoSubmitIfCorrect();
   }
 
-  function formatZenElapsed(ms: number): string {
-    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    if (hours > 0) {
-      return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    }
-
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  }
-
   $: if (status === "running") {
     tick().then(() => inputElement?.focus());
   }
@@ -84,7 +72,7 @@
   $: hasPreview = value.trim().length > 0;
   $: runModeLabel = mode === "practice" ? "zen" : "timed";
   $: remainingSec = Math.max(0, Math.ceil((remainingMs ?? 0) / 1000));
-  $: runCounter = mode === "practice" ? formatZenElapsed(elapsedMs) : String(remainingSec);
+  $: runCounter = mode === "practice" ? formatElapsedDuration(elapsedMs) : String(remainingSec);
   $: wasSkipped = !!lastResult && !lastResult.isCorrect && lastResult.inputLatex.trim().length === 0;
 </script>
 
