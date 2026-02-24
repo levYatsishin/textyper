@@ -55,12 +55,19 @@
     }));
   }
 
-  function getDifficultyBreakdown(sessionRecord: SessionRecord): Array<{ key: string; label: string; solved: number; given: number }> {
+  function getDifficultyBreakdown(
+    sessionRecord: SessionRecord
+  ): Array<{ key: string; label: string; solved: number; given: number; colorClass: string; progressPct: number }> {
     const order: Array<{ key: keyof SessionRecord["stats"]["byDifficulty"]; label: string }> = [
       { key: "beginner", label: "easy" },
       { key: "intermediate", label: "medium" },
       { key: "advanced", label: "hard" }
     ];
+    const colorClassByKey: Record<keyof SessionRecord["stats"]["byDifficulty"], string> = {
+      beginner: "difficulty-inline-easy",
+      intermediate: "difficulty-inline-medium",
+      advanced: "difficulty-inline-hard"
+    };
 
     if (sessionRecord.settings.mode === "timed") {
       return order
@@ -68,7 +75,12 @@
         .map((entry) => ({
           ...entry,
           solved: sessionRecord.stats.byDifficulty[entry.key].solved,
-          given: sessionRecord.stats.byDifficulty[entry.key].given
+          given: sessionRecord.stats.byDifficulty[entry.key].given,
+          colorClass: colorClassByKey[entry.key],
+          progressPct:
+            sessionRecord.stats.byDifficulty[entry.key].given > 0
+              ? (sessionRecord.stats.byDifficulty[entry.key].solved / sessionRecord.stats.byDifficulty[entry.key].given) * 100
+              : 0
         }));
     }
 
@@ -76,7 +88,12 @@
       .map((entry) => ({
         ...entry,
         solved: sessionRecord.stats.byDifficulty[entry.key].solved,
-        given: sessionRecord.stats.byDifficulty[entry.key].given
+        given: sessionRecord.stats.byDifficulty[entry.key].given,
+        colorClass: colorClassByKey[entry.key],
+        progressPct:
+          sessionRecord.stats.byDifficulty[entry.key].given > 0
+            ? (sessionRecord.stats.byDifficulty[entry.key].solved / sessionRecord.stats.byDifficulty[entry.key].given) * 100
+            : 0
       }))
       .filter((entry) => entry.given > 0);
   }
@@ -139,8 +156,14 @@
           <p class="difficulty-breakdown-title">By difficulty</p>
           <ul class="difficulty-breakdown-list">
             {#each getDifficultyBreakdown(session) as item (item.key)}
-              <li>
-                <span class="difficulty-breakdown-label">{item.label}</span>
+              <li class="difficulty-breakdown-item">
+                <span class={`difficulty-breakdown-label ${item.colorClass}`}>{item.label}</span>
+                <div class="difficulty-progress-track" aria-hidden="true">
+                  <span
+                    class={`difficulty-progress-fill ${item.colorClass}`}
+                    style={`width: ${item.progressPct}%`}
+                  ></span>
+                </div>
                 <span class="difficulty-breakdown-value">{item.solved}/{item.given} solved</span>
               </li>
             {/each}

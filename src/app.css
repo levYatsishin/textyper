@@ -1046,14 +1046,14 @@ body {
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 0.26rem;
+  gap: 0.34rem;
 }
 
-.difficulty-breakdown-list li {
-  display: flex;
+.difficulty-breakdown-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.56rem;
 }
 
 .difficulty-breakdown-label {
@@ -1065,6 +1065,22 @@ body {
 .difficulty-breakdown-value {
   color: var(--fg);
   font-size: 0.82rem;
+}
+
+.difficulty-progress-track {
+  width: 100%;
+  height: 0.16rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 70%, transparent);
+  overflow: hidden;
+}
+
+.difficulty-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+  min-width: 0;
 }
 
 .modal-actions {
