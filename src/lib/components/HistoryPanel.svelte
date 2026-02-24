@@ -5,7 +5,9 @@
   export let history: SessionRecord[] = [];
   export let bests: BestScores = {};
   type ConfirmTarget = "bests" | "history" | null;
+  type HistoryGroup = "bests" | "recent";
   let confirmTarget: ConfirmTarget = null;
+  let expandedEntryKeys: string[] = [];
   const dispatch = createEventDispatcher<{ clearHistory: void; clearBests: void }>();
 
   function formatDate(timestamp: number): string {
@@ -60,6 +62,66 @@
     }));
   }
 
+  function getDifficultyBreakdown(
+    sessionRecord: SessionRecord
+  ): Array<{ key: string; label: string; solved: number; given: number; colorClass: string; progressPct: number }> {
+    const order: Array<{ key: keyof SessionRecord["stats"]["byDifficulty"]; label: string }> = [
+      { key: "beginner", label: "easy" },
+      { key: "intermediate", label: "medium" },
+      { key: "advanced", label: "hard" }
+    ];
+    const colorClassByKey: Record<keyof SessionRecord["stats"]["byDifficulty"], string> = {
+      beginner: "difficulty-inline-easy",
+      intermediate: "difficulty-inline-medium",
+      advanced: "difficulty-inline-hard"
+    };
+
+    if (sessionRecord.settings.mode === "timed") {
+      return order
+        .filter((entry) => sessionRecord.settings.difficulties.includes(entry.key))
+        .map((entry) => ({
+          ...entry,
+          solved: sessionRecord.stats.byDifficulty[entry.key].solved,
+          given: sessionRecord.stats.byDifficulty[entry.key].given,
+          colorClass: colorClassByKey[entry.key],
+          progressPct:
+            sessionRecord.stats.byDifficulty[entry.key].given > 0
+              ? (sessionRecord.stats.byDifficulty[entry.key].solved / sessionRecord.stats.byDifficulty[entry.key].given) * 100
+              : 0
+        }));
+    }
+
+    return order
+      .map((entry) => ({
+        ...entry,
+        solved: sessionRecord.stats.byDifficulty[entry.key].solved,
+        given: sessionRecord.stats.byDifficulty[entry.key].given,
+        colorClass: colorClassByKey[entry.key],
+        progressPct:
+          sessionRecord.stats.byDifficulty[entry.key].given > 0
+            ? (sessionRecord.stats.byDifficulty[entry.key].solved / sessionRecord.stats.byDifficulty[entry.key].given) * 100
+            : 0
+      }))
+      .filter((entry) => entry.given > 0);
+  }
+
+  function getEntryKey(group: HistoryGroup, recordId: string): string {
+    return `${group}:${recordId}`;
+  }
+
+  function isEntryExpanded(group: HistoryGroup, recordId: string): boolean {
+    return expandedEntryKeys.includes(getEntryKey(group, recordId));
+  }
+
+  function toggleEntry(group: HistoryGroup, recordId: string): void {
+    const key = getEntryKey(group, recordId);
+    if (expandedEntryKeys.includes(key)) {
+      expandedEntryKeys = expandedEntryKeys.filter((entryKey) => entryKey !== key);
+      return;
+    }
+    expandedEntryKeys = [...expandedEntryKeys, key];
+  }
+
   $: bestEntries = Object.entries(bests);
   $: recent = history.slice(0, 8);
 
@@ -105,11 +167,19 @@
     {:else}
       <ul class="history-list">
         {#each bestEntries as [, record]}
-          <li class="history-item">
-            <div class="history-main">
-              <strong>{formatDate(record.endedAt)}</strong>
-            </div>
-            <div class="history-meta">
+          <li class={`history-item ${isEntryExpanded("bests", record.id) ? "expanded" : ""}`}>
+            <button
+              type="button"
+              class="history-item-toggle"
+              aria-expanded={isEntryExpanded("bests", record.id)}
+              on:click={() => toggleEntry("bests", record.id)}
+            >
+              <div class="history-main">
+                <strong>{formatDate(record.endedAt)}</strong>
+              </div>
+              <span class="history-item-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="history-meta history-meta-preview">
               mode: {formatModeLabel(record)} · difficulty:
               <span class="difficulty-inline-group">
                 {#each getDifficultyParts(record.settings.difficulties) as part, index (part.key)}
@@ -123,9 +193,56 @@
                 · time spent: {formatElapsed(record.stats.elapsedMs)}
               {/if}
             </div>
-            <div class="history-meta history-meta-stats">
-              correct: {record.stats.correct} · attempts: {record.stats.attempts} · accuracy: {record.stats.accuracy}% · formulas/min: {record.stats.formulasPerMin} · chars/min: {record.stats.charsPerMin} · best streak: {record.stats.bestStreak}
-            </div>
+            {#if isEntryExpanded("bests", record.id)}
+              <div class="history-details">
+                <dl class="result-grid history-result-grid">
+                  <div class="result-item">
+                    <dt>Correct</dt>
+                    <dd>{record.stats.correct}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Attempts</dt>
+                    <dd>{record.stats.attempts}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Accuracy</dt>
+                    <dd>{record.stats.accuracy}%</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Best Streak</dt>
+                    <dd>{record.stats.bestStreak}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Formulas/Min</dt>
+                    <dd>{record.stats.formulasPerMin}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Chars/Min</dt>
+                    <dd>{record.stats.charsPerMin}</dd>
+                  </div>
+                </dl>
+
+                {#if getDifficultyBreakdown(record).length > 0}
+                  <div class="difficulty-breakdown history-difficulty-breakdown">
+                    <p class="difficulty-breakdown-title">By difficulty</p>
+                    <ul class="difficulty-breakdown-list">
+                      {#each getDifficultyBreakdown(record) as item (item.key)}
+                        <li class="difficulty-breakdown-item">
+                          <span class={`difficulty-breakdown-label ${item.colorClass}`}>{item.label}</span>
+                          <div class="difficulty-progress-track" aria-hidden="true">
+                            <span
+                              class={`difficulty-progress-fill ${item.colorClass}`}
+                              style={`width: ${item.progressPct}%`}
+                            ></span>
+                          </div>
+                          <span class="difficulty-breakdown-value">{item.solved}/{item.given} solved</span>
+                        </li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/if}
+              </div>
+            {/if}
           </li>
         {/each}
       </ul>
@@ -155,11 +272,19 @@
     {:else}
       <ul class="history-list">
         {#each recent as item}
-          <li class="history-item">
-            <div class="history-main">
-              <strong>{formatDate(item.endedAt)}</strong>
-            </div>
-            <div class="history-meta">
+          <li class={`history-item ${isEntryExpanded("recent", item.id) ? "expanded" : ""}`}>
+            <button
+              type="button"
+              class="history-item-toggle"
+              aria-expanded={isEntryExpanded("recent", item.id)}
+              on:click={() => toggleEntry("recent", item.id)}
+            >
+              <div class="history-main">
+                <strong>{formatDate(item.endedAt)}</strong>
+              </div>
+              <span class="history-item-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="history-meta history-meta-preview">
               mode: {formatModeLabel(item)} · difficulty:
               <span class="difficulty-inline-group">
                 {#each getDifficultyParts(item.settings.difficulties) as part, index (part.key)}
@@ -173,9 +298,56 @@
                 · time spent: {formatElapsed(item.stats.elapsedMs)}
               {/if}
             </div>
-            <div class="history-meta history-meta-stats">
-              correct: {item.stats.correct} · attempts: {item.stats.attempts} · accuracy: {item.stats.accuracy}% · formulas/min: {item.stats.formulasPerMin} · chars/min: {item.stats.charsPerMin} · best streak: {item.stats.bestStreak}
-            </div>
+            {#if isEntryExpanded("recent", item.id)}
+              <div class="history-details">
+                <dl class="result-grid history-result-grid">
+                  <div class="result-item">
+                    <dt>Correct</dt>
+                    <dd>{item.stats.correct}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Attempts</dt>
+                    <dd>{item.stats.attempts}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Accuracy</dt>
+                    <dd>{item.stats.accuracy}%</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Best Streak</dt>
+                    <dd>{item.stats.bestStreak}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Formulas/Min</dt>
+                    <dd>{item.stats.formulasPerMin}</dd>
+                  </div>
+                  <div class="result-item">
+                    <dt>Chars/Min</dt>
+                    <dd>{item.stats.charsPerMin}</dd>
+                  </div>
+                </dl>
+
+                {#if getDifficultyBreakdown(item).length > 0}
+                  <div class="difficulty-breakdown history-difficulty-breakdown">
+                    <p class="difficulty-breakdown-title">By difficulty</p>
+                    <ul class="difficulty-breakdown-list">
+                      {#each getDifficultyBreakdown(item) as breakdown (breakdown.key)}
+                        <li class="difficulty-breakdown-item">
+                          <span class={`difficulty-breakdown-label ${breakdown.colorClass}`}>{breakdown.label}</span>
+                          <div class="difficulty-progress-track" aria-hidden="true">
+                            <span
+                              class={`difficulty-progress-fill ${breakdown.colorClass}`}
+                              style={`width: ${breakdown.progressPct}%`}
+                            ></span>
+                          </div>
+                          <span class="difficulty-breakdown-value">{breakdown.solved}/{breakdown.given} solved</span>
+                        </li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/if}
+              </div>
+            {/if}
           </li>
         {/each}
       </ul>

@@ -934,6 +934,37 @@ body {
   background: transparent;
 }
 
+.history-item-toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.44rem;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.history-item-toggle:hover .history-item-chevron {
+  color: var(--fg);
+}
+
+.history-item-chevron {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1;
+  transition: transform 0.14s ease;
+}
+
+.history-item.expanded .history-item-chevron {
+  transform: rotate(180deg);
+}
+
 .history-item + .history-item {
   border-top: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
 }
@@ -946,10 +977,46 @@ body {
 }
 
 .history-meta {
-  margin-top: 0.18rem;
+  margin-top: 0.14rem;
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.2;
+}
+
+.history-meta-preview {
+  margin-top: 0.18rem;
+}
+
+.history-details {
+  margin-top: 0.46rem;
+  border-top: 1px solid color-mix(in srgb, var(--line) 52%, transparent);
+  padding-top: 0.42rem;
+  display: grid;
+  gap: 0.36rem;
+}
+
+.history-result-grid {
+  gap: 0.44rem 0.68rem;
+}
+
+.history-result-grid .result-item dt {
+  font-size: 0.66rem;
+}
+
+.history-result-grid .result-item dd {
+  font-size: 0.9rem;
+}
+
+.history-difficulty-breakdown {
+  padding-top: 0.46rem;
+}
+
+.history-difficulty-breakdown .difficulty-breakdown-title {
+  font-size: 0.66rem;
+}
+
+.history-difficulty-breakdown .difficulty-breakdown-list {
+  gap: 0.26rem;
 }
 
 .history-meta-stats {
