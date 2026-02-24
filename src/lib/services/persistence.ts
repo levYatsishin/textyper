@@ -17,6 +17,55 @@ export const DEFAULT_SETTINGS: SessionSettings = {
   revealLatex: false
 };
 
+function createEmptyDifficultyStats(): SessionRecord["stats"]["byDifficulty"] {
+  return {
+    beginner: { given: 0, solved: 0 },
+    intermediate: { given: 0, solved: 0 },
+    advanced: { given: 0, solved: 0 }
+  };
+}
+
+function sanitizeDifficultyStats(
+  raw: unknown,
+  fallbackSettings: SessionSettings | null,
+  fallbackAttempts: number,
+  fallbackCorrect: number
+): SessionRecord["stats"]["byDifficulty"] {
+  const empty = createEmptyDifficultyStats();
+  const toNonNegativeNumber = (value: unknown): number => {
+    const parsed = typeof value === "number" ? value : Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+  };
+
+  if (raw && typeof raw === "object") {
+    const input = raw as Record<string, unknown>;
+    return {
+      beginner: {
+        given: toNonNegativeNumber((input.beginner as { given?: unknown } | undefined)?.given),
+        solved: toNonNegativeNumber((input.beginner as { solved?: unknown } | undefined)?.solved)
+      },
+      intermediate: {
+        given: toNonNegativeNumber((input.intermediate as { given?: unknown } | undefined)?.given),
+        solved: toNonNegativeNumber((input.intermediate as { solved?: unknown } | undefined)?.solved)
+      },
+      advanced: {
+        given: toNonNegativeNumber((input.advanced as { given?: unknown } | undefined)?.given),
+        solved: toNonNegativeNumber((input.advanced as { solved?: unknown } | undefined)?.solved)
+      }
+    };
+  }
+
+  if (fallbackSettings && fallbackSettings.difficulties.length === 1) {
+    const difficulty = fallbackSettings.difficulties[0];
+    empty[difficulty] = {
+      given: Math.max(0, fallbackAttempts),
+      solved: Math.max(0, fallbackCorrect)
+    };
+  }
+
+  return empty;
+}
+
 function hasLocalStorage(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 }
@@ -170,9 +219,19 @@ function sanitizeSessionRecord(raw: unknown): SessionRecord | null {
   if (!isSessionRecord(raw)) {
     return null;
   }
+  const settings = sanitizeSettings(raw.settings);
   return {
     ...raw,
-    settings: sanitizeSettings(raw.settings)
+    settings,
+    stats: {
+      ...raw.stats,
+      byDifficulty: sanitizeDifficultyStats(
+        (raw.stats as { byDifficulty?: unknown }).byDifficulty,
+        settings,
+        raw.stats.attempts,
+        raw.stats.correct
+      )
+    }
   };
 }
 
@@ -301,6 +360,7 @@ export interface ActiveSessionSnapshot {
   correct: number;
   bestStreak: number;
   typedChars: number;
+  byDifficulty: SessionRecord["stats"]["byDifficulty"];
   currentStreak: number;
   currentExpressionId: string | null;
   lastResult: SubmissionResult | null;
@@ -351,7 +411,13 @@ export function loadActiveSession(): ActiveSessionSnapshot | null {
 
   return {
     ...parsed,
-    settings: sanitizeSettings(parsed.settings)
+    settings: sanitizeSettings(parsed.settings),
+    byDifficulty: sanitizeDifficultyStats(
+      (parsed as { byDifficulty?: unknown }).byDifficulty,
+      sanitizeSettings(parsed.settings),
+      parsed.attempts,
+      parsed.correct
+    )
   };
 }
 

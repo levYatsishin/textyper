@@ -7,6 +7,37 @@ export interface SessionMetricsInput {
   correct: number;
   bestStreak: number;
   typedChars: number;
+  byDifficulty: SessionStats["byDifficulty"];
+}
+
+function createEmptyDifficultyStats(): SessionStats["byDifficulty"] {
+  return {
+    beginner: { given: 0, solved: 0 },
+    intermediate: { given: 0, solved: 0 },
+    advanced: { given: 0, solved: 0 }
+  };
+}
+
+function normalizeDifficultyStats(input: SessionStats["byDifficulty"] | undefined): SessionStats["byDifficulty"] {
+  const empty = createEmptyDifficultyStats();
+  if (!input) {
+    return empty;
+  }
+
+  return {
+    beginner: {
+      given: Math.max(0, input.beginner?.given ?? 0),
+      solved: Math.max(0, input.beginner?.solved ?? 0)
+    },
+    intermediate: {
+      given: Math.max(0, input.intermediate?.given ?? 0),
+      solved: Math.max(0, input.intermediate?.solved ?? 0)
+    },
+    advanced: {
+      given: Math.max(0, input.advanced?.given ?? 0),
+      solved: Math.max(0, input.advanced?.solved ?? 0)
+    }
+  };
 }
 
 function roundToTwo(value: number): number {
@@ -43,7 +74,8 @@ export function createEmptyStats(startedAt = Date.now()): SessionStats {
     accuracy: 0,
     formulasPerMin: 0,
     charsPerMin: 0,
-    bestStreak: 0
+    bestStreak: 0,
+    byDifficulty: createEmptyDifficultyStats()
   };
 }
 
@@ -56,6 +88,7 @@ export function toSessionStats(input: SessionMetricsInput): SessionStats {
     accuracy: computeAccuracy(input.correct, input.attempts),
     formulasPerMin: computeFormulasPerMin(input.correct, input.elapsedMs),
     charsPerMin: computeCharsPerMin(input.typedChars, input.elapsedMs),
-    bestStreak: input.bestStreak
+    bestStreak: input.bestStreak,
+    byDifficulty: normalizeDifficultyStats(input.byDifficulty)
   };
 }

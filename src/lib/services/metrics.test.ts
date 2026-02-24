@@ -22,7 +22,12 @@ describe("metrics", () => {
       attempts: 5,
       correct: 4,
       bestStreak: 3,
-      typedChars: 220
+      typedChars: 220,
+      byDifficulty: {
+        beginner: { given: 2, solved: 2 },
+        intermediate: { given: 2, solved: 1 },
+        advanced: { given: 1, solved: 1 }
+      }
     });
 
     expect(stats.startedAt).toBe(10);
@@ -31,5 +36,6 @@ describe("metrics", () => {
     expect(stats.accuracy).toBe(80);
     expect(stats.bestStreak).toBe(3);
     expect(stats.charsPerMin).toBe(440);
+    expect(stats.byDifficulty.intermediate.solved).toBe(1);
   });
 });

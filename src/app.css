@@ -974,6 +974,32 @@ body {
   text-transform: lowercase;
 }
 
+.difficulty-inline-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.difficulty-inline {
+  text-transform: lowercase;
+}
+
+.difficulty-inline-easy {
+  color: var(--green);
+}
+
+.difficulty-inline-medium {
+  color: var(--yellow);
+}
+
+.difficulty-inline-hard {
+  color: var(--red);
+}
+
+.difficulty-inline-separator {
+  color: var(--black);
+}
+
 .result-grid {
   margin: 0;
   display: grid;
@@ -1000,6 +1026,45 @@ body {
   color: var(--fg);
   font-size: 1.06rem;
   line-height: 1.1;
+}
+
+.difficulty-breakdown {
+  border-top: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+  padding-top: 0.56rem;
+}
+
+.difficulty-breakdown-title {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.difficulty-breakdown-list {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.26rem;
+}
+
+.difficulty-breakdown-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.difficulty-breakdown-label {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: lowercase;
+}
+
+.difficulty-breakdown-value {
+  color: var(--fg);
+  font-size: 0.82rem;
 }
 
 .modal-actions {

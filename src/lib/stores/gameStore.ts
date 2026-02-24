@@ -18,6 +18,7 @@ import {
 } from "../services/persistence";
 import type {
   CompareLatexFn,
+  Difficulty,
   Expression,
   GameState,
   GameStore,
@@ -126,6 +127,21 @@ function createSessionRecord(endedAt: number, settings: SessionSettings, stats: 
     endedAt,
     settings: { ...settings },
     stats: { ...stats }
+  };
+}
+
+function incrementDifficultyStats(
+  current: GameState["stats"]["byDifficulty"],
+  difficulty: Difficulty,
+  solvedIncrement: number
+): GameState["stats"]["byDifficulty"] {
+  const currentEntry = current[difficulty];
+  return {
+    ...current,
+    [difficulty]: {
+      given: currentEntry.given + 1,
+      solved: currentEntry.solved + solvedIncrement
+    }
   };
 }
 
@@ -266,7 +282,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
           attempts: activeSnapshot.attempts,
           correct: activeSnapshot.correct,
           bestStreak: activeSnapshot.bestStreak,
-          typedChars: activeSnapshot.typedChars
+          typedChars: activeSnapshot.typedChars,
+          byDifficulty: activeSnapshot.byDifficulty
         }),
         currentExpression:
           (hasRestoredExpression ? restoredExpression : null) ??
@@ -323,6 +340,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
         correct: nextState.stats.correct,
         bestStreak: nextState.stats.bestStreak,
         typedChars: nextState.typedChars,
+        byDifficulty: nextState.stats.byDifficulty,
         currentStreak: nextState.currentStreak,
         currentExpressionId: nextState.currentExpression?.id ?? null,
         lastResult: nextState.lastResult
@@ -350,7 +368,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       attempts: currentState.stats.attempts,
       correct: currentState.stats.correct,
       bestStreak: currentState.stats.bestStreak,
-      typedChars: currentState.typedChars
+      typedChars: currentState.typedChars,
+      byDifficulty: currentState.stats.byDifficulty
     });
 
     let record: SessionRecord | null = null;
@@ -391,7 +410,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       attempts: state.stats.attempts,
       correct: state.stats.correct,
       bestStreak: state.stats.bestStreak,
-      typedChars: state.typedChars
+      typedChars: state.typedChars,
+      byDifficulty: state.stats.byDifficulty
     });
 
     let nextState: GameState = {
@@ -490,13 +510,19 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     const currentStreak = result.isMatch ? state.currentStreak + 1 : 0;
     const typedChars = state.typedChars + inputLatex.length;
     const bestStreak = Math.max(state.stats.bestStreak, currentStreak);
+    const byDifficulty = incrementDifficultyStats(
+      state.stats.byDifficulty,
+      targetExpression.difficulty,
+      result.isMatch ? 1 : 0
+    );
     const stats = toSessionStats({
       startedAt: sessionStartedAt,
       elapsedMs,
       attempts,
       correct,
       bestStreak,
-      typedChars
+      typedChars,
+      byDifficulty
     });
     const limitMs = getTimeLimitMs(state.settings);
 
@@ -542,7 +568,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       attempts,
       correct: state.stats.correct,
       bestStreak: state.stats.bestStreak,
-      typedChars: state.typedChars
+      typedChars: state.typedChars,
+      byDifficulty: incrementDifficultyStats(state.stats.byDifficulty, state.currentExpression.difficulty, 0)
     });
     const limitMs = getTimeLimitMs(state.settings);
 

@@ -33,6 +33,53 @@
       ? "zen"
       : `timed · ${sessionRecord.settings.durationSec}s`;
   }
+
+  function getDifficultyParts(
+    difficulties: SessionRecord["settings"]["difficulties"]
+  ): Array<{ key: string; label: string; colorClass: string }> {
+    const labels: Record<string, string> = {
+      beginner: "easy",
+      intermediate: "medium",
+      advanced: "hard"
+    };
+    const colors: Record<string, string> = {
+      beginner: "difficulty-inline-easy",
+      intermediate: "difficulty-inline-medium",
+      advanced: "difficulty-inline-hard"
+    };
+
+    return difficulties.map((difficulty) => ({
+      key: difficulty,
+      label: labels[difficulty] ?? difficulty,
+      colorClass: colors[difficulty] ?? ""
+    }));
+  }
+
+  function getDifficultyBreakdown(sessionRecord: SessionRecord): Array<{ key: string; label: string; solved: number; given: number }> {
+    const order: Array<{ key: keyof SessionRecord["stats"]["byDifficulty"]; label: string }> = [
+      { key: "beginner", label: "easy" },
+      { key: "intermediate", label: "medium" },
+      { key: "advanced", label: "hard" }
+    ];
+
+    if (sessionRecord.settings.mode === "timed") {
+      return order
+        .filter((entry) => sessionRecord.settings.difficulties.includes(entry.key))
+        .map((entry) => ({
+          ...entry,
+          solved: sessionRecord.stats.byDifficulty[entry.key].solved,
+          given: sessionRecord.stats.byDifficulty[entry.key].given
+        }));
+    }
+
+    return order
+      .map((entry) => ({
+        ...entry,
+        solved: sessionRecord.stats.byDifficulty[entry.key].solved,
+        given: sessionRecord.stats.byDifficulty[entry.key].given
+      }))
+      .filter((entry) => entry.given > 0);
+  }
 </script>
 
 {#if open && session}
@@ -45,6 +92,18 @@
         <span class="session-pill">mode: {formatModeLabel(session)}</span>
         {#if session.settings.mode === "practice"}
           <span class="session-pill">time spent: {formatElapsed(session.stats.elapsedMs)}</span>
+        {:else}
+          <span class="session-pill">
+            difficulty:
+            <span class="difficulty-inline-group">
+              {#each getDifficultyParts(session.settings.difficulties) as item, index (item.key)}
+                <span class={`difficulty-inline ${item.colorClass}`}>{item.label}</span>
+                {#if index < session.settings.difficulties.length - 1}
+                  <span class="difficulty-inline-separator">|</span>
+                {/if}
+              {/each}
+            </span>
+          </span>
         {/if}
       </div>
 
@@ -74,6 +133,20 @@
           <dd>{session.stats.charsPerMin}</dd>
         </div>
       </dl>
+
+      {#if getDifficultyBreakdown(session).length > 0}
+        <div class="difficulty-breakdown">
+          <p class="difficulty-breakdown-title">By difficulty</p>
+          <ul class="difficulty-breakdown-list">
+            {#each getDifficultyBreakdown(session) as item (item.key)}
+              <li>
+                <span class="difficulty-breakdown-label">{item.label}</span>
+                <span class="difficulty-breakdown-value">{item.solved}/{item.given} solved</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
+      {/if}
 
       <div class="modal-actions">
         <button type="button" class="btn subtle" on:click={() => dispatch("close")}>Close</button>

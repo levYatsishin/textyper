@@ -38,7 +38,12 @@ function makeRecord(index: number): SessionRecord {
       accuracy: index * 10,
       formulasPerMin: index,
       charsPerMin: index * 11,
-      bestStreak: index
+      bestStreak: index,
+      byDifficulty: {
+        beginner: { given: index, solved: index },
+        intermediate: { given: 0, solved: 0 },
+        advanced: { given: 0, solved: 0 }
+      }
     }
   };
 }

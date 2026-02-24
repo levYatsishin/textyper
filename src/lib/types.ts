@@ -83,6 +83,7 @@ export interface SessionStats {
   formulasPerMin: number;
   charsPerMin: number;
   bestStreak: number;
+  byDifficulty: Record<Difficulty, { given: number; solved: number }>;
 }
 
 export interface MatchResult {

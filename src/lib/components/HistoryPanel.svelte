@@ -31,13 +31,25 @@
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
 
-  function formatDifficulties(difficulties: SessionRecord["settings"]["difficulties"]): string {
+  function getDifficultyParts(
+    difficulties: SessionRecord["settings"]["difficulties"]
+  ): Array<{ key: string; label: string; colorClass: string }> {
     const labels: Record<string, string> = {
       beginner: "easy",
       intermediate: "medium",
       advanced: "hard"
     };
-    return difficulties.map((difficulty) => labels[difficulty] ?? difficulty).join("+");
+    const colors: Record<string, string> = {
+      beginner: "difficulty-inline-easy",
+      intermediate: "difficulty-inline-medium",
+      advanced: "difficulty-inline-hard"
+    };
+
+    return difficulties.map((difficulty) => ({
+      key: difficulty,
+      label: labels[difficulty] ?? difficulty,
+      colorClass: colors[difficulty] ?? ""
+    }));
   }
 
   $: bestEntries = Object.entries(bests);
@@ -57,7 +69,15 @@
               <strong>{formatDate(record.endedAt)}</strong>
             </div>
             <div class="history-meta">
-              mode: {formatModeLabel(record)} · difficulty: {formatDifficulties(record.settings.difficulties)}
+              mode: {formatModeLabel(record)} · difficulty:
+              <span class="difficulty-inline-group">
+                {#each getDifficultyParts(record.settings.difficulties) as part, index (part.key)}
+                  <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
+                  {#if index < record.settings.difficulties.length - 1}
+                    <span class="difficulty-inline-separator">|</span>
+                  {/if}
+                {/each}
+              </span>
               {#if record.settings.mode === "practice"}
                 · time spent: {formatElapsed(record.stats.elapsedMs)}
               {/if}
@@ -83,7 +103,15 @@
               <strong>{formatDate(item.endedAt)}</strong>
             </div>
             <div class="history-meta">
-              mode: {formatModeLabel(item)} · difficulty: {formatDifficulties(item.settings.difficulties)}
+              mode: {formatModeLabel(item)} · difficulty:
+              <span class="difficulty-inline-group">
+                {#each getDifficultyParts(item.settings.difficulties) as part, index (part.key)}
+                  <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
+                  {#if index < item.settings.difficulties.length - 1}
+                    <span class="difficulty-inline-separator">|</span>
+                  {/if}
+                {/each}
+              </span>
               {#if item.settings.mode === "practice"}
                 · time spent: {formatElapsed(item.stats.elapsedMs)}
               {/if}
