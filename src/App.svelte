@@ -489,6 +489,7 @@
         mode={$game.settings.mode}
         remainingMs={$game.remainingMs}
         status={$game.status}
+        history={$game.history}
       />
 
       <HistoryPanel

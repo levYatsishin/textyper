@@ -828,6 +828,24 @@ body {
   gap: 0.44rem;
 }
 
+.stats-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin-bottom: 0.36rem;
+}
+
+.stats-view-option {
+  font-size: 0.78rem;
+}
+
+.stats-view-hint {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
 .stat-card {
   border: 1px solid var(--line);
   border-radius: 0.45rem;
@@ -847,6 +865,13 @@ body {
 .stat-card p {
   margin: 0.4rem 0 0;
   font-size: 0.94rem;
+}
+
+.attempts-correct {
+  margin-left: 0.18rem;
+  color: var(--muted);
+  opacity: 0.52;
+  font-size: 0.86em;
 }
 
 .history-panel {
