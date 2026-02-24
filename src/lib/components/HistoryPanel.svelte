@@ -39,8 +39,22 @@
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
 
+  function getDisplayDifficulties(session: SessionRecord): SessionRecord["settings"]["difficulties"] {
+    if (session.settings.mode !== "practice") {
+      return session.settings.difficulties;
+    }
+
+    const runDifficulties = (["beginner", "intermediate", "advanced"] as const).filter(
+      (difficulty) => session.stats.byDifficulty[difficulty].given > 0
+    );
+
+    return runDifficulties.length > 0
+      ? (runDifficulties as SessionRecord["settings"]["difficulties"])
+      : session.settings.difficulties;
+  }
+
   function getDifficultyParts(
-    difficulties: SessionRecord["settings"]["difficulties"]
+    difficulties: ReadonlyArray<SessionRecord["settings"]["difficulties"][number]>
   ): Array<{ key: string; label: string; colorClass: string }> {
     const labels: Record<string, string> = {
       beginner: "easy",
@@ -158,9 +172,9 @@
                   <div class="history-meta history-meta-preview">
                     mode: {formatModeLabel(record)} · difficulty:
                     <span class="difficulty-inline-group">
-                      {#each getDifficultyParts(record.settings.difficulties) as part, index (part.key)}
+                      {#each getDifficultyParts(getDisplayDifficulties(record)) as part, index (part.key)}
                         <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
-                        {#if index < record.settings.difficulties.length - 1}
+                        {#if index < getDisplayDifficulties(record).length - 1}
                           <span class="difficulty-inline-separator">|</span>
                         {/if}
                       {/each}
@@ -260,9 +274,9 @@
                   <div class="history-meta history-meta-preview">
                     mode: {formatModeLabel(item)} · difficulty:
                     <span class="difficulty-inline-group">
-                      {#each getDifficultyParts(item.settings.difficulties) as part, index (part.key)}
+                      {#each getDifficultyParts(getDisplayDifficulties(item)) as part, index (part.key)}
                         <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
-                        {#if index < item.settings.difficulties.length - 1}
+                        {#if index < getDisplayDifficulties(item).length - 1}
                           <span class="difficulty-inline-separator">|</span>
                         {/if}
                       {/each}
