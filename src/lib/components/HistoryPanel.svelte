@@ -7,8 +7,9 @@
   export let bests: BestScores = [];
   const RECENT_PAGE_SIZE = 7;
   let recentPage = 1;
-  let confirmClearHistory = false;
-  const dispatch = createEventDispatcher<{ clearHistory: void }>();
+  type ConfirmAction = { type: "clearHistory" } | { type: "deleteSession"; id: string; date: string } | null;
+  let confirmAction: ConfirmAction = null;
+  const dispatch = createEventDispatcher<{ clearHistory: void; deleteSession: { id: string } }>();
 
   function formatDate(timestamp: number): string {
     const date = new Date(timestamp);
@@ -113,17 +114,34 @@
   $: recent = history.slice(recentStart, recentStart + RECENT_PAGE_SIZE);
 
   function openClearConfirm(): void {
-    confirmClearHistory = true;
+    confirmAction = { type: "clearHistory" };
+  }
+
+  function openDeleteConfirm(record: SessionRecord): void {
+    confirmAction = {
+      type: "deleteSession",
+      id: record.id,
+      date: formatDate(record.endedAt)
+    };
   }
 
   function closeConfirm(): void {
-    confirmClearHistory = false;
+    confirmAction = null;
   }
 
   function confirmClear(): void {
-    dispatch("clearHistory");
-    recentPage = 1;
-    confirmClearHistory = false;
+    if (!confirmAction) {
+      return;
+    }
+
+    if (confirmAction.type === "clearHistory") {
+      dispatch("clearHistory");
+      recentPage = 1;
+    } else {
+      dispatch("deleteSession", { id: confirmAction.id });
+    }
+
+    confirmAction = null;
   }
 
   function goToPreviousRecentPage(): void {
@@ -141,17 +159,18 @@
 
 <section class="history-panel">
   <details class="panel-card">
-    <summary>Best scores</summary>
+    <summary>Best 5</summary>
     {#if bestEntries.length === 0}
       <p class="muted">No sessions yet.</p>
     {:else}
       <ul class="history-list">
-        {#each bestEntries as record (record.id)}
+        {#each bestEntries as record, index (record.id)}
           <li class="history-item">
             <details class="history-entry">
               <summary class="history-item-toggle">
                 <div class="history-item-toggle-text">
                   <div class="history-main">
+                    <span class="history-rank">{index + 1}.</span>
                     <strong>{formatDate(record.endedAt)}</strong>
                   </div>
                   <div class="history-meta history-meta-preview">
@@ -172,6 +191,23 @@
                 <span class="history-item-chevron" aria-hidden="true">▾</span>
               </summary>
               <div class="history-details">
+                <div class="history-details-header">
+                  <button
+                    type="button"
+                    class="history-entry-delete"
+                    aria-label="Delete this session"
+                    title="Delete this session"
+                    on:click={() => openDeleteConfirm(record)}
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="M6.5 6l1 14h9l1-14" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
+                </div>
                 <dl class="result-grid history-result-grid">
                   <div class="result-item">
                     <dt>Correct</dt>
@@ -244,6 +280,29 @@
         <path d="M14 11v6" />
       </svg>
     </button>
+    {#if history.length > RECENT_PAGE_SIZE}
+      <div class="history-pagination history-pagination-under-name">
+        <button
+          type="button"
+          class="history-page-arrow"
+          aria-label="Previous page"
+          disabled={recentPage <= 1}
+          on:click={goToPreviousRecentPage}
+        >
+          ‹
+        </button>
+        <span class="history-page-indicator">{recentPage} / {totalRecentPages}</span>
+        <button
+          type="button"
+          class="history-page-arrow"
+          aria-label="Next page"
+          disabled={recentPage >= totalRecentPages}
+          on:click={goToNextRecentPage}
+        >
+          ›
+        </button>
+      </div>
+    {/if}
     {#if recent.length === 0}
       <p class="muted">No sessions recorded.</p>
     {:else}
@@ -274,6 +333,23 @@
                 <span class="history-item-chevron" aria-hidden="true">▾</span>
               </summary>
               <div class="history-details">
+                <div class="history-details-header">
+                  <button
+                    type="button"
+                    class="history-entry-delete"
+                    aria-label="Delete this session"
+                    title="Delete this session"
+                    on:click={() => openDeleteConfirm(item)}
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="M6.5 6l1 14h9l1-14" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
+                </div>
                 <dl class="result-grid history-result-grid">
                   <div class="result-item">
                     <dt>Correct</dt>
@@ -325,37 +401,22 @@
           </li>
         {/each}
       </ul>
-      {#if history.length > RECENT_PAGE_SIZE}
-        <div class="history-pagination">
-          <button
-            type="button"
-            class="history-page-arrow"
-            aria-label="Previous page"
-            disabled={recentPage <= 1}
-            on:click={goToPreviousRecentPage}
-          >
-            ‹
-          </button>
-          <span class="history-page-indicator">{recentPage} / {totalRecentPages}</span>
-          <button
-            type="button"
-            class="history-page-arrow"
-            aria-label="Next page"
-            disabled={recentPage >= totalRecentPages}
-            on:click={goToNextRecentPage}
-          >
-            ›
-          </button>
-        </div>
-      {/if}
     {/if}
   </details>
 
-  {#if confirmClearHistory}
+  {#if confirmAction}
     <div class="confirm-overlay" role="dialog" aria-modal="true" on:click={closeConfirm}>
       <div class="confirm-card" on:click|stopPropagation>
-        <h3 class="confirm-title">Delete recent sessions?</h3>
-        <p class="confirm-text">This removes all recent session entries from this browser.</p>
+        <h3 class="confirm-title">
+          {confirmAction.type === "clearHistory" ? "Delete recent sessions?" : "Delete this session?"}
+        </h3>
+        <p class="confirm-text">
+          {#if confirmAction.type === "clearHistory"}
+            This removes all recent session entries from this browser.
+          {:else}
+            This removes the session from {confirmAction.date}.
+          {/if}
+        </p>
         <div class="confirm-actions">
           <button type="button" class="btn subtle" on:click={closeConfirm}>Cancel</button>
           <button type="button" class="btn subtle confirm-delete" on:click={confirmClear}>Delete</button>

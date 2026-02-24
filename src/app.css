@@ -1187,6 +1187,12 @@ body {
   line-height: 1.15;
 }
 
+.history-rank {
+  color: var(--muted);
+  min-width: 1rem;
+  text-align: right;
+}
+
 .history-meta {
   margin-top: 0.14rem;
   color: var(--muted);
@@ -1204,6 +1210,38 @@ body {
   padding-top: 0.42rem;
   display: grid;
   gap: 0.36rem;
+}
+
+.history-details-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.history-entry-delete {
+  width: 0.94rem;
+  height: 0.94rem;
+  border: none;
+  border-radius: 0.2rem;
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.history-entry-delete:hover {
+  color: var(--fg);
+}
+
+.history-entry-delete svg {
+  width: 0.82rem;
+  height: 0.82rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .history-result-grid {
@@ -1237,12 +1275,20 @@ body {
 }
 
 .history-pagination {
-  margin-top: 0.34rem;
-  display: inline-flex;
+  margin-top: 0;
+  display: flex;
+  width: 100%;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.46rem;
   color: var(--muted);
   font-size: 0.74rem;
+}
+
+.history-pagination-under-name {
+  margin-top: 0.16rem;
+  margin-bottom: 0.22rem;
+  padding-left: 0.08rem;
 }
 
 .history-page-arrow {

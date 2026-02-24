@@ -147,6 +147,10 @@
     game.clearHistory();
   }
 
+  function handleDeleteSession(event: CustomEvent<{ id: string }>): void {
+    game.deleteHistoryRecord(event.detail.id);
+  }
+
   function handleRevealToggle(isEnabled: boolean): void {
     game.toggleReveal(isEnabled);
   }
@@ -509,6 +513,7 @@
         history={$game.history}
         bests={$game.bests}
         on:clearHistory={handleClearHistory}
+        on:deleteSession={handleDeleteSession}
       />
     </div>
   </details>

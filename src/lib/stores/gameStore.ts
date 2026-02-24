@@ -759,6 +759,17 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     });
   }
 
+  function deleteHistoryRecord(sessionId: string): void {
+    const history = saveHistory(state.history.filter((record) => record.id !== sessionId));
+    const bests = computeBestScores(history);
+    setState({
+      ...state,
+      history,
+      bests,
+      lastSession: state.lastSession?.id === sessionId ? null : state.lastSession
+    });
+  }
+
   if (state.status === "running") {
     startTimerLoop();
   }
@@ -775,6 +786,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     dismissResults,
     loadHistory: loadHistoryIntoState,
     clearHistory: clearHistoryRecords,
+    deleteHistoryRecord,
     updateSettings
   };
 }

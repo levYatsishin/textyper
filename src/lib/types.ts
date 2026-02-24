@@ -151,5 +151,6 @@ export interface GameStore extends Readable<GameState> {
   dismissResults: () => void;
   loadHistory: () => void;
   clearHistory: () => void;
+  deleteHistoryRecord: (sessionId: string) => void;
   updateSettings: (settings: Partial<SessionSettings>) => void;
 }
