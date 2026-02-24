@@ -10,33 +10,23 @@ function createExpression(overrides: Partial<Expression>): Expression {
     complexityScore: 10,
     complexityBand: "beginner",
     name: "Logic identity",
-    topics: ["real-analysis", "set-logic"],
-    subtopics: ["modular arithmetic", "logic rules"],
+    topics: ["set-logic"],
+    subtopics: ["logic rules"],
     ...overrides
   };
 }
 
 describe("getTopicScopedSubtopics", () => {
-  it("normalizes real-analysis subtopics to canonical categories", () => {
-    const expression = createExpression({});
-    expect(getTopicScopedSubtopics(expression, "real-analysis")).toEqual(["fundamentals"]);
-  });
-
-  it("keeps canonical real-analysis subtopics when present", () => {
+  it("returns normalized subtopics for any topic", () => {
     const expression = createExpression({
-      latex: "\\int_0^1 f_n(x)\\,dx \\to \\int_0^1 f(x)\\,dx",
-      subtopics: ["integrals", "convergence modes"]
+      subtopics: ["modular arithmetic", "logic rules", "logic rules", " "]
     });
 
-    expect(getTopicScopedSubtopics(expression, "real-analysis")).toEqual(["integrals", "convergence modes"]);
+    expect(getTopicScopedSubtopics(expression, "set-logic")).toEqual(["modular arithmetic", "logic rules"]);
   });
 
-  it("returns original subtopics for non real-analysis topics", () => {
-    const expression = createExpression({
-      topics: ["number-theory"],
-      subtopics: ["modular arithmetic"]
-    });
-
-    expect(getTopicScopedSubtopics(expression, "number-theory")).toEqual(["modular arithmetic"]);
+  it("falls back to fundamentals when no subtopics exist", () => {
+    const expression = createExpression({ subtopics: [] });
+    expect(getTopicScopedSubtopics(expression, "algebra")).toEqual(["fundamentals"]);
   });
 });

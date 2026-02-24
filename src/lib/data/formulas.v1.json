@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "generatedAt": "2026-02-23T19:38:17.925487+00:00",
+  "generatedAt": "2026-02-24T10:17:12.263Z",
   "expressions": [
     {
       "id": "expr-001",
@@ -78,10 +78,10 @@
       "complexityBand": "beginner",
       "name": "Imaginary unit definition",
       "topics": [
-        "real-analysis"
+        "algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "fundamentals"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 11,
@@ -146,11 +146,10 @@
       "complexityBand": "beginner",
       "name": "Golden ratio definition",
       "topics": [
-        "real-analysis",
         "number-theory"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 25,
@@ -215,10 +214,10 @@
       "complexityBand": "beginner",
       "name": "Log product rule",
       "topics": [
-        "real-analysis"
+        "algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "identities"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 20,
@@ -249,10 +248,10 @@
       "complexityBand": "beginner",
       "name": "Math formula 8",
       "topics": [
-        "real-analysis"
+        "algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "fundamentals"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 19,
@@ -283,7 +282,6 @@
       "complexityBand": "beginner",
       "name": "Derivative formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -386,10 +384,10 @@
       "complexityBand": "beginner",
       "name": "Euler identity",
       "topics": [
-        "real-analysis"
+        "complex-analysis"
       ],
       "subtopics": [
-        "convergence modes"
+        "special identities"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 12,
@@ -420,11 +418,10 @@
       "complexityBand": "beginner",
       "name": "Math formula 13",
       "topics": [
-        "real-analysis",
         "vector-calculus"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 42,
@@ -523,10 +520,10 @@
       "complexityBand": "beginner",
       "name": "Second equation of motion",
       "topics": [
-        "real-analysis"
+        "mathematical-physics"
       ],
       "subtopics": [
-        "convergence modes"
+        "physical laws"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 20,
@@ -557,10 +554,10 @@
       "complexityBand": "beginner",
       "name": "Math formula 17",
       "topics": [
-        "real-analysis"
+        "algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "identities"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 23,
@@ -626,7 +623,6 @@
       "complexityBand": "beginner",
       "name": "Derivative formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -805,11 +801,10 @@
       "complexityBand": "beginner",
       "name": "Math formula 24",
       "topics": [
-        "real-analysis",
         "vector-calculus"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 55,
@@ -840,7 +835,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -875,11 +869,10 @@
       "complexityBand": "beginner",
       "name": "Rank-nullity theorem",
       "topics": [
-        "real-analysis",
         "linear-algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 34,
@@ -945,10 +938,10 @@
       "complexityBand": "beginner",
       "name": "Fraction addition example",
       "topics": [
-        "real-analysis"
+        "algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "fundamentals"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 35,
@@ -979,7 +972,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1014,7 +1006,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1083,10 +1074,10 @@
       "complexityBand": "beginner",
       "name": "Newton law of gravitation",
       "topics": [
-        "real-analysis"
+        "mathematical-physics"
       ],
       "subtopics": [
-        "convergence modes"
+        "physical laws"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 21,
@@ -1117,10 +1108,10 @@
       "complexityBand": "beginner",
       "name": "Math formula 33",
       "topics": [
-        "real-analysis"
+        "set-logic"
       ],
       "subtopics": [
-        "convergence modes"
+        "set operations"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 25,
@@ -1151,7 +1142,6 @@
       "complexityBand": "beginner",
       "name": "Binomial coefficient formula",
       "topics": [
-        "real-analysis",
         "discrete-math",
         "algebra"
       ],
@@ -1188,7 +1178,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1291,7 +1280,6 @@
       "complexityBand": "beginner",
       "name": "Derivative formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -1328,7 +1316,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -1365,7 +1352,6 @@
       "complexityBand": "beginner",
       "name": "Limit identity",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -1402,7 +1388,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1437,7 +1422,6 @@
       "complexityBand": "intermediate",
       "name": "Series formula",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -1508,7 +1492,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1578,7 +1561,6 @@
       "complexityBand": "beginner",
       "name": "Series formula",
       "topics": [
-        "real-analysis",
         "discrete-math",
         "algebra"
       ],
@@ -1615,7 +1597,6 @@
       "complexityBand": "beginner",
       "name": "Series formula",
       "topics": [
-        "real-analysis",
         "number-theory",
         "complex-analysis"
       ],
@@ -1653,7 +1634,6 @@
       "complexityBand": "beginner",
       "name": "Limit identity",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1722,7 +1702,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -1759,7 +1738,6 @@
       "complexityBand": "beginner",
       "name": "Derivative formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1794,7 +1772,6 @@
       "complexityBand": "beginner",
       "name": "Sum of first n integers",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -1830,7 +1807,6 @@
       "complexityBand": "intermediate",
       "name": "Limit identity",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1865,7 +1841,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -1902,7 +1877,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -1971,7 +1945,6 @@
       "complexityBand": "beginner",
       "name": "Cauchy integral over 1/z",
       "topics": [
-        "real-analysis",
         "complex-analysis"
       ],
       "subtopics": [
@@ -2078,7 +2051,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2147,7 +2119,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2216,7 +2187,6 @@
       "complexityBand": "intermediate",
       "name": "Series formula",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -2252,7 +2222,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2287,7 +2256,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "calculus"
       ],
@@ -2323,7 +2291,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -2360,7 +2327,6 @@
       "complexityBand": "beginner",
       "name": "Series formula",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "trigonometry",
         "algebra"
@@ -2398,7 +2364,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "special-functions",
         "calculus"
       ],
@@ -2434,7 +2399,6 @@
       "complexityBand": "intermediate",
       "name": "Limit identity",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -2507,7 +2471,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -2544,7 +2507,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -2581,7 +2543,6 @@
       "complexityBand": "beginner",
       "name": "Derivative of x^x",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2616,7 +2577,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2685,7 +2645,6 @@
       "complexityBand": "beginner",
       "name": "Alternating harmonic series",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -2721,7 +2680,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus",
         "trigonometry"
       ],
@@ -2758,7 +2716,6 @@
       "complexityBand": "intermediate",
       "name": "Derivative formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2793,7 +2750,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2863,7 +2819,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -2898,7 +2853,6 @@
       "complexityBand": "beginner",
       "name": "Partial product rule",
       "topics": [
-        "real-analysis",
         "differential-equations"
       ],
       "subtopics": [
@@ -2968,7 +2922,6 @@
       "complexityBand": "intermediate",
       "name": "Epsilon-delta limit definition",
       "topics": [
-        "real-analysis",
         "set-logic"
       ],
       "subtopics": [
@@ -3003,7 +2956,6 @@
       "complexityBand": "advanced",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "differential-equations",
         "vector-calculus",
@@ -3044,7 +2996,6 @@
       "complexityBand": "beginner",
       "name": "Gamma integral identity",
       "topics": [
-        "real-analysis",
         "special-functions",
         "calculus"
       ],
@@ -3081,7 +3032,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "special-functions",
         "calculus"
       ],
@@ -3118,7 +3068,6 @@
       "complexityBand": "intermediate",
       "name": "Laplace equation",
       "topics": [
-        "real-analysis",
         "differential-equations"
       ],
       "subtopics": [
@@ -3154,7 +3103,6 @@
       "complexityBand": "advanced",
       "name": "Limit identity",
       "topics": [
-        "real-analysis",
         "vector-calculus",
         "calculus"
       ],
@@ -3226,7 +3174,6 @@
       "complexityBand": "advanced",
       "name": "Navier-Stokes momentum equation",
       "topics": [
-        "real-analysis",
         "differential-equations",
         "vector-calculus",
         "mathematical-physics"
@@ -3299,7 +3246,6 @@
       "complexityBand": "advanced",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "special-functions",
         "calculus"
       ],
@@ -3336,7 +3282,6 @@
       "complexityBand": "advanced",
       "name": "Vector calculus relation",
       "topics": [
-        "real-analysis",
         "differential-equations",
         "vector-calculus"
       ],
@@ -3373,7 +3318,6 @@
       "complexityBand": "intermediate",
       "name": "Möbius-zeta identity",
       "topics": [
-        "real-analysis",
         "number-theory",
         "complex-analysis"
       ],
@@ -3411,7 +3355,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -3446,7 +3389,6 @@
       "complexityBand": "intermediate",
       "name": "General Cauchy differentiation formula",
       "topics": [
-        "real-analysis",
         "complex-analysis"
       ],
       "subtopics": [
@@ -3519,7 +3461,6 @@
       "complexityBand": "intermediate",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "special-functions",
         "calculus"
       ],
@@ -3556,7 +3497,6 @@
       "complexityBand": "advanced",
       "name": "Gamma integral identity",
       "topics": [
-        "real-analysis",
         "special-functions",
         "calculus",
         "trigonometry"
@@ -3629,7 +3569,6 @@
       "complexityBand": "beginner",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "calculus"
       ],
@@ -3665,7 +3604,6 @@
       "complexityBand": "advanced",
       "name": "Integral formula",
       "topics": [
-        "real-analysis",
         "special-functions",
         "calculus",
         "trigonometry"
@@ -3741,10 +3679,10 @@
       "complexityBand": "beginner",
       "name": "Image of a function",
       "topics": [
-        "real-analysis"
+        "set-logic"
       ],
       "subtopics": [
-        "convergence modes"
+        "set operations"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 23,
@@ -3775,10 +3713,10 @@
       "complexityBand": "beginner",
       "name": "Preimage of a function",
       "topics": [
-        "real-analysis"
+        "set-logic"
       ],
       "subtopics": [
-        "convergence modes"
+        "set operations"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 28,
@@ -3809,7 +3747,6 @@
       "complexityBand": "beginner",
       "name": "Expectation of a discrete random variable",
       "topics": [
-        "real-analysis",
         "probability",
         "statistics",
         "algebra"
@@ -3847,10 +3784,10 @@
       "complexityBand": "intermediate",
       "name": "Definition of Rationals",
       "topics": [
-        "real-analysis"
+        "number-theory"
       ],
       "subtopics": [
-        "convergence modes"
+        "fundamentals"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 54,
@@ -3915,7 +3852,6 @@
       "complexityBand": "intermediate",
       "name": "Derivative formula",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -3950,10 +3886,10 @@
       "complexityBand": "beginner",
       "name": "Area of trapezoid",
       "topics": [
-        "real-analysis"
+        "geometry"
       ],
       "subtopics": [
-        "convergence modes"
+        "metric geometry"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 24,
@@ -4155,7 +4091,6 @@
       "complexityBand": "advanced",
       "name": "Euler Lagrange Equation",
       "topics": [
-        "real-analysis",
         "differential-equations"
       ],
       "subtopics": [
@@ -4191,7 +4126,6 @@
       "complexityBand": "intermediate",
       "name": "Residual Theorem",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -4406,11 +4340,10 @@
       "complexityBand": "beginner",
       "name": "Derivative of a composite function",
       "topics": [
-        "real-analysis",
         "vector-calculus"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 32,
@@ -4475,7 +4408,6 @@
       "complexityBand": "beginner",
       "name": "Definition of the derivative",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -4584,10 +4516,10 @@
       "complexityBand": "beginner",
       "name": "Quadratic formula",
       "topics": [
-        "real-analysis"
+        "algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "identities"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 34,
@@ -4618,7 +4550,6 @@
       "complexityBand": "beginner",
       "name": "Arithmetic progression sum",
       "topics": [
-        "real-analysis",
         "algebra"
       ],
       "subtopics": [
@@ -4653,7 +4584,6 @@
       "complexityBand": "beginner",
       "name": "Geometric progression sum",
       "topics": [
-        "real-analysis",
         "vector-calculus",
         "algebra"
       ],
@@ -4689,7 +4619,6 @@
       "complexityBand": "intermediate",
       "name": "Squeeze Theorem",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
@@ -4724,7 +4653,6 @@
       "complexityBand": "beginner",
       "name": "Matrix multiplication rule",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "vector-calculus",
         "linear-algebra",
@@ -4798,7 +4726,6 @@
       "complexityBand": "beginner",
       "name": "Lagrange function",
       "topics": [
-        "real-analysis",
         "optimization",
         "linear-algebra",
         "algebra"
@@ -4838,7 +4765,6 @@
       "complexityBand": "advanced",
       "name": "KKT stationarity condition",
       "topics": [
-        "real-analysis",
         "optimization",
         "vector-calculus",
         "linear-algebra",
@@ -4916,10 +4842,10 @@
       "complexityBand": "beginner",
       "name": "Bruhat Decomposition",
       "topics": [
-        "real-analysis"
+        "abstract-algebra"
       ],
       "subtopics": [
-        "convergence modes"
+        "groups"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 22,
@@ -4950,7 +4876,6 @@
       "complexityBand": "advanced",
       "name": "Exponentially weighted least squares cost",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "optimization",
         "linear-algebra",
@@ -4991,7 +4916,6 @@
       "complexityBand": "advanced",
       "name": "Jacobian linearization vector",
       "topics": [
-        "real-analysis",
         "differential-equations"
       ],
       "subtopics": [
@@ -5027,11 +4951,10 @@
       "complexityBand": "intermediate",
       "name": "Neighborhood update rule",
       "topics": [
-        "real-analysis",
         "vector-calculus"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 89,
@@ -5062,7 +4985,6 @@
       "complexityBand": "advanced",
       "name": "Weighted prediction aggregation",
       "topics": [
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -5098,7 +5020,6 @@
       "complexityBand": "intermediate",
       "name": "Eulerian Product",
       "topics": [
-        "real-analysis",
         "number-theory",
         "complex-analysis",
         "algebra"
@@ -5173,7 +5094,6 @@
       "complexityBand": "advanced",
       "name": "Black-Scholes Equation",
       "topics": [
-        "real-analysis",
         "differential-equations",
         "statistics"
       ],
@@ -5211,11 +5131,10 @@
       "complexityBand": "intermediate",
       "name": "Einstein field equations",
       "topics": [
-        "real-analysis",
         "mathematical-physics"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 61,
@@ -5246,7 +5165,6 @@
       "complexityBand": "advanced",
       "name": "Korteweg-de Vries Equation",
       "topics": [
-        "real-analysis",
         "differential-equations"
       ],
       "subtopics": [
@@ -5282,11 +5200,10 @@
       "complexityBand": "beginner",
       "name": "Wheeler-DeWitt Equation",
       "topics": [
-        "real-analysis",
         "mathematical-physics"
       ],
       "subtopics": [
-        "convergence modes"
+        "limits"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 21,
@@ -5317,7 +5234,6 @@
       "complexityBand": "intermediate",
       "name": "Cauchy integral formula",
       "topics": [
-        "real-analysis",
         "complex-analysis"
       ],
       "subtopics": [
@@ -5352,7 +5268,6 @@
       "complexityBand": "beginner",
       "name": "Atiyah-Singer Index Theorem",
       "topics": [
-        "real-analysis",
         "set-logic",
         "calculus"
       ],
@@ -5388,7 +5303,6 @@
       "complexityBand": "advanced",
       "name": "Boltzmann Transport Equation",
       "topics": [
-        "real-analysis",
         "differential-equations",
         "vector-calculus"
       ],
@@ -5425,7 +5339,6 @@
       "complexityBand": "beginner",
       "name": "Yang-Mills Equations",
       "topics": [
-        "real-analysis",
         "differential-equations"
       ],
       "subtopics": [
@@ -5461,10 +5374,10 @@
       "complexityBand": "beginner",
       "name": "Partition function in quantum statistical mechanics",
       "topics": [
-        "real-analysis"
+        "mathematical-physics"
       ],
       "subtopics": [
-        "convergence modes"
+        "fundamentals"
       ],
       "complexityFeatures": {
         "nonWhitespaceChars": 35,
@@ -5495,7 +5408,6 @@
       "complexityBand": "beginner",
       "name": "Handshake lemma",
       "topics": [
-        "real-analysis",
         "discrete-math",
         "algebra"
       ],
@@ -5566,7 +5478,6 @@
       "complexityBand": "beginner",
       "name": "Geometric generating function",
       "topics": [
-        "real-analysis",
         "discrete-math",
         "algebra"
       ],
@@ -5603,7 +5514,6 @@
       "complexityBand": "beginner",
       "name": "Boundary of boundary is empty",
       "topics": [
-        "real-analysis",
         "topology",
         "differential-equations",
         "set-logic"
@@ -5710,13 +5620,11 @@
       "complexityBand": "intermediate",
       "name": "L1 convergence criterion",
       "topics": [
-        "real-analysis",
         "set-logic",
         "calculus"
       ],
       "subtopics": [
-        "convergence modes",
-        "measure integration",
+        "limits",
         "integrals"
       ],
       "complexityFeatures": {
@@ -5748,11 +5656,9 @@
       "complexityBand": "intermediate",
       "name": "Limsup characterization",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
-        "convergence modes",
         "limits"
       ],
       "complexityFeatures": {
@@ -5784,11 +5690,9 @@
       "complexityBand": "beginner",
       "name": "Lp norm definition",
       "topics": [
-        "real-analysis",
         "calculus"
       ],
       "subtopics": [
-        "measure integration",
         "integrals"
       ],
       "complexityFeatures": {
@@ -5958,7 +5862,6 @@
       "name": "Lagrange interpolation polynomial",
       "topics": [
         "numerical-methods",
-        "real-analysis",
         "algebra"
       ],
       "subtopics": [
@@ -6100,7 +6003,6 @@
       "name": "Poisson equation with Dirichlet boundary",
       "topics": [
         "pdes",
-        "real-analysis",
         "differential-equations",
         "set-logic"
       ],
@@ -6140,7 +6042,6 @@
       "name": "Shannon entropy",
       "topics": [
         "information-theory",
-        "real-analysis",
         "algebra"
       ],
       "subtopics": [
@@ -6177,7 +6078,6 @@
       "name": "KL divergence",
       "topics": [
         "information-theory",
-        "real-analysis",
         "probability",
         "statistics",
         "algebra"
@@ -6217,7 +6117,6 @@
       "name": "Mutual information",
       "topics": [
         "information-theory",
-        "real-analysis",
         "algebra"
       ],
       "subtopics": [
@@ -6254,7 +6153,6 @@
       "name": "Empirical risk",
       "topics": [
         "machine-learning-math",
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -6293,7 +6191,6 @@
       "name": "Gradient of linear-model loss",
       "topics": [
         "machine-learning-math",
-        "real-analysis",
         "complex-analysis",
         "vector-calculus",
         "algebra"
@@ -6333,7 +6230,6 @@
       "name": "Hessian entry definition",
       "topics": [
         "machine-learning-math",
-        "real-analysis",
         "differential-equations"
       ],
       "subtopics": [
@@ -6371,7 +6267,6 @@
       "name": "Binary cross-entropy loss",
       "topics": [
         "machine-learning-math",
-        "real-analysis",
         "complex-analysis",
         "algebra"
       ],
@@ -6410,7 +6305,6 @@
       "name": "Energy norm stability inequality",
       "topics": [
         "pdes",
-        "real-analysis",
         "vector-calculus",
         "set-logic",
         "calculus"
@@ -6667,10 +6561,10 @@
       "complexityScore": 22,
       "name": "Lp space",
       "topics": [
-        "real-analysis"
+        "geometry"
       ],
       "subtopics": [
-        "fundamentals"
+        "metric geometry"
       ],
       "source": "wikipedia-api",
       "metadata": {
@@ -6690,10 +6584,10 @@
       "complexityScore": 45,
       "name": "Lp space",
       "topics": [
-        "real-analysis"
+        "linear-algebra"
       ],
       "subtopics": [
-        "fundamentals"
+        "linear structures"
       ],
       "source": "wikipedia-api",
       "metadata": {
@@ -6713,10 +6607,10 @@
       "complexityScore": 45,
       "name": "Lp space",
       "topics": [
-        "real-analysis"
+        "calculus"
       ],
       "subtopics": [
-        "fundamentals"
+        "integrals"
       ],
       "source": "wikipedia-api",
       "metadata": {
@@ -6736,10 +6630,10 @@
       "complexityScore": 45,
       "name": "Lp space",
       "topics": [
-        "real-analysis"
+        "calculus"
       ],
       "subtopics": [
-        "fundamentals"
+        "integrals"
       ],
       "source": "wikipedia-api",
       "metadata": {

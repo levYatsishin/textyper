@@ -18,12 +18,11 @@ export const TOPICS: TopicDefinition[] = [
   { id: "optimization", label: "optimization", order: 15 },
   { id: "discrete-math", label: "discrete math", order: 16 },
   { id: "topology", label: "topology", order: 17 },
-  { id: "real-analysis", label: "real analysis", order: 18 },
-  { id: "abstract-algebra", label: "abstract algebra", order: 19 },
-  { id: "numerical-methods", label: "numerical methods", order: 20 },
-  { id: "pdes", label: "pdes", order: 21 },
-  { id: "information-theory", label: "information theory", order: 22 },
-  { id: "machine-learning-math", label: "machine learning math", order: 23 }
+  { id: "abstract-algebra", label: "abstract algebra", order: 18 },
+  { id: "numerical-methods", label: "numerical methods", order: 19 },
+  { id: "pdes", label: "pdes", order: 20 },
+  { id: "information-theory", label: "information theory", order: 21 },
+  { id: "machine-learning-math", label: "machine learning math", order: 22 }
 ];
 
 export const TOPIC_MAP: Record<TopicId, TopicDefinition> = TOPICS.reduce<Record<TopicId, TopicDefinition>>(
