@@ -666,6 +666,7 @@ body {
   place-items: center;
   overflow: hidden;
   text-align: center;
+  position: relative;
 }
 
 .formula-scale {
@@ -688,6 +689,55 @@ body {
 
 .formula-output .katex-html {
   white-space: normal !important;
+}
+
+.formula-output [data-ltx-id] {
+  cursor: help;
+}
+
+.formula-hover-popout {
+  position: absolute;
+  min-width: 120px;
+  max-width: min(320px, calc(100% - 1rem));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  padding: 0.34rem 0.46rem;
+  border: 1px solid var(--line);
+  border-radius: 0.42rem;
+  background: var(--bg-soft);
+  color: var(--fg);
+  font-size: 0.74rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  z-index: 24;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.formula-hover-popout.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.formula-hover-snippet {
+  margin: 0;
+  font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.formula-hover-copy {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.formula-hover-copy:hover:enabled {
+  color: var(--fg);
 }
 
 .formula-error {
