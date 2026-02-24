@@ -147,10 +147,6 @@
     game.clearHistory();
   }
 
-  function handleClearBests(): void {
-    game.clearBests();
-  }
-
   function handleRevealToggle(isEnabled: boolean): void {
     game.toggleReveal(isEnabled);
   }
@@ -503,11 +499,6 @@
 
     <div class="stats-drawer-content">
       <StatsRail
-        stats={$game.stats}
-        currentStreak={$game.currentStreak}
-        mode={$game.settings.mode}
-        remainingMs={$game.remainingMs}
-        status={$game.status}
         history={$game.history}
       />
 
@@ -515,7 +506,6 @@
         history={$game.history}
         bests={$game.bests}
         on:clearHistory={handleClearHistory}
-        on:clearBests={handleClearBests}
       />
     </div>
   </details>

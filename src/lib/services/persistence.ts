@@ -3,9 +3,9 @@ import type { BestScores, Difficulty, SessionRecord, SessionSettings, Submission
 
 export const SETTINGS_STORAGE_KEY = "mathTyper.settings.v1";
 export const HISTORY_STORAGE_KEY = "mathTyper.history.v1";
-export const BESTS_STORAGE_KEY = "mathTyper.bests.v1";
 export const ACTIVE_SESSION_STORAGE_KEY = "mathTyper.activeSession.v1";
-const HISTORY_LIMIT = 50;
+const HISTORY_LIMIT = 500;
+const BEST_SCORES_LIMIT = 5;
 const DIFFICULTY_ORDER: Difficulty[] = ["beginner", "intermediate", "advanced"];
 
 export const DEFAULT_SETTINGS: SessionSettings = {
@@ -259,97 +259,57 @@ export function saveHistory(history: SessionRecord[]): SessionRecord[] {
   return trimmed;
 }
 
-export function getBestKey(
-  mode: SessionSettings["mode"],
-  difficulties: SessionSettings["difficulties"],
-  selectedTopicIds: SessionSettings["selectedTopicIds"],
-  selectedSubtopicsByTopic: SessionSettings["selectedSubtopicsByTopic"]
-): string {
-  const topicsKey = normalizeTopicIds(selectedTopicIds).join("+");
-  const subtopicsKey = normalizeTopicIds(selectedTopicIds)
-    .map((topicId) => `${topicId}:${(selectedSubtopicsByTopic[topicId] ?? []).join(",")}`)
-    .join("|");
-  return `${mode}:${normalizeDifficulties(difficulties).join("+")}:${topicsKey}:${subtopicsKey}`;
+function clampToRange(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getBestnessScore(record: SessionRecord): number {
+  const byDifficulty = record.stats.byDifficulty;
+  const weightedGiven =
+    byDifficulty.beginner.given * 1 +
+    byDifficulty.intermediate.given * 1.8 +
+    byDifficulty.advanced.given * 3;
+  const weightedSolved =
+    byDifficulty.beginner.solved * 1 +
+    byDifficulty.intermediate.solved * 1.8 +
+    byDifficulty.advanced.solved * 3;
+  const weightedSolvedRatio = weightedGiven > 0 ? (weightedSolved / weightedGiven) * 100 : 0;
+  const normalizedCorrect = clampToRange((record.stats.correct / 20) * 100, 0, 100);
+  const hardSolvedBonus = byDifficulty.advanced.solved > 0 ? 100 : 0;
+  const score =
+    0.45 * record.stats.accuracy +
+    0.3 * weightedSolvedRatio +
+    0.2 * normalizedCorrect +
+    0.05 * hardSolvedBonus;
+  return Number(score.toFixed(4));
+}
+
+function compareBestness(left: SessionRecord, right: SessionRecord): number {
+  const scoreGap = getBestnessScore(right) - getBestnessScore(left);
+  if (scoreGap !== 0) {
+    return scoreGap;
+  }
+
+  const hardSolvedGap = right.stats.byDifficulty.advanced.solved - left.stats.byDifficulty.advanced.solved;
+  if (hardSolvedGap !== 0) {
+    return hardSolvedGap;
+  }
+
+  const correctGap = right.stats.correct - left.stats.correct;
+  if (correctGap !== 0) {
+    return correctGap;
+  }
+
+  const accuracyGap = right.stats.accuracy - left.stats.accuracy;
+  if (accuracyGap !== 0) {
+    return accuracyGap;
+  }
+
+  return right.endedAt - left.endedAt;
 }
 
 export function computeBestScores(history: SessionRecord[]): BestScores {
-  const bests: BestScores = {};
-
-  for (const record of history) {
-    const key = getBestKey(
-      record.settings.mode,
-      record.settings.difficulties,
-      record.settings.selectedTopicIds,
-      record.settings.selectedSubtopicsByTopic
-    );
-    const currentBest = bests[key];
-
-    if (!currentBest || record.stats.correct > currentBest.stats.correct) {
-      bests[key] = record;
-      continue;
-    }
-
-    if (record.stats.correct === currentBest.stats.correct && record.stats.accuracy > currentBest.stats.accuracy) {
-      bests[key] = record;
-      continue;
-    }
-
-    if (
-      record.stats.correct === currentBest.stats.correct &&
-      record.stats.accuracy === currentBest.stats.accuracy &&
-      record.stats.formulasPerMin > currentBest.stats.formulasPerMin
-    ) {
-      bests[key] = record;
-    }
-  }
-
-  return bests;
-}
-
-export function loadBestScores(): BestScores {
-  if (!hasLocalStorage()) {
-    return {};
-  }
-
-  const parsed = safeParseJson<unknown>(localStorage.getItem(BESTS_STORAGE_KEY));
-  if (!parsed || typeof parsed !== "object") {
-    return {};
-  }
-
-  const value = parsed as Record<string, SessionRecord>;
-  const result: BestScores = {};
-  for (const [, record] of Object.entries(value)) {
-    const sanitized = sanitizeSessionRecord(record);
-    if (sanitized) {
-      const key = getBestKey(
-        sanitized.settings.mode,
-        sanitized.settings.difficulties,
-        sanitized.settings.selectedTopicIds,
-        sanitized.settings.selectedSubtopicsByTopic
-      );
-      const currentBest = result[key];
-      if (
-        !currentBest ||
-        sanitized.stats.correct > currentBest.stats.correct ||
-        (sanitized.stats.correct === currentBest.stats.correct &&
-          sanitized.stats.accuracy > currentBest.stats.accuracy) ||
-        (sanitized.stats.correct === currentBest.stats.correct &&
-          sanitized.stats.accuracy === currentBest.stats.accuracy &&
-          sanitized.stats.formulasPerMin > currentBest.stats.formulasPerMin)
-      ) {
-        result[key] = sanitized;
-      }
-    }
-  }
-  return result;
-}
-
-export function saveBestScores(bests: BestScores): void {
-  if (!hasLocalStorage()) {
-    return;
-  }
-
-  localStorage.setItem(BESTS_STORAGE_KEY, JSON.stringify(bests));
+  return [...history].sort(compareBestness).slice(0, BEST_SCORES_LIMIT);
 }
 
 export interface ActiveSessionSnapshot {

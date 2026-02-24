@@ -7,12 +7,10 @@ import {
   computeBestScores,
   DEFAULT_SETTINGS,
   loadActiveSession,
-  loadBestScores,
   loadHistory,
   loadSettings,
   saveActiveSession,
   sanitizeSettings,
-  saveBestScores,
   saveHistory,
   saveSettings
 } from "../services/persistence";
@@ -236,11 +234,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
 
   const initialSettings = applySubtopicDefaults(sanitizeSettings(loadSettings()));
   const initialHistory = loadHistory();
-  const storedBests = loadBestScores();
-  const initialBests = Object.keys(storedBests).length > 0 ? storedBests : computeBestScores(initialHistory);
-  if (Object.keys(storedBests).length === 0 && initialHistory.length > 0) {
-    saveBestScores(initialBests);
-  }
+  const initialBests = computeBestScores(initialHistory);
 
   const activeSnapshot = loadActiveSession();
   const restoredSettings = activeSnapshot ? applySubtopicDefaults(sanitizeSettings(activeSnapshot.settings)) : null;
@@ -401,7 +395,6 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       record = createSessionRecord(endedAt, currentState.settings, finalStats);
       history = saveHistory([record, ...currentState.history]);
       bests = computeBestScores(history);
-      saveBestScores(bests);
     }
     saveSettings(currentState.settings);
     stopTimer();
@@ -747,12 +740,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
 
   function loadHistoryIntoState(): void {
     const history = loadHistory();
-    const fromStorage = loadBestScores();
-    const bests = Object.keys(fromStorage).length > 0 ? fromStorage : computeBestScores(history);
-
-    if (Object.keys(fromStorage).length === 0 && history.length > 0) {
-      saveBestScores(bests);
-    }
+    const bests = computeBestScores(history);
 
     setState({
       ...state,
@@ -763,17 +751,10 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
 
   function clearHistoryRecords(): void {
     const history = saveHistory([]);
+    const bests = computeBestScores(history);
     setState({
       ...state,
-      history
-    });
-  }
-
-  function clearBestRecords(): void {
-    const bests = {};
-    saveBestScores(bests);
-    setState({
-      ...state,
+      history,
       bests
     });
   }
@@ -794,7 +775,6 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     dismissResults,
     loadHistory: loadHistoryIntoState,
     clearHistory: clearHistoryRecords,
-    clearBests: clearBestRecords,
     updateSettings
   };
 }

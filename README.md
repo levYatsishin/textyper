@@ -13,7 +13,8 @@ Minimal trainer for typing LaTeX math quickly.
 - You can filter formulas by difficulty, topic and subtopic.
 - Progress and best scores are saved locally in your browser.
 ## Other features
-- When you’re learning, you can enable “show formula”, so you can just retype the answer and learn the symbols.
+- When you’re learning, you can enable “show formula”, so you can just retype the answer and learn new symbols and syntax. As you're doing this only for yourself there is no cheating, so it won't be anyhow reflected on the statistics.
+- You can also look up how individual symbols and tokens are written by just hovering over them in the rendered formula. Double-clicking while doing this copies the code for them.
 - After 5 minutes of inactivity in zen mode session automaticaly end to not spoil statistics. 
 ## Comparison
 **TODO**

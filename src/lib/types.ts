@@ -112,7 +112,7 @@ export interface BestScoreEntry {
   record: SessionRecord;
 }
 
-export type BestScores = Record<string, SessionRecord>;
+export type BestScores = SessionRecord[];
 
 export interface GameState {
   status: SessionStatus;
@@ -151,6 +151,5 @@ export interface GameStore extends Readable<GameState> {
   dismissResults: () => void;
   loadHistory: () => void;
   clearHistory: () => void;
-  clearBests: () => void;
   updateSettings: (settings: Partial<SessionSettings>) => void;
 }

@@ -1,18 +1,11 @@
 <script lang="ts">
   import { computeMinPerFormula, formatElapsedDuration, roundToTwo } from "../services/statsDisplay";
-  import type { Mode, SessionRecord, SessionStats, SessionStatus } from "../types";
+  import type { SessionRecord } from "../types";
 
-  export let stats: SessionStats;
-  export let currentStreak = 0;
-  export let mode: Mode;
-  export let remainingMs: number | null = null;
-  export let status: SessionStatus;
   export let history: SessionRecord[] = [];
 
-  type StatsView = "current" | "total";
   interface AggregateStats {
     accuracy: number;
-    formulasPerMin: number;
     charsPerMin: number;
     correct: number;
     bestStreak: number;
@@ -20,14 +13,12 @@
     elapsedMs: number;
   }
 
-  const MEAN_WINDOW = 5;
-  let statsView: StatsView = "current";
+  const RECENT_WINDOW = 7;
 
   function computeAggregateStats(records: SessionRecord[]): AggregateStats {
     if (records.length === 0) {
       return {
         accuracy: 0,
-        formulasPerMin: 0,
         charsPerMin: 0,
         correct: 0,
         bestStreak: 0,
@@ -56,7 +47,6 @@
 
     return {
       accuracy: totals.attempts > 0 ? roundToTwo((totals.correct / totals.attempts) * 100) : 0,
-      formulasPerMin: totals.elapsedMs > 0 ? roundToTwo(totals.correct / (totals.elapsedMs / 60000)) : 0,
       charsPerMin: totals.elapsedMs > 0 ? roundToTwo(totals.inferredChars / (totals.elapsedMs / 60000)) : 0,
       correct: totals.correct,
       bestStreak: totals.bestStreak,
@@ -65,101 +55,54 @@
     };
   }
 
-  function setView(view: StatsView): void {
-    if (view === "total" && totalWindow.length === 0) {
-      return;
-    }
-    statsView = view;
-  }
-
-  $: totalWindow = history.slice(0, MEAN_WINDOW);
-  $: aggregateStats = computeAggregateStats(totalWindow);
-  $: if (totalWindow.length === 0 && statsView === "total") {
-    statsView = "current";
-  }
-  $: isTotalView = statsView === "total" && totalWindow.length > 0;
-  $: displayAccuracy = isTotalView ? aggregateStats.accuracy : stats.accuracy;
-  $: displayMinPerFormula = isTotalView
-    ? computeMinPerFormula(aggregateStats.correct, aggregateStats.elapsedMs)
-    : computeMinPerFormula(stats.correct, stats.elapsedMs);
-  $: displayCharsPerMin = isTotalView ? aggregateStats.charsPerMin : stats.charsPerMin;
-  $: displayBestStreak = isTotalView ? aggregateStats.bestStreak : stats.bestStreak;
-  $: displayAttempts = isTotalView ? aggregateStats.attempts : stats.attempts;
-  $: displayCorrect = isTotalView ? aggregateStats.correct : stats.correct;
-  $: timeTitle = mode === "timed" && !isTotalView ? "Time Left" : "Elapsed";
-  $: timeValue = isTotalView
-    ? formatElapsedDuration(aggregateStats.elapsedMs)
-    : mode === "timed"
-      ? formatElapsedDuration(remainingMs ?? 0)
-      : formatElapsedDuration(stats.elapsedMs);
+  $: recentWindow = history.slice(0, RECENT_WINDOW);
+  $: recentStats = computeAggregateStats(recentWindow);
+  $: lifetimeStats = computeAggregateStats(history);
+  $: recentAccuracy = recentStats.accuracy;
+  $: recentMinPerFormula = computeMinPerFormula(recentStats.correct, recentStats.elapsedMs);
+  $: recentCharsPerMin = recentStats.charsPerMin;
+  $: lifetimeBestStreak = lifetimeStats.bestStreak;
+  $: lifetimeAttempts = lifetimeStats.attempts;
+  $: lifetimeCorrect = lifetimeStats.correct;
+  $: lifetimeElapsed = formatElapsedDuration(lifetimeStats.elapsedMs);
 </script>
 
-<div class="stats-view-toggle" role="group" aria-label="Statistics view">
-  <button
-    type="button"
-    class="text-option stats-view-option"
-    class:active-option={!isTotalView}
-    on:click={() => setView("current")}
-  >
-    current
-  </button>
-  <span class="bar-divider" aria-hidden="true">|</span>
-  <button
-    type="button"
-    class="text-option stats-view-option"
-    class:active-option={isTotalView}
-    disabled={totalWindow.length === 0}
-    on:click={() => setView("total")}
-  >
-    total
-  </button>
-  {#if isTotalView}
-    <span class="stats-view-hint">last {totalWindow.length}</span>
-  {/if}
+<div class="stats-scope-row" aria-label="Statistics scopes">
+  <span class="stats-scope-item">Recent performance · last {recentWindow.length || 0}</span>
+  <span class="stats-scope-item">{history.length} sessions · Lifetime totals</span>
 </div>
 
 <section class="stats-rail">
   <article class="stat-card">
     <h3>Accuracy</h3>
-    <p>{displayAccuracy}%</p>
+    <p>{recentAccuracy}%</p>
   </article>
 
   <article class="stat-card">
     <h3>Min/Formula</h3>
-    <p>{displayMinPerFormula}</p>
+    <p>{recentMinPerFormula}</p>
   </article>
 
   <article class="stat-card">
     <h3>Chars/Min</h3>
-    <p>{displayCharsPerMin}</p>
+    <p>{recentCharsPerMin}</p>
   </article>
 
   <article class="stat-card">
-    <h3>{isTotalView ? "Best Streak" : "Streak"}</h3>
-    <p>
-      {#if isTotalView}
-        {displayBestStreak}
-      {:else}
-        {currentStreak} (best {displayBestStreak})
-      {/if}
-    </p>
+    <h3>Best Streak</h3>
+    <p>{lifetimeBestStreak}</p>
   </article>
 
   <article class="stat-card">
     <h3>Attempts</h3>
     <p>
-      {displayAttempts}
-      <span class="attempts-correct">{displayCorrect} correct</span>
+      {lifetimeAttempts}
+      <span class="attempts-correct">{lifetimeCorrect} correct</span>
     </p>
   </article>
 
   <article class="stat-card">
-    <h3>{timeTitle}</h3>
-    <p>
-      {timeValue}
-      {#if status === "ended" && !isTotalView}
-        · ended
-      {/if}
-    </p>
+    <h3>Elapsed</h3>
+    <p>{lifetimeElapsed}</p>
   </article>
 </section>

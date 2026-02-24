@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ALL_TOPIC_IDS } from "../data/topics";
 import {
-  BESTS_STORAGE_KEY,
   computeBestScores,
   DEFAULT_SETTINGS,
-  getBestKey,
   HISTORY_STORAGE_KEY,
   loadHistory,
   loadSettings,
@@ -92,33 +90,49 @@ describe("persistence", () => {
     expect(loadSettings()).toEqual(sanitizeSettings(settings));
   });
 
-  it("caps saved history to last 50 sessions", () => {
-    const many = Array.from({ length: 70 }, (_, index) => makeRecord(index + 1));
+  it("caps saved history to last 500 sessions", () => {
+    const many = Array.from({ length: 520 }, (_, index) => makeRecord(index + 1));
     const saved = saveHistory(many);
-    expect(saved.length).toBe(50);
+    expect(saved.length).toBe(500);
 
     const loaded = loadHistory();
-    expect(loaded.length).toBe(50);
+    expect(loaded.length).toBe(500);
     expect(loaded[0].id).toBe("session-1");
   });
 
-  it("computes best scores by mode+difficulty", () => {
-    const first = makeRecord(3);
-    const second = makeRecord(5);
-    second.settings.difficulties = ["advanced"];
-
-    const bests = computeBestScores([first, second]);
-    expect(
-      bests[getBestKey(first.settings.mode, first.settings.difficulties, first.settings.selectedTopicIds, first.settings.selectedSubtopicsByTopic)].id
-    ).toBe(first.id);
-    expect(
-      bests[getBestKey(second.settings.mode, second.settings.difficulties, second.settings.selectedTopicIds, second.settings.selectedSubtopicsByTopic)].id
-    ).toBe(second.id);
+  it("computes global top 5 best scores", () => {
+    const records = Array.from({ length: 8 }, (_, index) => makeRecord(index + 1));
+    const bests = computeBestScores(records);
+    expect(bests).toHaveLength(5);
+    expect(bests[0].id).toBe("session-8");
+    expect(bests[4].id).toBe("session-4");
   });
 
-  it("returns empty history and bests when storage is empty", () => {
+  it("ranks hard-only sessions above equal easy-only sessions", () => {
+    const easyOnly = makeRecord(1);
+    easyOnly.stats.correct = 8;
+    easyOnly.stats.accuracy = 70;
+    easyOnly.stats.byDifficulty = {
+      beginner: { given: 8, solved: 8 },
+      intermediate: { given: 0, solved: 0 },
+      advanced: { given: 0, solved: 0 }
+    };
+
+    const hardOnly = makeRecord(2);
+    hardOnly.stats.correct = 8;
+    hardOnly.stats.accuracy = 70;
+    hardOnly.stats.byDifficulty = {
+      beginner: { given: 0, solved: 0 },
+      intermediate: { given: 0, solved: 0 },
+      advanced: { given: 8, solved: 8 }
+    };
+
+    const bests = computeBestScores([easyOnly, hardOnly]);
+    expect(bests[0].id).toBe(hardOnly.id);
+  });
+
+  it("returns empty history when storage is empty", () => {
     localStorage.removeItem(HISTORY_STORAGE_KEY);
-    localStorage.removeItem(BESTS_STORAGE_KEY);
     expect(loadHistory()).toEqual([]);
   });
 });

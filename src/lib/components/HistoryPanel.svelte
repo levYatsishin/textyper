@@ -4,10 +4,11 @@
   import type { BestScores, SessionRecord } from "../types";
 
   export let history: SessionRecord[] = [];
-  export let bests: BestScores = {};
-  type ConfirmTarget = "bests" | "history" | null;
-  let confirmTarget: ConfirmTarget = null;
-  const dispatch = createEventDispatcher<{ clearHistory: void; clearBests: void }>();
+  export let bests: BestScores = [];
+  const RECENT_PAGE_SIZE = 7;
+  let recentPage = 1;
+  let confirmClearHistory = false;
+  const dispatch = createEventDispatcher<{ clearHistory: void }>();
 
   function formatDate(timestamp: number): string {
     const date = new Date(timestamp);
@@ -105,51 +106,47 @@
       .filter((entry) => entry.given > 0);
   }
 
-  $: bestEntries = Object.entries(bests);
-  $: recent = history.slice(0, 8);
+  $: bestEntries = bests.slice(0, 5);
+  $: totalRecentPages = Math.max(1, Math.ceil(history.length / RECENT_PAGE_SIZE));
+  $: recentPage = Math.min(recentPage, totalRecentPages);
+  $: recentStart = (recentPage - 1) * RECENT_PAGE_SIZE;
+  $: recent = history.slice(recentStart, recentStart + RECENT_PAGE_SIZE);
 
-  function openClearConfirm(target: Exclude<ConfirmTarget, null>): void {
-    confirmTarget = target;
+  function openClearConfirm(): void {
+    confirmClearHistory = true;
   }
 
   function closeConfirm(): void {
-    confirmTarget = null;
+    confirmClearHistory = false;
   }
 
   function confirmClear(): void {
-    if (confirmTarget === "bests") {
-      dispatch("clearBests");
-    } else if (confirmTarget === "history") {
-      dispatch("clearHistory");
+    dispatch("clearHistory");
+    recentPage = 1;
+    confirmClearHistory = false;
+  }
+
+  function goToPreviousRecentPage(): void {
+    if (recentPage > 1) {
+      recentPage -= 1;
     }
-    confirmTarget = null;
+  }
+
+  function goToNextRecentPage(): void {
+    if (recentPage < totalRecentPages) {
+      recentPage += 1;
+    }
   }
 </script>
 
 <section class="history-panel">
   <details class="panel-card">
     <summary>Best scores</summary>
-    <button
-      type="button"
-      class="panel-card-delete"
-      aria-label="Delete best scores"
-      title="Delete best scores"
-      disabled={bestEntries.length === 0}
-      on:click|stopPropagation={() => openClearConfirm("bests")}
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M3 6h18" />
-        <path d="M8 6V4h8v2" />
-        <path d="M6.5 6l1 14h9l1-14" />
-        <path d="M10 11v6" />
-        <path d="M14 11v6" />
-      </svg>
-    </button>
     {#if bestEntries.length === 0}
       <p class="muted">No sessions yet.</p>
     {:else}
       <ul class="history-list">
-        {#each bestEntries as [, record]}
+        {#each bestEntries as record (record.id)}
           <li class="history-item">
             <details class="history-entry">
               <summary class="history-item-toggle">
@@ -237,7 +234,7 @@
       aria-label="Delete recent sessions"
       title="Delete recent sessions"
       disabled={history.length === 0}
-      on:click|stopPropagation={() => openClearConfirm("history")}
+      on:click|stopPropagation={openClearConfirm}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 6h18" />
@@ -328,20 +325,37 @@
           </li>
         {/each}
       </ul>
+      {#if history.length > RECENT_PAGE_SIZE}
+        <div class="history-pagination">
+          <button
+            type="button"
+            class="history-page-arrow"
+            aria-label="Previous page"
+            disabled={recentPage <= 1}
+            on:click={goToPreviousRecentPage}
+          >
+            ‹
+          </button>
+          <span class="history-page-indicator">{recentPage} / {totalRecentPages}</span>
+          <button
+            type="button"
+            class="history-page-arrow"
+            aria-label="Next page"
+            disabled={recentPage >= totalRecentPages}
+            on:click={goToNextRecentPage}
+          >
+            ›
+          </button>
+        </div>
+      {/if}
     {/if}
   </details>
 
-  {#if confirmTarget}
+  {#if confirmClearHistory}
     <div class="confirm-overlay" role="dialog" aria-modal="true" on:click={closeConfirm}>
       <div class="confirm-card" on:click|stopPropagation>
-        <h3 class="confirm-title">
-          {confirmTarget === "bests" ? "Delete best scores?" : "Delete recent sessions?"}
-        </h3>
-        <p class="confirm-text">
-          {confirmTarget === "bests"
-            ? "This removes all best-score entries from this browser."
-            : "This removes all recent session entries from this browser."}
-        </p>
+        <h3 class="confirm-title">Delete recent sessions?</h3>
+        <p class="confirm-text">This removes all recent session entries from this browser.</p>
         <div class="confirm-actions">
           <button type="button" class="btn subtle" on:click={closeConfirm}>Cancel</button>
           <button type="button" class="btn subtle confirm-delete" on:click={confirmClear}>Delete</button>
