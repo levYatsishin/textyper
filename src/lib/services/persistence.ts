@@ -274,12 +274,14 @@ function getBestnessScore(record: SessionRecord): number {
     byDifficulty.intermediate.solved * 1.8 +
     byDifficulty.advanced.solved * 3;
   const weightedSolvedRatio = weightedGiven > 0 ? (weightedSolved / weightedGiven) * 100 : 0;
+  const attemptsConfidence = clampToRange(record.stats.attempts / 12, 0, 1);
+  const confidenceAdjustedAccuracy = record.stats.accuracy * (0.35 + attemptsConfidence * 0.65);
   const normalizedCorrect = clampToRange((record.stats.correct / 20) * 100, 0, 100);
   const hardSolvedBonus = byDifficulty.advanced.solved > 0 ? 100 : 0;
   const score =
-    0.45 * record.stats.accuracy +
-    0.3 * weightedSolvedRatio +
-    0.2 * normalizedCorrect +
+    0.35 * confidenceAdjustedAccuracy +
+    0.35 * weightedSolvedRatio +
+    0.25 * normalizedCorrect +
     0.05 * hardSolvedBonus;
   return Number(score.toFixed(4));
 }

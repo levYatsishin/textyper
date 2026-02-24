@@ -131,6 +131,31 @@ describe("persistence", () => {
     expect(bests[0].id).toBe(hardOnly.id);
   });
 
+  it("ranks high-volume strong sessions above short perfect samples", () => {
+    const shortPerfect = makeRecord(1);
+    shortPerfect.stats.correct = 3;
+    shortPerfect.stats.attempts = 3;
+    shortPerfect.stats.accuracy = 100;
+    shortPerfect.stats.byDifficulty = {
+      beginner: { given: 0, solved: 0 },
+      intermediate: { given: 2, solved: 2 },
+      advanced: { given: 1, solved: 1 }
+    };
+
+    const highVolume = makeRecord(2);
+    highVolume.stats.correct = 9;
+    highVolume.stats.attempts = 10;
+    highVolume.stats.accuracy = 90;
+    highVolume.stats.byDifficulty = {
+      beginner: { given: 0, solved: 0 },
+      intermediate: { given: 7, solved: 6 },
+      advanced: { given: 3, solved: 3 }
+    };
+
+    const bests = computeBestScores([shortPerfect, highVolume]);
+    expect(bests[0].id).toBe(highVolume.id);
+  });
+
   it("returns empty history when storage is empty", () => {
     localStorage.removeItem(HISTORY_STORAGE_KEY);
     expect(loadHistory()).toEqual([]);
