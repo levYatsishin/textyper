@@ -161,6 +161,48 @@ describe("gameStore", () => {
     expect(restored.stats.correct).toBe(0);
   });
 
+  it("auto-ends zen mode after 5 minutes of inactivity", async () => {
+    vi.useFakeTimers();
+
+    const store = createGameStore(SAMPLE_EXPRESSIONS, {
+      now: () => Date.now(),
+      timerIntervalMs: 100
+    });
+
+    store.start({
+      mode: "practice",
+      difficulties: ["beginner", "intermediate", "advanced"],
+      selectedTopicIds: [...ALL_TOPIC_IDS]
+    });
+    await vi.advanceTimersByTimeAsync(301_000);
+
+    const state = getState(store);
+    expect(state.status).toBe("ended");
+  });
+
+  it("extends zen session when activity is registered", async () => {
+    vi.useFakeTimers();
+
+    const store = createGameStore(SAMPLE_EXPRESSIONS, {
+      now: () => Date.now(),
+      timerIntervalMs: 100
+    });
+
+    store.start({
+      mode: "practice",
+      difficulties: ["beginner", "intermediate", "advanced"],
+      selectedTopicIds: [...ALL_TOPIC_IDS]
+    });
+
+    await vi.advanceTimersByTimeAsync(240_000);
+    store.registerActivity();
+    await vi.advanceTimersByTimeAsync(240_000);
+
+    expect(getState(store).status).toBe("running");
+    await vi.advanceTimersByTimeAsync(61_000);
+    expect(getState(store).status).toBe("ended");
+  });
+
   it("resets active streak on incorrect submissions", async () => {
     const matcher = vi
       .fn()

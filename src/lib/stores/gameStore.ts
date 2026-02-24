@@ -35,6 +35,7 @@ interface GameStoreOptions {
 }
 
 const DEFAULT_TIMER_INTERVAL_MS = 250;
+const ZEN_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
 
 function getTimeLimitMs(settings: SessionSettings): number | null {
   return settings.mode === "timed" ? settings.durationSec * 1000 : null;
@@ -244,10 +245,20 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   const activeSnapshot = loadActiveSession();
   const restoredSettings = activeSnapshot ? applySubtopicDefaults(sanitizeSettings(activeSnapshot.settings)) : null;
   const restoredElapsedMs = activeSnapshot ? Math.max(0, now() - activeSnapshot.startedAt) : 0;
+  const restoredLastActivityAt = activeSnapshot
+    ? Math.max(activeSnapshot.startedAt, activeSnapshot.lastActivityAt)
+    : 0;
   const restoredLimitMs =
     restoredSettings && restoredSettings.mode === "timed" ? restoredSettings.durationSec * 1000 : null;
+  const hasExpiredZenInactivity =
+    !!restoredSettings &&
+    !!activeSnapshot &&
+    restoredSettings.mode === "practice" &&
+    now() - restoredLastActivityAt >= ZEN_INACTIVITY_TIMEOUT_MS;
   const canRestoreActiveSession =
-    !!activeSnapshot && !(restoredLimitMs !== null && restoredElapsedMs >= restoredLimitMs);
+    !!activeSnapshot &&
+    !(restoredLimitMs !== null && restoredElapsedMs >= restoredLimitMs) &&
+    !hasExpiredZenInactivity;
 
   if (activeSnapshot && !canRestoreActiveSession) {
     clearActiveSession();
@@ -325,6 +336,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
         lastSession: null
       };
 
+  let lastActivityAt = canRestoreActiveSession ? restoredLastActivityAt : now();
+
   if (state.status === "running") {
     resetExpressionCycle(
       state.settings.difficulties,
@@ -341,6 +354,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     if (nextState.status === "running") {
       saveActiveSession({
         savedAt: now(),
+        lastActivityAt,
         settings: nextState.settings,
         startedAt: nextState.stats.startedAt,
         attempts: nextState.stats.attempts,
@@ -428,7 +442,9 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs)
     };
 
-    if (limitMs !== null && elapsedMs >= limitMs) {
+    if (state.settings.mode === "practice" && now() - lastActivityAt >= ZEN_INACTIVITY_TIMEOUT_MS) {
+      nextState = finalizeSession(nextState, now());
+    } else if (limitMs !== null && elapsedMs >= limitMs) {
       nextState = finalizeSession(nextState, now());
     }
 
@@ -456,6 +472,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   function start(settings?: Partial<SessionSettings>): void {
     const nextSettings = normalizeSettings(settings ?? {});
     const startedAt = now();
+    lastActivityAt = startedAt;
     resetExpressionCycle(
       nextSettings.difficulties,
       nextSettings.selectedTopicIds,
@@ -572,6 +589,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     }
 
     const elapsedMs = Math.max(0, now() - state.stats.startedAt);
+    lastActivityAt = now();
     const attempts = state.stats.attempts + 1;
     const stats = toSessionStats({
       startedAt: state.stats.startedAt,
@@ -622,6 +640,13 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       ...state,
       settings
     });
+  }
+
+  function registerActivity(): void {
+    if (state.status !== "running") {
+      return;
+    }
+    lastActivityAt = now();
   }
 
   function updateSettings(settingsPatch: Partial<SessionSettings>): void {
@@ -762,6 +787,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     start,
     submit,
     skip,
+    registerActivity,
     toggleReveal,
     reset,
     end,

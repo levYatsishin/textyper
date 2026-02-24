@@ -354,6 +354,7 @@ export function saveBestScores(bests: BestScores): void {
 
 export interface ActiveSessionSnapshot {
   savedAt: number;
+  lastActivityAt: number;
   settings: SessionSettings;
   startedAt: number;
   attempts: number;
@@ -388,6 +389,7 @@ function isActiveSessionSnapshot(raw: unknown): raw is ActiveSessionSnapshot {
   const value = raw as ActiveSessionSnapshot;
   return (
     typeof value.savedAt === "number" &&
+    (value.lastActivityAt === undefined || typeof value.lastActivityAt === "number") &&
     typeof value.startedAt === "number" &&
     typeof value.attempts === "number" &&
     typeof value.correct === "number" &&
@@ -411,6 +413,10 @@ export function loadActiveSession(): ActiveSessionSnapshot | null {
 
   return {
     ...parsed,
+    lastActivityAt:
+      typeof (parsed as { lastActivityAt?: unknown }).lastActivityAt === "number"
+        ? (parsed as { lastActivityAt: number }).lastActivityAt
+        : parsed.startedAt,
     settings: sanitizeSettings(parsed.settings),
     byDifficulty: sanitizeDifficultyStats(
       (parsed as { byDifficulty?: unknown }).byDifficulty,

@@ -14,6 +14,7 @@
 
   const dispatch = createEventDispatcher<{
     submit: string;
+    activity: void;
   }>();
 
   let value = "";
@@ -53,6 +54,7 @@
 
   function onInput(event: Event): void {
     value = (event.currentTarget as HTMLTextAreaElement).value;
+    dispatch("activity");
     void autoSubmitIfCorrect();
   }
 

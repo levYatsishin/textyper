@@ -396,6 +396,10 @@
     await game.submit(inputLatex);
   }
 
+  function handleActivity(): void {
+    game.registerActivity();
+  }
+
   function handleSkip(): void {
     game.skip();
   }
@@ -430,6 +434,7 @@
         <li class="github-help-popout-item">filter by difficulty, topic, and subtopic.</li>
         <li class="github-help-popout-item">show formula mode for symbol learning.</li>
         <li class="github-help-popout-item">local history and best scores in browser.</li>
+        <li class="github-help-popout-item">zen auto-stops after 5m of no input.</li>
       </ul>
       <div class="github-help-popout-link">read more on github readme above</div>
     </div>
@@ -483,6 +488,7 @@
     lastResult={$game.lastResult}
     targetLatex={$game.currentExpression?.latex ?? ""}
     on:submit={(event) => handleSubmit(event.detail)}
+    on:activity={handleActivity}
   />
 
   <details class="stats-drawer">

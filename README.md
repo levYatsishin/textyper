@@ -14,7 +14,7 @@ Minimal trainer for typing LaTeX math quickly.
 - Progress and best scores are saved locally in your browser.
 ## Other features
 - When you’re learning, you can enable “show formula”, so you can just retype the answer and learn the symbols.
-- 
+- After 5 minutes of inactivity in zen mode session automaticaly end to not spoil statistics. 
 ## Comparison
 **TODO**
 ## FAQ
@@ -28,11 +28,10 @@ Moreover, classification was mostly automatic and, to be honest, should not be t
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
 ## Planned features
 - Render-aware correctness check 
-- a small FAQ section under ? sing in the top left corner
 - parse more formulas from wikipedea, wikidata, proof wiki
 - load custom user formulas
 - hover on symbol to show latex for it
-- symbols library as a separate page
+- ? symbols library as a separate page
 - integrate auto-shortcuts/expansions 
 - better ontology and llm auto classification
 - Gamefication mode: add rarity to formulas and probability of them appearing (for the first time / after they appeared once) with some collors and little effects. Bestiary/collection.
