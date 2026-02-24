@@ -133,6 +133,34 @@ describe("gameStore", () => {
     expect(restored.stats.correct).toBe(1);
   });
 
+  it("does not restore an ended session after reload", async () => {
+    const matcher = vi.fn().mockResolvedValue({
+      isMatch: true,
+      mismatchRatio: 0,
+      strategy: "exact"
+    });
+
+    const firstStore = createGameStore(SAMPLE_EXPRESSIONS, {
+      matcher,
+      now: () => Date.now()
+    });
+    firstStore.start({
+      mode: "practice",
+      difficulties: ["beginner", "intermediate", "advanced"],
+      selectedTopicIds: [...ALL_TOPIC_IDS]
+    });
+    await firstStore.submit("x+y");
+    firstStore.end();
+
+    const secondStore = createGameStore(SAMPLE_EXPRESSIONS, {
+      now: () => Date.now()
+    });
+    const restored = getState(secondStore);
+    expect(restored.status).toBe("idle");
+    expect(restored.stats.attempts).toBe(0);
+    expect(restored.stats.correct).toBe(0);
+  });
+
   it("resets active streak on incorrect submissions", async () => {
     const matcher = vi
       .fn()

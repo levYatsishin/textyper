@@ -77,18 +77,11 @@
     localStorage.setItem(THEME_STORAGE_KEY, themeMode);
   }
 
-  function handleBeforeUnload(): void {
-    game.end();
-  }
-
   onMount(() => {
     themeMode = loadThemePreference();
     applyTheme(themeMode);
     game.loadHistory();
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
+    return;
   });
 
   function handleModeChange(mode: Mode): void {

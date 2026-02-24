@@ -311,19 +311,19 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
         lastSession: null
       }
     : {
-    status: "idle",
-    settings: initialSettings,
-    stats: createEmptyStats(now()),
-    currentExpression: initialPreviewExpression,
-    remainingMs: getTimeLimitMs(initialSettings),
-    currentStreak: 0,
-    typedChars: 0,
-    isSubmitting: false,
-    lastResult: null,
-    history: initialHistory,
-    bests: initialBests,
-    lastSession: null
-  };
+        status: "idle",
+        settings: initialSettings,
+        stats: createEmptyStats(now()),
+        currentExpression: initialPreviewExpression,
+        remainingMs: getTimeLimitMs(initialSettings),
+        currentStreak: 0,
+        typedChars: 0,
+        isSubmitting: false,
+        lastResult: null,
+        history: initialHistory,
+        bests: initialBests,
+        lastSession: null
+      };
 
   if (state.status === "running") {
     resetExpressionCycle(
@@ -408,6 +408,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     if (state.status !== "running") {
       return;
     }
+    const sessionStartedAt = state.stats.startedAt;
 
     const elapsedMs = Math.max(0, now() - state.stats.startedAt);
     const limitMs = getTimeLimitMs(state.settings);
@@ -431,6 +432,9 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       nextState = finalizeSession(nextState, now());
     }
 
+    if (state.status !== "running" || state.stats.startedAt !== sessionStartedAt) {
+      return;
+    }
     setState(nextState);
   }
 
