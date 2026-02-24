@@ -2,9 +2,12 @@
   import { createEventDispatcher, tick } from "svelte";
   import katex from "katex";
   import { normalizeLatex } from "../services/matcher";
-  import type { SessionStatus, SubmissionResult } from "../types";
+  import type { Mode, SessionStatus, SubmissionResult } from "../types";
 
   export let status: SessionStatus;
+  export let mode: Mode = "practice";
+  export let remainingMs: number | null = null;
+  export let elapsedMs = 0;
   export let isSubmitting = false;
   export let lastResult: SubmissionResult | null = null;
   export let targetLatex = "";
@@ -53,6 +56,19 @@
     void autoSubmitIfCorrect();
   }
 
+  function formatZenElapsed(ms: number): string {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
   $: if (status === "running") {
     tick().then(() => inputElement?.focus());
   }
@@ -64,6 +80,9 @@
 
   $: livePreview = renderLivePreview(value);
   $: hasPreview = value.trim().length > 0;
+  $: runModeLabel = mode === "practice" ? "zen" : "timed";
+  $: remainingSec = Math.max(0, Math.ceil((remainingMs ?? 0) / 1000));
+  $: runCounter = mode === "practice" ? formatZenElapsed(elapsedMs) : String(remainingSec);
 </script>
 
 <section class="input-lane">
@@ -85,6 +104,10 @@
     {:else}
       <p class="preview-placeholder">start typing...</p>
     {/if}
+  </div>
+  <div class="preview-run-controls">
+    <span class="preview-run-indicator">{runModeLabel}</span>
+    <p class="preview-run-elapsed" class:preview-run-elapsed-zen={mode === "practice"}>{runCounter}</p>
   </div>
 
   {#if lastResult}

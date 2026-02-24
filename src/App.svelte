@@ -440,12 +440,12 @@
     on:difficultyToggle={(event) => handleDifficultyToggle(event.detail)}
     on:durationChange={(event) => handleDurationChange(event.detail)}
     on:revealToggle={(event) => handleRevealToggle(event.detail)}
-    on:topicToggle={(event) => handleTopicToggle(event.detail)}
-    on:subtopicToggle={(event) => handleSubtopicToggle(event.detail)}
-    on:topicSelectAll={handleTopicSelectAll}
     on:start={handleStart}
     on:restart={handleRestart}
     on:end={handleEnd}
+    on:topicToggle={(event) => handleTopicToggle(event.detail)}
+    on:subtopicToggle={(event) => handleSubtopicToggle(event.detail)}
+    on:topicSelectAll={handleTopicSelectAll}
   />
 
   <FormulaStage expression={$game.currentExpression} revealLatex={$game.settings.revealLatex} />
@@ -458,6 +458,9 @@
 
   <InputLane
     status={$game.status}
+    mode={$game.settings.mode}
+    remainingMs={$game.remainingMs}
+    elapsedMs={$game.stats.elapsedMs}
     isSubmitting={$game.isSubmitting}
     lastResult={$game.lastResult}
     targetLatex={$game.currentExpression?.latex ?? ""}

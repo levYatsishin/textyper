@@ -3,7 +3,7 @@
   import type { Difficulty, Mode, SessionSettings, SessionStatus, TopicDefinition, TopicId } from "../types";
 
   export let settings: SessionSettings;
-  export let status: SessionStatus;
+  export let status: SessionStatus = "running";
   export let topics: TopicDefinition[] = [];
   export let topicCounts: Record<TopicId, number> = {};
   export let topicSubtopicStats: Record<TopicId, Array<{ label: string; count: number }>> = {};
@@ -13,12 +13,12 @@
     difficultyToggle: Difficulty;
     durationChange: SessionSettings["durationSec"];
     revealToggle: boolean;
-    topicToggle: TopicId;
-    subtopicToggle: { topicId: TopicId; subtopic: string };
-    topicSelectAll: void;
     start: void;
     restart: void;
     end: void;
+    topicToggle: TopicId;
+    subtopicToggle: { topicId: TopicId; subtopic: string };
+    topicSelectAll: void;
   }>();
   let topicsButtonElement: HTMLButtonElement | null = null;
   let topicsMenuElement: HTMLDivElement | null = null;
@@ -28,6 +28,18 @@
 
   function toggleReveal(): void {
     dispatch("revealToggle", !settings.revealLatex);
+  }
+
+  function handleStart(): void {
+    dispatch("start");
+  }
+
+  function handleRestart(): void {
+    dispatch("restart");
+  }
+
+  function handleEnd(): void {
+    dispatch("end");
   }
 
   const difficultyOptions: Array<{ value: Difficulty; label: string }> = [
@@ -211,15 +223,13 @@
 
     <span class="bar-divider" aria-hidden="true">|</span>
 
-    <div class="text-group actions">
+    <div class="text-group" role="group" aria-label="Session controls">
       {#if status === "running"}
-        <button type="button" class="text-option" on:click={() => dispatch("end")}>end</button>
+        <button type="button" class="text-option" on:click={handleEnd}>end</button>
       {:else}
-        <button type="button" class="text-option active-option" on:click={() => dispatch("start")}>
-          {status === "ended" ? "start again" : "start"}
-        </button>
+        <button type="button" class="text-option active-option" on:click={handleStart}>start</button>
       {/if}
-      <button type="button" class="text-option active-option" on:click={() => dispatch("restart")}>restart</button>
+      <button type="button" class="text-option active-option" on:click={handleRestart}>restart</button>
     </div>
 
     <span class="bar-divider" aria-hidden="true">|</span>

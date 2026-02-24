@@ -452,11 +452,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     });
 
     saveSettings(nextSettings);
-    if (nextSettings.mode === "timed") {
-      startTimerLoop();
-    } else {
-      stopTimer();
-    }
+    startTimerLoop();
   }
 
   async function submit(inputLatex: string): Promise<void> {
@@ -637,15 +633,11 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     saveSettings(nextSettings);
 
     if (state.status === "running") {
-      if (nextSettings.mode === "timed") {
-        if (limitMs !== null && elapsedMs >= limitMs) {
-          end();
-          return;
-        }
-        startTimerLoop();
-      } else {
-        stopTimer();
+      if (nextSettings.mode === "timed" && limitMs !== null && elapsedMs >= limitMs) {
+        end();
+        return;
       }
+      startTimerLoop();
     }
   }
 
@@ -676,7 +668,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     });
   }
 
-  if (state.status === "running" && state.settings.mode === "timed") {
+  if (state.status === "running") {
     startTimerLoop();
   }
 

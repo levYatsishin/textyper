@@ -45,7 +45,6 @@
 
 <ControlBar
   {settings}
-  status="running"
   {topics}
   {topicCounts}
   {topicSubtopicStats}

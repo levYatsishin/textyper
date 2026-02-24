@@ -52,7 +52,6 @@ describe("ControlBar topics menu", () => {
   it("opens and closes the topics menu", async () => {
     render(ControlBar, {
       settings,
-      status: "running",
       topics,
       topicCounts,
       topicSubtopicStats
@@ -68,7 +67,6 @@ describe("ControlBar topics menu", () => {
   it("shows active difficulties above topics search", async () => {
     render(ControlBar, {
       settings,
-      status: "running",
       topics,
       topicCounts,
       topicSubtopicStats
@@ -86,7 +84,6 @@ describe("ControlBar topics menu", () => {
   it("filters topic list by search text", async () => {
     render(ControlBar, {
       settings,
-      status: "running",
       topics,
       topicCounts,
       topicSubtopicStats
@@ -104,7 +101,6 @@ describe("ControlBar topics menu", () => {
   it("filters topic list by subtopic search text", async () => {
     render(ControlBar, {
       settings,
-      status: "running",
       topics,
       topicCounts,
       topicSubtopicStats
@@ -139,7 +135,6 @@ describe("ControlBar topics menu", () => {
   it("expands subtopics immediately on arrow click", async () => {
     render(ControlBar, {
       settings,
-      status: "running",
       topics,
       topicCounts,
       topicSubtopicStats
@@ -156,7 +151,6 @@ describe("ControlBar topics menu", () => {
   it("keeps all action enabled when topics are selected but subtopics are partial", async () => {
     render(ControlBar, {
       settings: settingsAllTopicsPartial,
-      status: "running",
       topics,
       topicCounts,
       topicSubtopicStats: {
