@@ -337,7 +337,7 @@ class LatexHoverParser {
     }
 
     if (UNWRAPPED_OPERATOR_COMMANDS.has(normalizedCommand)) {
-      return { output: rawCommand, allowTrailingScripts: false, atomId: null };
+      return { output: this.parseOperatorCommandCluster(rawCommand, start), allowTrailingScripts: false, atomId: null };
     }
 
     let suffix = "";
@@ -371,6 +371,31 @@ class LatexHoverParser {
     const end = this.index;
     const id = this.registerAtom(start, end, "command");
     return { output: this.wrapAtom(id, `${rawCommand}${suffix}`), allowTrailingScripts: true, atomId: id };
+  }
+
+  private parseOperatorCommandCluster(rawCommand: string, start: number): string {
+    let suffix = "";
+    const modifierCheckpoint = this.index;
+    const modifierSpacing = this.consumeWhitespace();
+
+    if (this.source[this.index] === "\\") {
+      const modifierToken = this.parseRawCommandToken();
+      const modifierName = modifierToken.slice(1).replace(/\*$/, "");
+      if (modifierName === "limits" || modifierName === "nolimits") {
+        suffix += `${modifierSpacing}${modifierToken}`;
+      } else {
+        this.index = modifierCheckpoint;
+      }
+    } else {
+      this.index = modifierCheckpoint;
+    }
+
+    suffix += this.parseTrailingScripts();
+
+    const end = this.index;
+    const kind: HoverAtom["kind"] = suffix.includes("^") || suffix.includes("_") ? "script" : "command";
+    const id = this.registerAtom(start, end, kind);
+    return this.wrapAtom(id, `${rawCommand}${suffix}`);
   }
 
   private parseEnvironmentBlock(rawBeginCommand: string): string {

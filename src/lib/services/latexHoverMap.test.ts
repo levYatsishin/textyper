@@ -84,6 +84,15 @@ describe("latexHoverMap", () => {
     expect(Object.keys(result.atomsById).length).toBeGreaterThan(0);
   });
 
+  it("keeps large operators hoverable with scripts and limits", () => {
+    const result = buildInstrumentedRender("\\int_{0}^{\\infty} e^{-x^2} dx + \\sum \\limits_{n=1}^{\\infty} a_n");
+    const snippets = Object.values(result.atomsById).map((atom) => atom.snippet);
+
+    expect(result.html).toContain("data-ltx-id");
+    expect(snippets.some((snippet) => snippet.startsWith("\\int_"))).toBe(true);
+    expect(snippets.some((snippet) => snippet.startsWith("\\sum"))).toBe(true);
+  });
+
   it("falls back gracefully for invalid latex", () => {
     const result = buildInstrumentedRender("\\frac{a}{");
 

@@ -664,7 +664,7 @@ body {
   min-height: 120px;
   display: grid;
   place-items: center;
-  overflow: hidden;
+  overflow: visible;
   text-align: center;
   position: relative;
   cursor: pointer;
@@ -706,16 +706,17 @@ body {
 .formula-hover-popout {
   position: absolute;
   min-width: 120px;
-  max-width: min(320px, calc(100% - 1rem));
+  width: max-content;
+  max-width: min(440px, calc(100vw - 1rem));
   display: inline-flex;
   align-items: center;
-  gap: 0.48rem;
-  padding: 0.34rem 0.46rem;
+  gap: 0.56rem;
+  padding: 0.38rem 0.52rem;
   border: 1px solid var(--line);
   border-radius: 0.42rem;
   background: var(--bg-soft);
   color: var(--fg);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-2px);
@@ -732,9 +733,11 @@ body {
 .formula-hover-snippet {
   margin: 0;
   font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
-  font-size: 0.72rem;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  font-size: 0.74rem;
+  max-width: min(320px, 58vw);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: left;
 }
 

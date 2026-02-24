@@ -2,6 +2,7 @@ import { fireEvent, render } from "@testing-library/svelte";
 import { tick } from "svelte";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import FormulaStage from "./FormulaStage.svelte";
+import { buildInstrumentedRender } from "../services/latexHoverMap";
 import type { Expression } from "../types";
 
 const expression: Expression = {
@@ -191,5 +192,24 @@ describe("FormulaStage hover tooltip", () => {
     await fireEvent.pointerOver(lambdaNode!, { pointerType: "mouse", clientX: 30, clientY: 30 });
     const snippetNode = container.querySelector(".formula-hover-snippet");
     expect(snippetNode?.textContent?.trim()).toContain("\\lambda");
+  });
+
+  it("shows hover tooltip for integral operator", async () => {
+    const integralExpression: Expression = {
+      ...expression,
+      id: "hover-int-test",
+      latex: "\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}"
+    };
+    const instrumented = buildInstrumentedRender(integralExpression.latex);
+    const integralAtom = Object.values(instrumented.atomsById).find((atom) => atom.snippet.includes("\\int"));
+    expect(integralAtom).toBeTruthy();
+
+    const { container } = render(FormulaStage, { expression: integralExpression, revealLatex: false });
+    const integralNode = container.querySelector<HTMLElement>(`[data-ltx-id=\"${integralAtom!.id}\"]`);
+    expect(integralNode).toBeTruthy();
+
+    await fireEvent.pointerOver(integralNode!, { pointerType: "mouse", clientX: 30, clientY: 30 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+    expect(snippetNode?.textContent?.trim()).toContain("\\int");
   });
 });

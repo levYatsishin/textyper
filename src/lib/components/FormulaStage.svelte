@@ -402,7 +402,7 @@
             bind:this={tooltipNode}
             style={`left: ${tooltipX}px; top: ${tooltipY}px;`}
           >
-            <code class="formula-hover-snippet">{tooltipText}</code>
+            <code class="formula-hover-snippet" title={tooltipText}>{tooltipText}</code>
             <button type="button" class="formula-hover-copy text-option" on:click|stopPropagation={copyTooltipSnippet}>
               {tooltipCopied ? "copied" : "copy"}
             </button>
