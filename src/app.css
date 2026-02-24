@@ -1005,6 +1005,10 @@ body {
   margin-bottom: 0.3rem;
 }
 
+.stats-scope-row-current {
+  justify-content: center;
+}
+
 .stats-scope-item {
   font-size: 0.68rem;
   letter-spacing: 0.06em;

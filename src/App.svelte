@@ -500,6 +500,9 @@
     <div class="stats-drawer-content">
       <StatsRail
         history={$game.history}
+        stats={$game.stats}
+        currentStreak={$game.currentStreak}
+        status={$game.status}
       />
 
       <HistoryPanel
