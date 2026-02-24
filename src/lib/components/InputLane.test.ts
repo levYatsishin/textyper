@@ -54,4 +54,20 @@ describe("InputLane run controls", () => {
     expect(screen.getByText("timed")).toBeTruthy();
     expect(screen.getByText("61")).toBeTruthy();
   });
+
+  it("shows skipped result label for empty-input fail", () => {
+    render(InputLane, {
+      status: "running",
+      mode: "practice",
+      lastResult: {
+        isCorrect: false,
+        strategy: "fail",
+        mismatchRatio: 1,
+        inputLatex: "",
+        targetLatex: "x+y"
+      }
+    });
+
+    expect(screen.getByText("Skipped (fail)")).toBeTruthy();
+  });
 });

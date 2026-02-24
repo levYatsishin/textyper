@@ -83,6 +83,7 @@
   $: runModeLabel = mode === "practice" ? "zen" : "timed";
   $: remainingSec = Math.max(0, Math.ceil((remainingMs ?? 0) / 1000));
   $: runCounter = mode === "practice" ? formatZenElapsed(elapsedMs) : String(remainingSec);
+  $: wasSkipped = !!lastResult && !lastResult.isCorrect && lastResult.inputLatex.trim().length === 0;
 </script>
 
 <section class="input-lane">
@@ -105,20 +106,22 @@
       <p class="preview-placeholder">start typing...</p>
     {/if}
   </div>
+  {#if lastResult}
+    <p class:last-good={lastResult.isCorrect} class:last-bad={!lastResult.isCorrect} class="last-result">
+      {#if lastResult.isCorrect}
+        Correct ({lastResult.strategy} match)
+      {:else if wasSkipped}
+        Skipped ({lastResult.strategy})
+      {:else}
+        Incorrect ({lastResult.strategy})
+      {/if}
+    </p>
+  {/if}
+
   <div class="preview-run-controls">
     <span class="preview-run-indicator">{runModeLabel}</span>
     <p class="preview-run-elapsed" class:preview-run-elapsed-zen={mode === "practice" && status === "running"}>
       {runCounter}
     </p>
   </div>
-
-  {#if lastResult}
-    <p class:last-good={lastResult.isCorrect} class:last-bad={!lastResult.isCorrect} class="last-result">
-      {#if lastResult.isCorrect}
-        Correct ({lastResult.strategy} match)
-      {:else}
-        Incorrect ({lastResult.strategy})
-      {/if}
-    </p>
-  {/if}
 </section>
