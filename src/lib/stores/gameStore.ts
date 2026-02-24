@@ -652,6 +652,20 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     start(state.settings);
   }
 
+  function dismissResults(): void {
+    if (state.status !== "ended") {
+      return;
+    }
+
+    setState({
+      ...state,
+      status: "idle",
+      isSubmitting: false,
+      lastResult: null,
+      remainingMs: getTimeLimitMs(state.settings)
+    });
+  }
+
   function loadHistoryIntoState(): void {
     const history = loadHistory();
     const fromStorage = loadBestScores();
@@ -680,6 +694,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     toggleReveal,
     reset,
     end,
+    dismissResults,
     loadHistory: loadHistoryIntoState,
     updateSettings
   };

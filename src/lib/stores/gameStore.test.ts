@@ -190,4 +190,24 @@ describe("gameStore", () => {
     expect(state.currentExpression?.topics).toContain("calculus");
     expect(state.currentExpression?.id).not.toBe("1");
   });
+
+  it("dismisses ended results without restarting session", () => {
+    const store = createGameStore(SAMPLE_EXPRESSIONS, {
+      now: () => Date.now()
+    });
+
+    store.start({
+      mode: "timed",
+      durationSec: 60,
+      difficulties: ["beginner", "intermediate", "advanced"],
+      selectedTopicIds: [...ALL_TOPIC_IDS]
+    });
+    store.end();
+    store.dismissResults();
+
+    const state = getState(store);
+    expect(state.status).toBe("idle");
+    expect(state.settings.mode).toBe("timed");
+    expect(state.remainingMs).toBe(60000);
+  });
 });

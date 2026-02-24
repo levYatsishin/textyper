@@ -146,6 +146,7 @@ export interface GameStore extends Readable<GameState> {
   toggleReveal: (on?: boolean) => void;
   reset: () => void;
   end: () => void;
+  dismissResults: () => void;
   loadHistory: () => void;
   updateSettings: (settings: Partial<SessionSettings>) => void;
 }

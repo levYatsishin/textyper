@@ -149,6 +149,10 @@
     game.end();
   }
 
+  function handleCloseResults(): void {
+    game.dismissResults();
+  }
+
   function handleRevealToggle(isEnabled: boolean): void {
     game.toggleReveal(isEnabled);
   }
@@ -486,5 +490,10 @@
     </div>
   </details>
 
-  <ResultsModal open={$game.status === "ended"} session={$game.lastSession} on:restart={handleRestart} />
+  <ResultsModal
+    open={$game.status === "ended"}
+    session={$game.lastSession}
+    on:close={handleCloseResults}
+    on:restart={handleRestart}
+  />
 </main>

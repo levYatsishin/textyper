@@ -5,7 +5,7 @@
   export let open = false;
   export let session: SessionRecord | null = null;
 
-  const dispatch = createEventDispatcher<{ restart: void }>();
+  const dispatch = createEventDispatcher<{ restart: void; close: void }>();
 
   function formatDate(value: number): string {
     return new Date(value).toLocaleString();
@@ -25,7 +25,10 @@
         <li>Chars/Min: {session.stats.charsPerMin}</li>
         <li>Best Streak: {session.stats.bestStreak}</li>
       </ul>
-      <button type="button" class="btn strong" on:click={() => dispatch("restart")}>Restart Session</button>
+      <div class="modal-actions">
+        <button type="button" class="btn subtle" on:click={() => dispatch("close")}>Close</button>
+        <button type="button" class="btn strong" on:click={() => dispatch("restart")}>Restart Session</button>
+      </div>
     </div>
   </div>
 {/if}
