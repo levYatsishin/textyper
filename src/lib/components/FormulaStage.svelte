@@ -29,6 +29,8 @@
   let previousExpressionId = "";
   let lastPointerX = 0;
   let lastPointerY = 0;
+  const STYLE_COMMAND_RE =
+    /^\\(?:operatorname|text|mathbf|mathrm|mathit|mathsf|mathcal|mathfrak|mathbb|boldsymbol|bm|vec|hat|bar|overline|underline|widehat|widetilde)\b/;
 
   function formatDifficulty(difficulty: Expression["difficulty"]): string {
     if (difficulty === "beginner") {
@@ -113,8 +115,32 @@
     if (!(target instanceof Element)) {
       return null;
     }
-    const atomElement = target.closest<HTMLElement>("[data-ltx-id]");
-    return atomElement?.dataset.ltxId ?? null;
+    const candidateIds: string[] = [];
+    let current = target.closest<HTMLElement>("[data-ltx-id]");
+    while (current) {
+      const atomId = current.dataset.ltxId;
+      if (atomId) {
+        candidateIds.push(atomId);
+      }
+      const parent = current.parentElement;
+      current = parent ? parent.closest<HTMLElement>("[data-ltx-id]") : null;
+    }
+
+    const styledCommandId = candidateIds.find((candidateId) => {
+      const atom = atomsById[candidateId];
+      return Boolean(atom?.snippet && STYLE_COMMAND_RE.test(atom.snippet));
+    });
+
+    if (styledCommandId) {
+      return styledCommandId;
+    }
+
+    const scriptClusterId = candidateIds.find((candidateId) => {
+      const atom = atomsById[candidateId];
+      return atom?.kind === "script" && (atom.snippet.includes("^") || atom.snippet.includes("_"));
+    });
+
+    return scriptClusterId ?? candidateIds[0] ?? null;
   }
 
   function updateTooltipPosition(clientX: number, clientY: number): void {
@@ -292,6 +318,18 @@
     }
   }
 
+  async function handleDoubleClick(event: MouseEvent): Promise<void> {
+    if (event.target instanceof Element && event.target.closest(".formula-hover-popout")) {
+      return;
+    }
+    const atomId = getAtomIdFromTarget(event.target);
+    if (!atomId) {
+      return;
+    }
+    showTooltip(atomId, event.clientX, event.clientY);
+    await copyTooltipSnippet();
+  }
+
   $: if (renderedExpression) {
     tick().then(updateFormulaScale);
   }
@@ -352,6 +390,7 @@
         on:pointerdown={handlePointerDown}
         on:pointerup={handlePointerUp}
         on:pointercancel={handlePointerCancel}
+        on:dblclick={handleDoubleClick}
       >
         <div class="formula-scale" bind:this={formulaNode} style={`transform: scale(${formulaScale});`}>
           {@html renderedExpression}

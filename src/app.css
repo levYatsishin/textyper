@@ -667,6 +667,7 @@ body {
   overflow: hidden;
   text-align: center;
   position: relative;
+  cursor: pointer;
 }
 
 .formula-scale {
@@ -691,8 +692,15 @@ body {
   white-space: normal !important;
 }
 
+.formula-output .katex,
+.formula-output .katex * {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
 .formula-output [data-ltx-id] {
-  cursor: help;
+  cursor: pointer;
 }
 
 .formula-hover-popout {

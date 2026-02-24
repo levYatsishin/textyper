@@ -18,6 +18,17 @@ interface CommandSignature {
   optionalArgs: number;
 }
 
+interface RawGroup {
+  raw: string;
+  content: string;
+}
+
+interface ParsedPrimary {
+  output: string;
+  allowTrailingScripts: boolean;
+  atomId: string | null;
+}
+
 const COMMAND_SIGNATURES: Record<string, CommandSignature> = {
   frac: { requiredArgs: 2, optionalArgs: 0 },
   dfrac: { requiredArgs: 2, optionalArgs: 0 },
@@ -53,22 +64,45 @@ const COMMAND_SIGNATURES: Record<string, CommandSignature> = {
 };
 
 const DELIMITER_COMMANDS = new Set(["left", "right", "middle", "big", "Big", "bigg", "Bigg", "bigl", "bigr"]);
-const UNSUPPORTED_BLOCK_COMMANDS = new Set(["begin", "end"]);
-const OPERATOR_CHARS = new Set([
-  "+",
-  "-",
-  "=",
-  "<",
-  ">",
-  "*",
-  "/",
-  "|",
-  ":",
-  ";",
-  ",",
-  "!",
-  "?"
+const UNWRAPPED_DELIMITER_COMMANDS = new Set(["left", "right", "middle"]);
+const UNWRAPPED_MODIFIER_COMMANDS = new Set([
+  "limits",
+  "nolimits",
+  "displaystyle",
+  "textstyle",
+  "scriptstyle",
+  "scriptscriptstyle"
 ]);
+const UNWRAPPED_OPERATOR_COMMANDS = new Set([
+  "sum",
+  "prod",
+  "coprod",
+  "int",
+  "iint",
+  "iiint",
+  "oint",
+  "bigcup",
+  "bigcap",
+  "bigsqcup",
+  "bigvee",
+  "bigwedge",
+  "bigoplus",
+  "bigotimes"
+]);
+const SUPPORTED_ENVIRONMENTS = new Set([
+  "align",
+  "align*",
+  "aligned",
+  "split",
+  "matrix",
+  "pmatrix",
+  "bmatrix",
+  "Bmatrix",
+  "vmatrix",
+  "Vmatrix",
+  "cases"
+]);
+const OPERATOR_CHARS = new Set(["+", "-", "=", "<", ">", "*", "/", "|", ":", ";", ",", "!", "?"]);
 const LETTER_RE = /[A-Za-z]/;
 
 const renderCache = new Map<string, InstrumentedRender>();
@@ -125,29 +159,65 @@ class LatexHoverParser {
         this.index += 1;
         continue;
       }
-      output += this.parseAtom();
+      output += this.parseAtomCluster();
     }
     return output;
   }
 
-  private parseAtom(): string {
+  private parseAtomCluster(): string {
+    if (this.source[this.index] === "^" || this.source[this.index] === "_") {
+      return this.parseScriptSuffix();
+    }
+
+    const primary = this.parsePrimaryAtom();
+    if (!primary.allowTrailingScripts) {
+      return primary.output;
+    }
+    const trailingScripts = this.parseTrailingScripts();
+    if (!trailingScripts) {
+      return primary.output;
+    }
+
+    if (primary.atomId) {
+      const atom = this.atomsById[primary.atomId];
+      atom.end = this.index;
+      atom.snippet = this.source.slice(atom.start, this.index);
+      atom.kind = "script";
+    }
+
+    return `${primary.output}${trailingScripts}`;
+  }
+
+  private parsePrimaryAtom(): ParsedPrimary {
     const char = this.source[this.index];
     if (char === "{") {
-      return this.parseGroup();
-    }
-    if (char === "^" || char === "_") {
-      return this.parseScript();
+      return this.parseGroupInstrumented();
     }
     if (char === "\\") {
       return this.parseCommandOrControl();
     }
     if (char === "[") {
-      return this.parseBracketGroup();
+      return this.parseBracketGroupInstrumented();
     }
-    return this.parseSymbol();
+    return this.parseSymbolInstrumented();
   }
 
-  private parseGroup(): string {
+  private parseTrailingScripts(): string {
+    let suffix = "";
+    while (this.index < this.source.length) {
+      const checkpoint = this.index;
+      const spacing = this.consumeWhitespace();
+      const char = this.source[this.index];
+      if (char !== "^" && char !== "_") {
+        this.index = checkpoint;
+        break;
+      }
+      suffix += `${spacing}${this.parseScriptSuffix()}`;
+    }
+    return suffix;
+  }
+
+  private parseGroupInstrumented(): ParsedPrimary {
     const start = this.index;
     this.index += 1;
     const inner = this.parseSequence("}");
@@ -157,10 +227,23 @@ class LatexHoverParser {
     this.index += 1;
     const end = this.index;
     const id = this.registerAtom(start, end, "group");
+    return { output: this.wrapAtom(id, `{${inner}}`), allowTrailingScripts: true, atomId: id };
+  }
+
+  private parseGroupedArgumentContent(): string {
+    const start = this.index;
+    this.index += 1;
+    const inner = this.parseSequence("}");
+    if (this.source[this.index] !== "}") {
+      throw new Error("Unterminated argument group.");
+    }
+    this.index += 1;
+    const end = this.index;
+    const id = this.registerAtom(start, end, "group");
     return this.wrapAtom(id, `{${inner}}`);
   }
 
-  private parseBracketGroup(): string {
+  private parseBracketGroupInstrumented(): ParsedPrimary {
     const start = this.index;
     this.index += 1;
     let inner = "";
@@ -170,7 +253,7 @@ class LatexHoverParser {
         this.index += 1;
         const end = this.index;
         const id = this.registerAtom(start, end, "group");
-        return this.wrapAtom(id, `[${inner}]`);
+        return { output: this.wrapAtom(id, `[${inner}]`), allowTrailingScripts: true, atomId: id };
       }
       if (/\s/.test(char)) {
         inner += char;
@@ -178,45 +261,83 @@ class LatexHoverParser {
         continue;
       }
       if (char === "[") {
-        inner += this.parseBracketGroup();
+        inner += this.parseBracketGroupInstrumented();
         continue;
       }
-      inner += this.parseAtom();
+      inner += this.parseAtomCluster();
     }
     throw new Error("Unterminated optional bracket group.");
   }
 
-  private parseScript(): string {
-    const start = this.index;
-    const operator = this.source[this.index];
-    this.index += 1;
-    const spacing = this.consumeWhitespace();
-
-    if (this.index >= this.source.length) {
-      const end = this.index;
-      const id = this.registerAtom(start, end, "script");
-      return this.wrapAtom(id, `${operator}${spacing}`);
+  private parseOptionalArgumentInstrumented(): string {
+    if (this.source[this.index] !== "[") {
+      throw new Error("Expected optional argument.");
     }
-
-    const scriptBody = this.source[this.index] === "{" ? this.parseGroupedArgumentContent() : this.parseAtom();
-    const end = this.index;
-    const id = this.registerAtom(start, end, "script");
-    return this.wrapAtom(id, `${operator}${spacing}{${scriptBody}}`);
+    this.index += 1;
+    let content = "";
+    while (this.index < this.source.length) {
+      const char = this.source[this.index];
+      if (char === "]") {
+        this.index += 1;
+        return `[${content}]`;
+      }
+      if (/\s/.test(char)) {
+        content += char;
+        this.index += 1;
+        continue;
+      }
+      if (char === "[") {
+        content += this.parseOptionalArgumentInstrumented();
+        continue;
+      }
+      content += this.parseAtomCluster();
+    }
+    throw new Error("Unterminated optional argument.");
   }
 
-  private parseCommandOrControl(): string {
+  private parseScriptSuffix(): string {
+    const operator = this.source[this.index];
+    if (operator !== "^" && operator !== "_") {
+      throw new Error("Expected script operator.");
+    }
+    this.index += 1;
+    const spacing = this.consumeWhitespace();
+    if (this.index >= this.source.length) {
+      return `${operator}${spacing}`;
+    }
+
+    const body = this.source[this.index] === "{" ? this.parseGroupedArgumentContent() : this.parseAtomCluster();
+    return `${operator}${spacing}{${body}}`;
+  }
+
+  private parseCommandOrControl(): ParsedPrimary {
     const start = this.index;
     const rawCommand = this.parseRawCommandToken();
     const commandName = rawCommand.slice(1);
 
     if (rawCommand.length === 2 && !LETTER_RE.test(rawCommand[1])) {
       const id = this.registerAtom(start, this.index, "command");
-      return this.wrapAtom(id, rawCommand);
+      return { output: this.wrapAtom(id, rawCommand), allowTrailingScripts: true, atomId: id };
     }
 
     const normalizedCommand = commandName.replace(/\*$/, "");
-    if (UNSUPPORTED_BLOCK_COMMANDS.has(normalizedCommand)) {
-      throw new Error("Environment commands are not instrumented in hover mode.");
+
+    if (normalizedCommand === "begin") {
+      return { output: this.parseEnvironmentBlock(rawCommand), allowTrailingScripts: false, atomId: null };
+    }
+
+    if (normalizedCommand === "end") {
+      const spacing = this.consumeWhitespace();
+      const rawGroup = this.source[this.index] === "{" ? this.parseRawBraceGroup().raw : "";
+      return { output: `${rawCommand}${spacing}${rawGroup}`, allowTrailingScripts: false, atomId: null };
+    }
+
+    if (UNWRAPPED_MODIFIER_COMMANDS.has(normalizedCommand)) {
+      return { output: rawCommand, allowTrailingScripts: false, atomId: null };
+    }
+
+    if (UNWRAPPED_OPERATOR_COMMANDS.has(normalizedCommand)) {
+      return { output: rawCommand, allowTrailingScripts: false, atomId: null };
     }
 
     let suffix = "";
@@ -224,39 +345,197 @@ class LatexHoverParser {
       const spacing = this.consumeWhitespace();
       const delimiter = this.parseDelimiterToken();
       suffix = `${spacing}${delimiter}`;
+      if (UNWRAPPED_DELIMITER_COMMANDS.has(normalizedCommand)) {
+        return { output: `${rawCommand}${suffix}`, allowTrailingScripts: false, atomId: null };
+      }
     } else {
       const signature = COMMAND_SIGNATURES[normalizedCommand] ?? { requiredArgs: 0, optionalArgs: 0 };
-      for (let index = 0; index < signature.optionalArgs; index += 1) {
+      for (let argIndex = 0; argIndex < signature.optionalArgs; argIndex += 1) {
         const spacing = this.consumeWhitespace();
         if (this.source[this.index] === "[") {
-          suffix += `${spacing}${this.parseOptionalArgument()}`;
+          suffix += `${spacing}${this.parseOptionalArgumentInstrumented()}`;
         } else {
           suffix += spacing;
         }
       }
-      for (let index = 0; index < signature.requiredArgs; index += 1) {
+      for (let argIndex = 0; argIndex < signature.requiredArgs; argIndex += 1) {
         const spacing = this.consumeWhitespace();
         if (this.index >= this.source.length) {
           throw new Error(`Missing argument for command ${rawCommand}.`);
         }
-        const arg = this.source[this.index] === "{" ? this.parseGroupedArgumentContent() : this.parseAtom();
+        const arg = this.source[this.index] === "{" ? this.parseGroupedArgumentContent() : this.parseAtomCluster();
         suffix += `${spacing}{${arg}}`;
       }
     }
 
     const end = this.index;
     const id = this.registerAtom(start, end, "command");
-    return this.wrapAtom(id, `${rawCommand}${suffix}`);
+    return { output: this.wrapAtom(id, `${rawCommand}${suffix}`), allowTrailingScripts: true, atomId: id };
   }
 
-  private parseSymbol(): string {
+  private parseEnvironmentBlock(rawBeginCommand: string): string {
+    const spacing = this.consumeWhitespace();
+    const envGroup = this.parseRawBraceGroup();
+    const envName = envGroup.content.trim();
+    if (!SUPPORTED_ENVIRONMENTS.has(envName)) {
+      throw new Error(`Unsupported environment: ${envName}`);
+    }
+
+    const content = this.parseEnvironmentContent(envName);
+    const endToken = this.parseEnvironmentEnd(envName);
+    return `${rawBeginCommand}${spacing}${envGroup.raw}${content}${endToken}`;
+  }
+
+  private parseEnvironmentContent(envName: string): string {
+    let output = "";
+    while (this.index < this.source.length) {
+      if (this.isEnvironmentEndAhead(envName)) {
+        break;
+      }
+
+      const char = this.source[this.index];
+      if (/\s/.test(char)) {
+        output += char;
+        this.index += 1;
+        continue;
+      }
+
+      if (char === "&") {
+        output += "&";
+        this.index += 1;
+        continue;
+      }
+
+      if (char === "\\" && this.source[this.index + 1] === "\\") {
+        output += this.parseRowBreakToken();
+        continue;
+      }
+
+      output += this.parseAtomCluster();
+    }
+
+    return output;
+  }
+
+  private isEnvironmentEndAhead(envName: string): boolean {
+    const checkpoint = this.index;
+    if (this.source[this.index] !== "\\") {
+      return false;
+    }
+    try {
+      const command = this.parseRawCommandToken();
+      if (command !== "\\end") {
+        this.index = checkpoint;
+        return false;
+      }
+      this.consumeWhitespace();
+      if (this.source[this.index] !== "{") {
+        this.index = checkpoint;
+        return false;
+      }
+      const group = this.parseRawBraceGroup();
+      this.index = checkpoint;
+      return group.content.trim() === envName;
+    } catch {
+      this.index = checkpoint;
+      return false;
+    }
+  }
+
+  private parseEnvironmentEnd(envName: string): string {
+    const command = this.parseRawCommandToken();
+    if (command !== "\\end") {
+      throw new Error(`Expected \\end{${envName}}`);
+    }
+    const spacing = this.consumeWhitespace();
+    const group = this.parseRawBraceGroup();
+    if (group.content.trim() !== envName) {
+      throw new Error(`Mismatched environment end: ${group.content}`);
+    }
+    return `${command}${spacing}${group.raw}`;
+  }
+
+  private parseRowBreakToken(): string {
+    const command = this.parseRawCommandToken();
+    if (command !== "\\\\") {
+      throw new Error("Expected row break token.");
+    }
+    const spacing = this.consumeWhitespace();
+    let optionalArgument = "";
+    if (this.source[this.index] === "[") {
+      optionalArgument = this.parseOptionalArgumentRaw();
+    }
+    return `${command}${spacing}${optionalArgument}`;
+  }
+
+  private parseRawBraceGroup(): RawGroup {
+    if (this.source[this.index] !== "{") {
+      throw new Error("Expected brace group.");
+    }
+
+    const start = this.index;
+    let depth = 0;
+    while (this.index < this.source.length) {
+      const char = this.source[this.index];
+      this.index += 1;
+      if (char === "\\") {
+        if (this.index < this.source.length) {
+          this.index += 1;
+        }
+        continue;
+      }
+      if (char === "{") {
+        depth += 1;
+        continue;
+      }
+      if (char === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          const raw = this.source.slice(start, this.index);
+          return { raw, content: raw.slice(1, -1) };
+        }
+      }
+    }
+    throw new Error("Unterminated brace group.");
+  }
+
+  private parseOptionalArgumentRaw(): string {
+    if (this.source[this.index] !== "[") {
+      throw new Error("Expected optional argument.");
+    }
+    const start = this.index;
+    let depth = 0;
+    while (this.index < this.source.length) {
+      const char = this.source[this.index];
+      this.index += 1;
+      if (char === "\\") {
+        if (this.index < this.source.length) {
+          this.index += 1;
+        }
+        continue;
+      }
+      if (char === "[") {
+        depth += 1;
+        continue;
+      }
+      if (char === "]") {
+        depth -= 1;
+        if (depth === 0) {
+          return this.source.slice(start, this.index);
+        }
+      }
+    }
+    throw new Error("Unterminated optional argument.");
+  }
+
+  private parseSymbolInstrumented(): ParsedPrimary {
     const start = this.index;
     const char = this.source[this.index];
     this.index += 1;
     const end = this.index;
     const kind = OPERATOR_CHARS.has(char) ? "operator" : "symbol";
     const id = this.registerAtom(start, end, kind);
-    return this.wrapAtom(id, char);
+    return { output: this.wrapAtom(id, char), allowTrailingScripts: true, atomId: id };
   }
 
   private parseRawCommandToken(): string {
@@ -296,45 +575,6 @@ class LatexHoverParser {
     const delimiter = this.source[this.index];
     this.index += 1;
     return delimiter;
-  }
-
-  private parseGroupedArgumentContent(): string {
-    const start = this.index;
-    this.index += 1;
-    const inner = this.parseSequence("}");
-    if (this.source[this.index] !== "}") {
-      throw new Error("Unterminated argument group.");
-    }
-    this.index += 1;
-    const end = this.index;
-    const id = this.registerAtom(start, end, "group");
-    return this.wrapAtom(id, `{${inner}}`);
-  }
-
-  private parseOptionalArgument(): string {
-    if (this.source[this.index] !== "[") {
-      throw new Error("Expected optional argument.");
-    }
-    this.index += 1;
-    let content = "";
-    while (this.index < this.source.length) {
-      const char = this.source[this.index];
-      if (char === "]") {
-        this.index += 1;
-        return `[${content}]`;
-      }
-      if (/\s/.test(char)) {
-        content += char;
-        this.index += 1;
-        continue;
-      }
-      if (char === "[") {
-        content += this.parseOptionalArgument();
-        continue;
-      }
-      content += this.parseAtom();
-    }
-    throw new Error("Unterminated optional argument.");
   }
 
   private consumeWhitespace(): string {
@@ -383,7 +623,6 @@ export function buildInstrumentedRender(latex: string): InstrumentedRender {
     return result;
   } catch {
     const fallback = { html: renderFallback(latex), atomsById: {} };
-    renderCache.set(latex, fallback);
     return fallback;
   }
 }

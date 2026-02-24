@@ -49,6 +49,21 @@ describe("FormulaStage hover tooltip", () => {
     expect(writeText).toHaveBeenCalledWith(snippetText);
   });
 
+  it("copies snippet on double click", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      value: { writeText },
+      configurable: true
+    });
+
+    const { container } = render(FormulaStage, { expression, revealLatex: false });
+    const atom = container.querySelector("[data-ltx-id]") as HTMLElement;
+    expect(atom).toBeTruthy();
+
+    await fireEvent.dblClick(atom, { clientX: 20, clientY: 20 });
+    expect(writeText).toHaveBeenCalledWith("a");
+  });
+
   it("hides tooltip on pointer leave", async () => {
     const { container } = render(FormulaStage, { expression, revealLatex: false });
     const atom = container.querySelector("[data-ltx-id]") as HTMLElement;
@@ -90,5 +105,91 @@ describe("FormulaStage hover tooltip", () => {
 
     await fireEvent.keyDown(window, { key: "Escape" });
     expect(container.querySelector(".formula-hover-popout")).toBeNull();
+  });
+
+  it("prefers styled command snippet over inner symbol", async () => {
+    const styledExpression: Expression = {
+      ...expression,
+      id: "hover-style-test",
+      latex: "\\Delta \\mathbf{x} = r \\mathbf{v}"
+    };
+    const { container } = render(FormulaStage, { expression: styledExpression, revealLatex: false });
+    const symbolNodes = Array.from(container.querySelectorAll<HTMLElement>("[data-ltx-id]")).filter(
+      (node) => node.textContent?.trim() === "v"
+    );
+    const vNode = symbolNodes.at(-1);
+    expect(vNode).toBeTruthy();
+
+    await fireEvent.pointerOver(vNode!, { pointerType: "mouse", clientX: 30, clientY: 20 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+
+    expect(snippetNode?.textContent?.trim()).toBe("\\mathbf{v}");
+  });
+
+  it("prefers operatorname snippet over letter token", async () => {
+    const opExpression: Expression = {
+      ...expression,
+      id: "hover-operator-test",
+      latex: "\\operatorname{Conv}_h(z)"
+    };
+    const { container } = render(FormulaStage, { expression: opExpression, revealLatex: false });
+    const convLetter = Array.from(container.querySelectorAll<HTMLElement>("[data-ltx-id]")).find(
+      (node) => node.textContent?.trim() === "C"
+    );
+    expect(convLetter).toBeTruthy();
+
+    await fireEvent.pointerOver(convLetter!, { pointerType: "mouse", clientX: 24, clientY: 24 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+
+    expect(snippetNode?.textContent?.trim()).toContain("\\operatorname{Conv}");
+  });
+
+  it("shows hover tooltip inside align environment formula", async () => {
+    const alignExpression: Expression = {
+      ...expression,
+      id: "hover-align-test",
+      latex: "\\begin{align} x &= \\frac{1 - s^2}{1 + s^2} \\\\[5pt] y &= \\frac{2s}{1 + s^2} \\end{align}"
+    };
+    const { container } = render(FormulaStage, { expression: alignExpression, revealLatex: false });
+    const symbolS = Array.from(container.querySelectorAll<HTMLElement>("[data-ltx-id]")).find(
+      (node) => node.textContent?.trim() === "s"
+    );
+    expect(symbolS).toBeTruthy();
+
+    await fireEvent.pointerOver(symbolS!, { pointerType: "mouse", clientX: 35, clientY: 35 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+    expect(snippetNode).toBeTruthy();
+  });
+
+  it("shows hover tooltip for spaced left/right limit formula", async () => {
+    const limitExpression: Expression = {
+      ...expression,
+      id: "hover-limit-test",
+      latex: "\\lim_{x \\to \\infty} \\left (1 + \\frac{1}{x} \\right)^x = e"
+    };
+    const { container } = render(FormulaStage, { expression: limitExpression, revealLatex: false });
+    const atom = container.querySelector<HTMLElement>("[data-ltx-id]");
+    expect(atom).toBeTruthy();
+
+    await fireEvent.pointerOver(atom!, { pointerType: "mouse", clientX: 32, clientY: 28 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+    expect(snippetNode).toBeTruthy();
+  });
+
+  it("shows scripted lambda snippet for KKT formula", async () => {
+    const kktExpression: Expression = {
+      ...expression,
+      id: "hover-kkt-test",
+      latex: "0=\\nabla_{x}L(x^{*},\\lambda^{*})=\\nabla f(x^{*})-\\sum \\limits_{i\\in A(x^{*})}\\lambda_{i}^{*}\\nabla c_{i}(x^{*})"
+    };
+    const { container } = render(FormulaStage, { expression: kktExpression, revealLatex: false });
+    const lambdaNode = Array.from(container.querySelectorAll<HTMLElement>("[data-ltx-id]")).find(
+      (node) => node.textContent?.trim() === "\u03bb"
+    );
+    expect(lambdaNode).toBeTruthy();
+
+    await fireEvent.pointerOver(lambdaNode!, { pointerType: "mouse", clientX: 30, clientY: 30 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+    expect(snippetNode?.textContent?.trim()).toContain("\\lambda");
   });
 });

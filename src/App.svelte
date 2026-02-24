@@ -433,6 +433,7 @@
         <li class="github-help-popout-item">auto-advance when render matches.</li>
         <li class="github-help-popout-item">filter by difficulty, topic, and subtopic.</li>
         <li class="github-help-popout-item">show formula mode for symbol learning.</li>
+        <li class="github-help-popout-item">double-click rendered symbols to copy snippets.</li>
         <li class="github-help-popout-item">local history and best scores in browser.</li>
         <li class="github-help-popout-item">zen auto-stops after 5m of no input.</li>
       </ul>
