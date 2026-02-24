@@ -49,9 +49,11 @@
   ];
 
   const durationOptions: SessionSettings["durationSec"][] = [60, 120];
+  $: modeLocked = status === "running";
+  $: difficultiesLocked = status === "running" && settings.mode === "timed";
 
   function selectDuration(value: SessionSettings["durationSec"]): void {
-    if (status === "running") {
+    if (modeLocked) {
       return;
     }
     dispatch("modeChange", "timed");
@@ -59,7 +61,7 @@
   }
 
   function selectZenMode(): void {
-    if (status === "running") {
+    if (modeLocked) {
       return;
     }
     dispatch("modeChange", "practice");
@@ -196,7 +198,7 @@
           type="button"
           class="text-option"
           class:active-option={settings.mode === "timed" && settings.durationSec === value}
-          disabled={status === "running"}
+          disabled={modeLocked}
           on:click={() => selectDuration(value)}
         >
           {value}
@@ -206,7 +208,7 @@
         type="button"
         class="text-option"
         class:active-option={settings.mode === "practice"}
-        disabled={status === "running"}
+        disabled={modeLocked}
         on:click={selectZenMode}
       >
         zen
@@ -221,6 +223,7 @@
           type="button"
           class={`text-option difficulty-option ${difficultyClass(option.value)} ${settings.difficulties.includes(option.value) ? "active-option" : ""}`}
           aria-pressed={settings.difficulties.includes(option.value)}
+          disabled={difficultiesLocked}
           on:click={() => dispatch("difficultyToggle", option.value)}
         >
           {option.label.toLowerCase()}

@@ -63,6 +63,40 @@ describe("ControlBar topics menu", () => {
     expect(screen.getByRole("button", { name: "zen" }).hasAttribute("disabled")).toBe(true);
   });
 
+  it("locks difficulties while timed session is running", async () => {
+    render(ControlBar, {
+      settings: {
+        ...settings,
+        mode: "timed"
+      },
+      status: "running",
+      topics,
+      topicCounts,
+      topicSubtopicStats
+    });
+
+    expect(screen.getByRole("button", { name: "easy" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "medium" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "hard" }).hasAttribute("disabled")).toBe(true);
+  });
+
+  it("keeps difficulties enabled while zen is running", async () => {
+    render(ControlBar, {
+      settings: {
+        ...settings,
+        mode: "practice"
+      },
+      status: "running",
+      topics,
+      topicCounts,
+      topicSubtopicStats
+    });
+
+    expect(screen.getByRole("button", { name: "easy" }).hasAttribute("disabled")).toBe(false);
+    expect(screen.getByRole("button", { name: "medium" }).hasAttribute("disabled")).toBe(false);
+    expect(screen.getByRole("button", { name: "hard" }).hasAttribute("disabled")).toBe(false);
+  });
+
   it("enables mode buttons when session is ended", async () => {
     render(ControlBar, {
       settings,
