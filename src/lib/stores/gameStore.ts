@@ -253,6 +253,13 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     clearActiveSession();
   }
 
+  const initialPreviewExpression = pickNextExpression(
+    initialSettings.difficulties,
+    initialSettings.selectedTopicIds,
+    initialSettings.selectedSubtopicsByTopic,
+    null
+  );
+
   const restoredExpression = canRestoreActiveSession && activeSnapshot && restoredSettings
     ? findExpressionById(expressions, activeSnapshot.currentExpressionId)
     : null;
@@ -307,7 +314,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     status: "idle",
     settings: initialSettings,
     stats: createEmptyStats(now()),
-    currentExpression: null,
+    currentExpression: initialPreviewExpression,
     remainingMs: getTimeLimitMs(initialSettings),
     currentStreak: 0,
     typedChars: 0,
@@ -639,6 +646,22 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     };
 
     if (state.status === "running" && filtersChanged) {
+      resetExpressionCycle(
+        nextSettings.difficulties,
+        nextSettings.selectedTopicIds,
+        nextSettings.selectedSubtopicsByTopic,
+        state.currentExpression?.id ?? null
+      );
+      nextState = {
+        ...nextState,
+        currentExpression: pickNextExpression(
+          nextSettings.difficulties,
+          nextSettings.selectedTopicIds,
+          nextSettings.selectedSubtopicsByTopic,
+          state.currentExpression?.id ?? null
+        )
+      };
+    } else if (state.status !== "running" && filtersChanged) {
       resetExpressionCycle(
         nextSettings.difficulties,
         nextSettings.selectedTopicIds,

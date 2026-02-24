@@ -85,9 +85,6 @@
     themeMode = loadThemePreference();
     applyTheme(themeMode);
     game.loadHistory();
-    if (get(game).status === "idle") {
-      game.start();
-    }
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
