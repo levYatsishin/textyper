@@ -432,9 +432,12 @@
         <li class="github-help-popout-item">rendered target, type matching latex.</li>
         <li class="github-help-popout-item">auto-advance when render matches.</li>
         <li class="github-help-popout-item">filter by difficulty, topic, and subtopic.</li>
+        <li class="github-help-popout-item">local history and best scores in browser.</li>
+      </ul>
+      <div class="github-help-popout-separator" aria-hidden="true"></div>
+      <ul class="github-help-popout-list">
         <li class="github-help-popout-item">show formula mode for symbol learning.</li>
         <li class="github-help-popout-item">double-click rendered symbols to copy snippets.</li>
-        <li class="github-help-popout-item">local history and best scores in browser.</li>
         <li class="github-help-popout-item">zen auto-stops after 5m of no input.</li>
       </ul>
       <div class="github-help-popout-link">read more on github readme above</div>

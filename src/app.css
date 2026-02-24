@@ -204,6 +204,11 @@ body {
   text-transform: lowercase;
 }
 
+.github-help-popout-separator {
+  margin: 0.3rem 0 0.28rem;
+  border-top: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+}
+
 .github-help-popout-link:hover {
   color: var(--fg);
 }
