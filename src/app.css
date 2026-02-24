@@ -874,14 +874,51 @@ body {
 
 .panel-card ul {
   margin: 0.68rem 0 0;
-  padding-left: 1rem;
+  padding-left: 0;
+  list-style: none;
   display: grid;
-  gap: 0.24rem;
+  gap: 0.4rem;
 }
 
 .panel-card li {
   color: var(--fg);
   font-size: 0.84rem;
+}
+
+.history-list {
+  margin-top: 0.54rem;
+  gap: 0;
+}
+
+.history-item {
+  border: 0;
+  border-radius: 0;
+  padding: 0.46rem 0.12rem 0.5rem;
+  background: transparent;
+}
+
+.history-item + .history-item {
+  border-top: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+}
+
+.history-main {
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+  line-height: 1.15;
+}
+
+.history-meta {
+  margin-top: 0.18rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.history-meta-stats {
+  color: var(--fg);
+  font-size: 0.76rem;
+  line-height: 1.25;
 }
 
 .muted {
