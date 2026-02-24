@@ -149,5 +149,7 @@ export interface GameStore extends Readable<GameState> {
   end: () => void;
   dismissResults: () => void;
   loadHistory: () => void;
+  clearHistory: () => void;
+  clearBests: () => void;
   updateSettings: (settings: Partial<SessionSettings>) => void;
 }

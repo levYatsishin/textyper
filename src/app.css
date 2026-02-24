@@ -855,6 +855,7 @@ body {
 }
 
 .panel-card {
+  position: relative;
   border: 1px solid var(--line);
   border-radius: 0.45rem;
   padding: 0.55rem 0.7rem;
@@ -866,10 +867,46 @@ body {
   color: var(--muted);
   font-size: 0.88rem;
   list-style: none;
+  padding-right: 1.8rem;
 }
 
 .panel-card summary::-webkit-details-marker {
   display: none;
+}
+
+.panel-card-delete {
+  position: absolute;
+  top: 0.52rem;
+  right: 0.62rem;
+  width: 1rem;
+  height: 1rem;
+  border: none;
+  border-radius: 0.2rem;
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.panel-card-delete:hover:enabled {
+  color: var(--fg);
+}
+
+.panel-card-delete:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.panel-card-delete svg {
+  width: 0.88rem;
+  height: 0.88rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .panel-card ul {
@@ -925,6 +962,55 @@ body {
   margin: 0.62rem 0 0;
   color: var(--muted);
   font-size: 0.84rem;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 55;
+  background: color-mix(in srgb, var(--bg-hard) 80%, transparent);
+  padding: 1rem;
+}
+
+.confirm-card {
+  width: min(320px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.72rem 0.8rem;
+  background: var(--panel);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.confirm-title {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--fg);
+}
+
+.confirm-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.36rem;
+}
+
+.confirm-delete {
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 45%, var(--line));
+}
+
+.confirm-delete:hover:enabled {
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 80%, var(--line));
 }
 
 .modal-overlay {

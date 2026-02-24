@@ -709,6 +709,23 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     });
   }
 
+  function clearHistoryRecords(): void {
+    const history = saveHistory([]);
+    setState({
+      ...state,
+      history
+    });
+  }
+
+  function clearBestRecords(): void {
+    const bests = {};
+    saveBestScores(bests);
+    setState({
+      ...state,
+      bests
+    });
+  }
+
   if (state.status === "running") {
     startTimerLoop();
   }
@@ -723,6 +740,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     end,
     dismissResults,
     loadHistory: loadHistoryIntoState,
+    clearHistory: clearHistoryRecords,
+    clearBests: clearBestRecords,
     updateSettings
   };
 }

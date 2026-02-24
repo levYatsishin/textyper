@@ -153,6 +153,14 @@
     game.dismissResults();
   }
 
+  function handleClearHistory(): void {
+    game.clearHistory();
+  }
+
+  function handleClearBests(): void {
+    game.clearBests();
+  }
+
   function handleRevealToggle(isEnabled: boolean): void {
     game.toggleReveal(isEnabled);
   }
@@ -486,7 +494,12 @@
         status={$game.status}
       />
 
-      <HistoryPanel history={$game.history} bests={$game.bests} />
+      <HistoryPanel
+        history={$game.history}
+        bests={$game.bests}
+        on:clearHistory={handleClearHistory}
+        on:clearBests={handleClearBests}
+      />
     </div>
   </details>
 
