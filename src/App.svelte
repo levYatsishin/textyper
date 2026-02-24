@@ -425,6 +425,22 @@
       />
     </svg>
   </a>
+  <div class="github-help-wrap">
+    <button type="button" class="github-help-trigger text-option" aria-label="About features">
+      ?
+    </button>
+    <div class="github-help-popout" role="note" aria-label="feature notes">
+      <div class="github-help-popout-title">quick overview</div>
+      <ul class="github-help-popout-list">
+        <li class="github-help-popout-item">rendered target, type matching latex.</li>
+        <li class="github-help-popout-item">auto-advance when render matches.</li>
+        <li class="github-help-popout-item">filter by difficulty, topic, and subtopic.</li>
+        <li class="github-help-popout-item">show formula mode for symbol learning.</li>
+        <li class="github-help-popout-item">local history and best scores in browser.</li>
+      </ul>
+      <div class="github-help-popout-link">read more on github readme above</div>
+    </div>
+  </div>
 
   <button
     type="button"

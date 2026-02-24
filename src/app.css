@@ -113,11 +113,114 @@ body {
   fill: currentColor;
 }
 
+.github-help-wrap {
+  position: fixed;
+  top: 2.34rem;
+  left: 0.88rem;
+  width: 1.35rem;
+  min-height: 1.2rem;
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  z-index: 40;
+}
+
+.github-help-trigger {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: inline-grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.github-help-trigger:hover {
+  color: var(--fg);
+}
+
+.github-help-popout {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 0.52rem);
+  transform: translate(0, -0.16rem);
+  min-width: 280px;
+  max-width: min(390px, calc(100vw - 4rem));
+  padding: 0.52rem 0.64rem 0.56rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--muted-2);
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+.github-help-wrap:hover .github-help-popout,
+.github-help-wrap:focus-within .github-help-popout {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.github-help-popout-title {
+  margin-bottom: 0.34rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+.github-help-popout-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.github-help-popout-item {
+  font-size: 0.78rem;
+  line-height: 1.26;
+  text-transform: lowercase;
+  position: relative;
+  padding-left: 0.52rem;
+}
+
+.github-help-popout-item::before {
+  content: "·";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--muted);
+}
+
+.github-help-popout-link {
+  display: inline-block;
+  margin-top: 0.36rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: lowercase;
+}
+
+.github-help-popout-link:hover {
+  color: var(--fg);
+}
+
 :root[data-theme="light"] .github-link {
   color: var(--black);
 }
 
 :root[data-theme="light"] .github-link:hover {
+  color: var(--fg);
+}
+
+:root[data-theme="light"] .github-help-trigger {
+  color: var(--black);
+}
+
+:root[data-theme="light"] .github-help-trigger:hover {
   color: var(--fg);
 }
 
