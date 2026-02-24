@@ -26,9 +26,14 @@ Any single formula can belong to multiple topics/subtopics. Counts are membershi
 Moreover, classification was mostly automatic and, to be honest, should not be treated too seriously, only as a helpful hint. You can hover on the displayed topic of the current formula and see to which other ones it also belongs. 
 
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
+## Local storage and statistics
+For history cap for sessions is set to 500, after that the very first session will be deleted to reclame space for the new one.
+
+In "total" overview of statistics first 3 metrics i.e. accuracy, min/formula, chars/min are calculated withing a rolling window of 7 last runs, because while typing you improve your results and really old attempts can really ruin these metrics. On the other hand, second 3 metrics i.e. are calculated over the entire history, because they are there to show you big numbers, make you proud of efforts you put into your practice and inspire you to continue.
 ## Planned features
 - Render-aware correctness check 
 - load custom user formulas
+    - export statistics (and formulas?)
 - better formulas
     - better ontology and llm auto classification
     - parse more formulas from wikipedea, wikidata, proof wiki
