@@ -5,9 +5,7 @@
   export let history: SessionRecord[] = [];
   export let bests: BestScores = {};
   type ConfirmTarget = "bests" | "history" | null;
-  type HistoryGroup = "bests" | "recent";
   let confirmTarget: ConfirmTarget = null;
-  let expandedEntryKeys: string[] = [];
   const dispatch = createEventDispatcher<{ clearHistory: void; clearBests: void }>();
 
   function formatDate(timestamp: number): string {
@@ -105,23 +103,6 @@
       .filter((entry) => entry.given > 0);
   }
 
-  function getEntryKey(group: HistoryGroup, recordId: string): string {
-    return `${group}:${recordId}`;
-  }
-
-  function isEntryExpanded(group: HistoryGroup, recordId: string): boolean {
-    return expandedEntryKeys.includes(getEntryKey(group, recordId));
-  }
-
-  function toggleEntry(group: HistoryGroup, recordId: string): void {
-    const key = getEntryKey(group, recordId);
-    if (expandedEntryKeys.includes(key)) {
-      expandedEntryKeys = expandedEntryKeys.filter((entryKey) => entryKey !== key);
-      return;
-    }
-    expandedEntryKeys = [...expandedEntryKeys, key];
-  }
-
   $: bestEntries = Object.entries(bests);
   $: recent = history.slice(0, 8);
 
@@ -167,33 +148,30 @@
     {:else}
       <ul class="history-list">
         {#each bestEntries as [, record]}
-          <li class={`history-item ${isEntryExpanded("bests", record.id) ? "expanded" : ""}`}>
-            <button
-              type="button"
-              class="history-item-toggle"
-              aria-expanded={isEntryExpanded("bests", record.id)}
-              on:click={() => toggleEntry("bests", record.id)}
-            >
-              <div class="history-main">
-                <strong>{formatDate(record.endedAt)}</strong>
-              </div>
-              <span class="history-item-chevron" aria-hidden="true">▾</span>
-            </button>
-            <div class="history-meta history-meta-preview">
-              mode: {formatModeLabel(record)} · difficulty:
-              <span class="difficulty-inline-group">
-                {#each getDifficultyParts(record.settings.difficulties) as part, index (part.key)}
-                  <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
-                  {#if index < record.settings.difficulties.length - 1}
-                    <span class="difficulty-inline-separator">|</span>
-                  {/if}
-                {/each}
-              </span>
-              {#if record.settings.mode === "practice"}
-                · time spent: {formatElapsed(record.stats.elapsedMs)}
-              {/if}
-            </div>
-            {#if isEntryExpanded("bests", record.id)}
+          <li class="history-item">
+            <details class="history-entry">
+              <summary class="history-item-toggle">
+                <div class="history-item-toggle-text">
+                  <div class="history-main">
+                    <strong>{formatDate(record.endedAt)}</strong>
+                  </div>
+                  <div class="history-meta history-meta-preview">
+                    mode: {formatModeLabel(record)} · difficulty:
+                    <span class="difficulty-inline-group">
+                      {#each getDifficultyParts(record.settings.difficulties) as part, index (part.key)}
+                        <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
+                        {#if index < record.settings.difficulties.length - 1}
+                          <span class="difficulty-inline-separator">|</span>
+                        {/if}
+                      {/each}
+                    </span>
+                    {#if record.settings.mode === "practice"}
+                      · time spent: {formatElapsed(record.stats.elapsedMs)}
+                    {/if}
+                  </div>
+                </div>
+                <span class="history-item-chevron" aria-hidden="true">▾</span>
+              </summary>
               <div class="history-details">
                 <dl class="result-grid history-result-grid">
                   <div class="result-item">
@@ -242,7 +220,7 @@
                   </div>
                 {/if}
               </div>
-            {/if}
+            </details>
           </li>
         {/each}
       </ul>
@@ -272,33 +250,30 @@
     {:else}
       <ul class="history-list">
         {#each recent as item}
-          <li class={`history-item ${isEntryExpanded("recent", item.id) ? "expanded" : ""}`}>
-            <button
-              type="button"
-              class="history-item-toggle"
-              aria-expanded={isEntryExpanded("recent", item.id)}
-              on:click={() => toggleEntry("recent", item.id)}
-            >
-              <div class="history-main">
-                <strong>{formatDate(item.endedAt)}</strong>
-              </div>
-              <span class="history-item-chevron" aria-hidden="true">▾</span>
-            </button>
-            <div class="history-meta history-meta-preview">
-              mode: {formatModeLabel(item)} · difficulty:
-              <span class="difficulty-inline-group">
-                {#each getDifficultyParts(item.settings.difficulties) as part, index (part.key)}
-                  <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
-                  {#if index < item.settings.difficulties.length - 1}
-                    <span class="difficulty-inline-separator">|</span>
-                  {/if}
-                {/each}
-              </span>
-              {#if item.settings.mode === "practice"}
-                · time spent: {formatElapsed(item.stats.elapsedMs)}
-              {/if}
-            </div>
-            {#if isEntryExpanded("recent", item.id)}
+          <li class="history-item">
+            <details class="history-entry">
+              <summary class="history-item-toggle">
+                <div class="history-item-toggle-text">
+                  <div class="history-main">
+                    <strong>{formatDate(item.endedAt)}</strong>
+                  </div>
+                  <div class="history-meta history-meta-preview">
+                    mode: {formatModeLabel(item)} · difficulty:
+                    <span class="difficulty-inline-group">
+                      {#each getDifficultyParts(item.settings.difficulties) as part, index (part.key)}
+                        <span class={`difficulty-inline ${part.colorClass}`}>{part.label}</span>
+                        {#if index < item.settings.difficulties.length - 1}
+                          <span class="difficulty-inline-separator">|</span>
+                        {/if}
+                      {/each}
+                    </span>
+                    {#if item.settings.mode === "practice"}
+                      · time spent: {formatElapsed(item.stats.elapsedMs)}
+                    {/if}
+                  </div>
+                </div>
+                <span class="history-item-chevron" aria-hidden="true">▾</span>
+              </summary>
               <div class="history-details">
                 <dl class="result-grid history-result-grid">
                   <div class="result-item">
@@ -347,7 +322,7 @@
                   </div>
                 {/if}
               </div>
-            {/if}
+            </details>
           </li>
         {/each}
       </ul>

@@ -934,20 +934,35 @@ body {
   background: transparent;
 }
 
+.history-entry {
+  display: grid;
+}
+
 .history-item-toggle {
   width: 100%;
-  border: none;
-  background: transparent;
   padding: 0;
   margin: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.44rem;
   color: inherit;
   text-align: left;
   cursor: pointer;
-  font: inherit;
+  list-style: none;
+}
+
+.history-item-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.history-item-toggle::marker {
+  content: "";
+}
+
+.history-item-toggle-text {
+  min-width: 0;
+  display: grid;
 }
 
 .history-item-toggle:hover .history-item-chevron {
@@ -961,7 +976,7 @@ body {
   transition: transform 0.14s ease;
 }
 
-.history-item.expanded .history-item-chevron {
+.history-entry[open] .history-item-chevron {
   transform: rotate(180deg);
 }
 
