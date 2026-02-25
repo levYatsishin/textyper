@@ -460,7 +460,7 @@
         <li class="github-help-popout-item">rendered target, type matching latex.</li>
         <li class="github-help-popout-item">auto-advance when render matches.</li>
         <li class="github-help-popout-item">filter by difficulty, topic, and subtopic.</li>
-        <li class="github-help-popout-item">local history and statistics in browser.</li>
+        <li class="github-help-popout-item">local history and statistics in browser, hidden at the bottom of the page.</li>
       </ul>
       <div class="github-help-popout-separator" aria-hidden="true"></div>
       <ul class="github-help-popout-list">
