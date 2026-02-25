@@ -43,12 +43,11 @@ Note that when you filter formulas by difficulty, the formulas shown in the topi
 ## Comparison
 **TODO**
 ## Planned features
-- Render-aware correctness check 
-- load custom user formulas
-    - export statistics (and formulas?)
 - better formulas
     - better ontology and llm auto classification
     - parse more formulas from wikipedea, wikidata, proof wiki
+- load custom user formulas
+    - export statistics (and formulas?)
 - integrate auto-shortcuts/expansions 
 - tauri
 - ?
