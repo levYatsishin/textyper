@@ -28,10 +28,18 @@ Any single formula can belong to multiple topics/subtopics. Counts are membershi
 Moreover, classification was mostly automatic and, to be honest, should not be treated too seriously, only as a helpful hint. You can hover on the displayed topic of the current formula and see to which other ones it also belongs. 
 
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
-## Local storage and statistics
-For history cap for sessions is set to 500, after that the very first session will be deleted to reclame space for the new one.
+## Local storage
+History cap for sessions currently is set to 500. After that, the very first session will be deleted to reclaim space for the new one.
 
-In "total" overview of statistics first 3 metrics i.e. accuracy, min/formula, chars/min are calculated withing a rolling window of 7 last runs, because while typing you improve your results and really old attempts can really ruin these metrics. On the other hand, second 3 metrics i.e. are calculated over the entire history, because they are there to show you big numbers, make you proud of efforts you put into your practice and inspire you to continue. Scoring formulas are documented in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+The whole history, as well as individual sessions, can be deleted by pressing a little bin icon next to them (a confirmation message first will be shown).
+## Statistics
+Statistics rail is hidden under the arrow, at the bottom of the page. It provides an overview of your progress.
+
+First 3 metrics (i.e. accuracy, min/formula, chars/min) are calculated withing a rolling window of 7 last sessions. This is because while practicing, you improve your results and old attempts can significantly ruin these metrics, making the overall impression misleading. The next 3 metrics (i.e. best streak, total attempts, and time elapsed), on the other hand, are calculated over the entire history, because they are there to show you some big numbers, make you feel proud of the efforts you put into your skill and inspire you to continue. 
+
+Scoring formulas for calculating the top 5 best sessions are documented in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+While session is runnig, statistics rail is calculated specifically for it in a live format. But you can peek at the overall value of a metric by hovering over its box. 
 ## Planned features
 - Render-aware correctness check 
 - load custom user formulas

@@ -30,7 +30,41 @@
     elapsedMs: number;
   }
 
+  type StatsSide = "left" | "right";
+  type StatKey = "accuracy" | "minPerFormula" | "charsPerMin" | "streak" | "attempts" | "elapsed";
+
   const RECENT_WINDOW = 7;
+  let hoveredStatKey: StatKey | null = null;
+  let hoveredSide: StatsSide | null = null;
+
+  function handleCardHover(statKey: StatKey, side: StatsSide): void {
+    if (status !== "running") {
+      return;
+    }
+    hoveredStatKey = statKey;
+    hoveredSide = side;
+  }
+
+  function clearCardHover(): void {
+    hoveredStatKey = null;
+    hoveredSide = null;
+  }
+
+  function isTotalPreview(
+    statKey: StatKey,
+    activeHoverKey: StatKey | null,
+    sessionStatus: SessionStatus
+  ): boolean {
+    return sessionStatus !== "running" || activeHoverKey === statKey;
+  }
+
+  function isHoveredCard(
+    statKey: StatKey,
+    activeHoverKey: StatKey | null,
+    sessionStatus: SessionStatus
+  ): boolean {
+    return sessionStatus === "running" && activeHoverKey === statKey;
+  }
 
   function computeAggregateStats(records: SessionRecord[]): AggregateStats {
     if (records.length === 0) {
@@ -83,59 +117,92 @@
   $: lifetimeCorrect = lifetimeStats.correct;
   $: lifetimeElapsed = formatElapsedDuration(lifetimeStats.elapsedMs);
   $: isCurrentView = status === "running";
-  $: displayAccuracy = isCurrentView ? stats.accuracy : recentAccuracy;
-  $: displayMinPerFormula = isCurrentView
-    ? computeMinPerFormula(stats.correct, stats.elapsedMs)
-    : recentMinPerFormula;
-  $: displayCharsPerMin = isCurrentView ? stats.charsPerMin : recentCharsPerMin;
-  $: displayStreakText = isCurrentView ? `${currentStreak} (best ${stats.bestStreak})` : `${lifetimeBestStreak}`;
-  $: displayAttempts = isCurrentView ? stats.attempts : lifetimeAttempts;
-  $: displayCorrect = isCurrentView ? stats.correct : lifetimeCorrect;
-  $: displayElapsed = isCurrentView ? formatElapsedDuration(stats.elapsedMs) : lifetimeElapsed;
+  $: currentAccuracy = stats.accuracy;
+  $: currentMinPerFormula = computeMinPerFormula(stats.correct, stats.elapsedMs);
+  $: currentCharsPerMin = stats.charsPerMin;
+  $: currentStreakText = `${currentStreak} (best ${stats.bestStreak})`;
+  $: currentAttempts = stats.attempts;
+  $: currentCorrect = stats.correct;
+  $: currentElapsed = formatElapsedDuration(stats.elapsedMs);
+  $: leftScopeLabel = `Recent performance · last ${recentWindow.length || 0}`;
+  $: rightScopeLabel = `${history.length} sessions · Lifetime totals`;
 </script>
 
 {#if isCurrentView}
-  <div class="stats-scope-row stats-scope-row-current" aria-label="Statistics scopes">
+  <div class="stats-scope-row stats-scope-row-running" aria-label="Statistics scopes">
+    <span class="stats-scope-item">{hoveredSide === "left" ? leftScopeLabel : ""}</span>
     <span class="stats-scope-item">Current</span>
+    <span class="stats-scope-item">{hoveredSide === "right" ? rightScopeLabel : ""}</span>
   </div>
 {:else}
   <div class="stats-scope-row" aria-label="Statistics scopes">
-    <span class="stats-scope-item">Recent performance · last {recentWindow.length || 0}</span>
-    <span class="stats-scope-item">{history.length} sessions · Lifetime totals</span>
+    <span class="stats-scope-item">{leftScopeLabel}</span>
+    <span class="stats-scope-item">{rightScopeLabel}</span>
   </div>
 {/if}
 
-<section class="stats-rail">
-  <article class="stat-card">
+<section
+  class="stats-rail"
+  role="group"
+  aria-label="Session statistics cards"
+  on:pointerleave={clearCardHover}
+>
+  <article
+    class={`stat-card ${isHoveredCard("accuracy", hoveredStatKey, status) ? "stat-card-preview" : ""}`}
+    data-stat-key="accuracy"
+    on:pointerenter={() => handleCardHover("accuracy", "left")}
+  >
     <h3>Accuracy</h3>
-    <p>{displayAccuracy}%</p>
+    <p>{isTotalPreview("accuracy", hoveredStatKey, status) ? recentAccuracy : currentAccuracy}%</p>
   </article>
 
-  <article class="stat-card">
+  <article
+    class={`stat-card ${isHoveredCard("minPerFormula", hoveredStatKey, status) ? "stat-card-preview" : ""}`}
+    data-stat-key="minPerFormula"
+    on:pointerenter={() => handleCardHover("minPerFormula", "left")}
+  >
     <h3>Min/Formula</h3>
-    <p>{displayMinPerFormula}</p>
+    <p>{isTotalPreview("minPerFormula", hoveredStatKey, status) ? recentMinPerFormula : currentMinPerFormula}</p>
   </article>
 
-  <article class="stat-card">
+  <article
+    class={`stat-card ${isHoveredCard("charsPerMin", hoveredStatKey, status) ? "stat-card-preview" : ""}`}
+    data-stat-key="charsPerMin"
+    on:pointerenter={() => handleCardHover("charsPerMin", "left")}
+  >
     <h3>Chars/Min</h3>
-    <p>{displayCharsPerMin}</p>
+    <p>{isTotalPreview("charsPerMin", hoveredStatKey, status) ? recentCharsPerMin : currentCharsPerMin}</p>
   </article>
 
-  <article class="stat-card">
-    <h3>{isCurrentView ? "Streak" : "Best Streak"}</h3>
-    <p>{displayStreakText}</p>
+  <article
+    class={`stat-card ${isHoveredCard("streak", hoveredStatKey, status) ? "stat-card-preview" : ""}`}
+    data-stat-key="streak"
+    on:pointerenter={() => handleCardHover("streak", "right")}
+  >
+    <h3>{isTotalPreview("streak", hoveredStatKey, status) ? "Best Streak" : "Streak"}</h3>
+    <p>{isTotalPreview("streak", hoveredStatKey, status) ? lifetimeBestStreak : currentStreakText}</p>
   </article>
 
-  <article class="stat-card">
+  <article
+    class={`stat-card ${isHoveredCard("attempts", hoveredStatKey, status) ? "stat-card-preview" : ""}`}
+    data-stat-key="attempts"
+    on:pointerenter={() => handleCardHover("attempts", "right")}
+  >
     <h3>Attempts</h3>
     <p>
-      {displayAttempts}
-      <span class="attempts-correct">{displayCorrect} correct</span>
+      {isTotalPreview("attempts", hoveredStatKey, status) ? lifetimeAttempts : currentAttempts}
+      <span class="attempts-correct">
+        {isTotalPreview("attempts", hoveredStatKey, status) ? lifetimeCorrect : currentCorrect} correct
+      </span>
     </p>
   </article>
 
-  <article class="stat-card">
+  <article
+    class={`stat-card ${isHoveredCard("elapsed", hoveredStatKey, status) ? "stat-card-preview" : ""}`}
+    data-stat-key="elapsed"
+    on:pointerenter={() => handleCardHover("elapsed", "right")}
+  >
     <h3>Elapsed</h3>
-    <p>{displayElapsed}</p>
+    <p>{isTotalPreview("elapsed", hoveredStatKey, status) ? lifetimeElapsed : currentElapsed}</p>
   </article>
 </section>

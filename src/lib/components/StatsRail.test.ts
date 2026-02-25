@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import StatsRail from "./StatsRail.svelte";
 import type { SessionRecord, SessionStats } from "../types";
@@ -97,5 +97,63 @@ describe("StatsRail", () => {
     expect(screen.getByText("12")).toBeTruthy();
     expect(screen.getByText("7 correct")).toBeTruthy();
     expect(screen.getByText("01:33")).toBeTruthy();
+  });
+
+  it("shows side totals on hovered card while running", async () => {
+    const liveStats: SessionStats = {
+      startedAt: 0,
+      elapsedMs: 93_000,
+      attempts: 12,
+      correct: 7,
+      accuracy: 58.33,
+      formulasPerMin: 0,
+      charsPerMin: 222.11,
+      bestStreak: 5,
+      byDifficulty: {
+        beginner: { given: 4, solved: 3 },
+        intermediate: { given: 5, solved: 3 },
+        advanced: { given: 3, solved: 1 }
+      }
+    };
+
+    const { container } = render(StatsRail, {
+      history: Array.from({ length: 8 }, (_, index) => makeRecord(index + 1)),
+      stats: liveStats,
+      currentStreak: 2,
+      status: "running"
+    });
+
+    const accuracyCard = container.querySelector("[data-stat-key='accuracy']") as HTMLElement;
+    expect(accuracyCard).toBeTruthy();
+    const rail = container.querySelector(".stats-rail") as HTMLElement;
+    expect(rail).toBeTruthy();
+
+    await fireEvent.pointerEnter(accuracyCard);
+    expect(screen.getByText("Current")).toBeTruthy();
+    expect(screen.getByText("Recent performance · last 7")).toBeTruthy();
+    expect(screen.getByText("40%")).toBeTruthy();
+    expect(screen.getByText("2 (best 5)")).toBeTruthy();
+
+    await fireEvent.pointerLeave(accuracyCard);
+    expect(screen.getByText("Current")).toBeTruthy();
+    expect(screen.getByText("40%")).toBeTruthy();
+
+    await fireEvent.pointerLeave(rail);
+    expect(screen.getByText("Current")).toBeTruthy();
+    expect(screen.getByText("58.33%")).toBeTruthy();
+
+    const streakCard = container.querySelector("[data-stat-key='streak']") as HTMLElement;
+    expect(streakCard).toBeTruthy();
+
+    await fireEvent.pointerEnter(streakCard);
+    expect(screen.getByText("Current")).toBeTruthy();
+    expect(screen.getByText("8 sessions · Lifetime totals")).toBeTruthy();
+    expect(screen.getByText("Best Streak")).toBeTruthy();
+    expect(screen.getByText("8")).toBeTruthy();
+    expect(screen.getByText("7 correct")).toBeTruthy();
+    expect(streakCard.className.includes("stat-card-preview")).toBe(true);
+
+    const attemptsCard = container.querySelector("[data-stat-key='attempts']") as HTMLElement;
+    expect(attemptsCard.className.includes("stat-card-preview")).toBe(false);
   });
 });
