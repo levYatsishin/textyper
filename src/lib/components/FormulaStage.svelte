@@ -13,6 +13,7 @@
   export let expression: Expression | null = null;
   export let revealLatex = false;
   export let poolRestartFlashVisible = false;
+  export let poolRestartFallbackLatex = "";
   let outputContainer: HTMLDivElement | null = null;
   let formulaNode: HTMLDivElement | null = null;
   let tooltipNode: HTMLDivElement | null = null;
@@ -108,6 +109,10 @@
   $: sourceTopic = expression ? formatTopic(sourceTopicId) : "";
   $: sourceSubtopic = expression ? getTopicScopedSubtopics(expression, sourceTopicId)[0] ?? "" : "";
   $: sourceLabel = expression ? (sourceSubtopic ? `${sourceTopic} · ${sourceSubtopic}` : sourceTopic) : "";
+  $: revealLatexValue =
+    poolRestartFlashVisible && poolRestartFallbackLatex.trim().length > 0
+      ? poolRestartFallbackLatex
+      : (expression?.latex ?? "");
   $: additionalSourceLabels = expression
     ? getTopicSubtopicLabels(expression).filter((label) => label !== sourceLabel)
     : [];
@@ -410,11 +415,11 @@
   }
 
   async function handleRevealDoubleClick(event: MouseEvent): Promise<void> {
-    if (!expression || !navigator?.clipboard?.writeText) {
+    if (!navigator?.clipboard?.writeText || !revealLatexValue) {
       return;
     }
     try {
-      await navigator.clipboard.writeText(expression.latex);
+      await navigator.clipboard.writeText(revealLatexValue);
       showCopyNotice("formula copied");
     } catch {
       showCopyNotice("copy failed");
@@ -566,7 +571,7 @@
       {/if}
       {#if revealLatex}
         <div class="latex-reveal-wrap">
-          <pre class="latex-reveal" on:dblclick={handleRevealDoubleClick}>{expression.latex}</pre>
+          <pre class="latex-reveal" on:dblclick={handleRevealDoubleClick}>{revealLatexValue}</pre>
           {#if copyNoticeVisible}
             <div class="formula-copy-notice" role="status">{copyNoticeText}</div>
           {/if}

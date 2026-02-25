@@ -57,6 +57,8 @@
   let poolRestartFlashVisible = false;
   let poolRestartFlashTimer: ReturnType<typeof setTimeout> | null = null;
   let lastPoolRestartedAt: number | null = null;
+  let poolRestartFallbackLatex = "";
+  let inputFocusNonce = 0;
 
   function isThemeMode(value: unknown): value is ThemeMode {
     return value === "dark" || value === "light";
@@ -418,13 +420,18 @@
   $: topicSubtopicStats = getTopicSubtopicStats($game.settings);
   $: if ($game.poolRestartedAt !== null && $game.poolRestartedAt !== lastPoolRestartedAt) {
     lastPoolRestartedAt = $game.poolRestartedAt;
+    poolRestartFallbackLatex = $game.lastResult?.targetLatex ?? "";
     poolRestartFlashVisible = true;
     if (poolRestartFlashTimer !== null) {
       clearTimeout(poolRestartFlashTimer);
     }
     poolRestartFlashTimer = setTimeout(() => {
       poolRestartFlashVisible = false;
+      poolRestartFallbackLatex = "";
       poolRestartFlashTimer = null;
+      if (get(game).status === "running") {
+        inputFocusNonce += 1;
+      }
     }, 1250);
   }
 </script>
@@ -500,10 +507,16 @@
     expression={$game.currentExpression}
     revealLatex={$game.settings.revealLatex}
     poolRestartFlashVisible={poolRestartFlashVisible}
+    poolRestartFallbackLatex={poolRestartFallbackLatex}
   />
 
   <div class="formula-skip">
-    <button type="button" class="text-option" on:click={handleSkip} disabled={$game.status !== "running" || $game.isSubmitting}>
+    <button
+      type="button"
+      class="text-option"
+      on:click={handleSkip}
+      disabled={$game.status !== "running" || $game.isSubmitting || poolRestartFlashVisible}
+    >
       skip
     </button>
   </div>
@@ -514,6 +527,8 @@
     remainingMs={$game.remainingMs}
     elapsedMs={$game.stats.elapsedMs}
     isSubmitting={$game.isSubmitting}
+    inputLocked={poolRestartFlashVisible}
+    focusNonce={inputFocusNonce}
     lastResult={$game.lastResult}
     targetLatex={$game.currentExpression?.latex ?? ""}
     on:submit={(event) => handleSubmit(event.detail)}

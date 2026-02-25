@@ -10,6 +10,8 @@
   export let remainingMs: number | null = null;
   export let elapsedMs = 0;
   export let isSubmitting = false;
+  export let inputLocked = false;
+  export let focusNonce = 0;
   export let lastResult: SubmissionResult | null = null;
   export let targetLatex = "";
 
@@ -22,6 +24,7 @@
   let inputElement: HTMLTextAreaElement | null = null;
   let isAutoSubmitting = false;
   let lastFocusedTarget = "";
+  let lastAppliedFocusNonce = -1;
 
   function renderLivePreview(latex: string): string {
     if (!latex.trim()) {
@@ -36,7 +39,7 @@
   }
 
   async function autoSubmitIfCorrect(): Promise<void> {
-    if (status !== "running" || isSubmitting || isAutoSubmitting) {
+    if (status !== "running" || isSubmitting || inputLocked || isAutoSubmitting) {
       return;
     }
     const typed = normalizeLatex(value);
@@ -68,6 +71,15 @@
     tick().then(() => inputElement?.focus());
   }
 
+  $: if (status === "running" && !inputLocked && focusNonce !== lastAppliedFocusNonce) {
+    lastAppliedFocusNonce = focusNonce;
+    tick().then(() => {
+      if (inputElement && !inputElement.disabled) {
+        inputElement.focus();
+      }
+    });
+  }
+
   $: livePreview = renderLivePreview(value);
   $: hasPreview = value.trim().length > 0;
   $: runModeLabel = mode === "practice" ? "zen" : "timed";
@@ -83,7 +95,7 @@
     rows="3"
     placeholder={status === "running" ? "Type LaTeX here..." : "Start a session to begin typing"}
     on:input={onInput}
-    disabled={status !== "running" || isSubmitting}
+    disabled={status !== "running" || isSubmitting || inputLocked}
   ></textarea>
 
   <div class="live-preview" aria-live="polite">
