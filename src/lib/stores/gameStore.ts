@@ -35,6 +35,7 @@ interface GameStoreOptions {
 
 const DEFAULT_TIMER_INTERVAL_MS = 250;
 const ZEN_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
+export const POOL_RESTART_LOCK_MS = 1050;
 
 function getTimeLimitMs(settings: SessionSettings): number | null {
   return settings.mode === "timed" ? settings.durationSec * 1000 : null;
@@ -163,6 +164,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   let queuedExpressionIds: string[] = [];
   let queuedExpressionKey = "";
   let hasPickedFromQueue = false;
+  let excludedElapsedMs = 0;
+  let activePauseStartedAt: number | null = null;
 
   function applySubtopicDefaults(settings: SessionSettings): SessionSettings {
     const normalizedMap: SessionSettings["selectedSubtopicsByTopic"] = {};
@@ -261,13 +264,44 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     hasPickedFromQueue = false;
   }
 
+  function syncElapsedPause(at: number): void {
+    if (activePauseStartedAt === null) {
+      return;
+    }
+    if (at - activePauseStartedAt >= POOL_RESTART_LOCK_MS) {
+      excludedElapsedMs += POOL_RESTART_LOCK_MS;
+      activePauseStartedAt = null;
+    }
+  }
+
+  function getActivePauseElapsed(at: number): number {
+    if (activePauseStartedAt === null) {
+      return 0;
+    }
+    return Math.min(Math.max(0, at - activePauseStartedAt), POOL_RESTART_LOCK_MS);
+  }
+
+  function getEffectiveElapsedMs(at: number, startedAt: number): number {
+    syncElapsedPause(at);
+    return Math.max(0, at - startedAt - excludedElapsedMs - getActivePauseElapsed(at));
+  }
+
+  function triggerPoolRestartPause(at: number): void {
+    syncElapsedPause(at);
+    if (activePauseStartedAt === null) {
+      activePauseStartedAt = at;
+    }
+  }
+
   const initialSettings = applySubtopicDefaults(sanitizeSettings(loadSettings()));
   const initialHistory = loadHistory();
   const initialBests = computeBestScores(initialHistory);
 
   const activeSnapshot = loadActiveSession();
   const restoredSettings = activeSnapshot ? applySubtopicDefaults(sanitizeSettings(activeSnapshot.settings)) : null;
-  const restoredElapsedMs = activeSnapshot ? Math.max(0, now() - activeSnapshot.startedAt) : 0;
+  excludedElapsedMs = activeSnapshot?.excludedElapsedMs ?? 0;
+  activePauseStartedAt = activeSnapshot?.activePauseStartedAt ?? null;
+  const restoredElapsedMs = activeSnapshot ? getEffectiveElapsedMs(now(), activeSnapshot.startedAt) : 0;
   const restoredLastActivityAt = activeSnapshot
     ? Math.max(activeSnapshot.startedAt, activeSnapshot.lastActivityAt)
     : 0;
@@ -364,6 +398,11 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
 
   let lastActivityAt = canRestoreActiveSession ? restoredLastActivityAt : now();
 
+  if (!canRestoreActiveSession) {
+    excludedElapsedMs = 0;
+    activePauseStartedAt = null;
+  }
+
   if (state.status === "running") {
     resetExpressionCycle(
       state.settings.difficulties,
@@ -378,11 +417,14 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
 
   function setState(nextState: GameState): void {
     if (nextState.status === "running") {
+      syncElapsedPause(now());
       saveActiveSession({
         savedAt: now(),
         lastActivityAt,
         settings: nextState.settings,
         startedAt: nextState.stats.startedAt,
+        excludedElapsedMs,
+        activePauseStartedAt,
         attempts: nextState.stats.attempts,
         correct: nextState.stats.correct,
         bestStreak: nextState.stats.bestStreak,
@@ -408,7 +450,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   }
 
   function finalizeSession(currentState: GameState, endedAt: number): GameState {
-    const elapsedMs = Math.max(0, endedAt - currentState.stats.startedAt);
+    const elapsedMs = getEffectiveElapsedMs(endedAt, currentState.stats.startedAt);
     const finalStats = toSessionStats({
       startedAt: currentState.stats.startedAt,
       elapsedMs,
@@ -449,7 +491,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     }
     const sessionStartedAt = state.stats.startedAt;
 
-    const elapsedMs = Math.max(0, now() - state.stats.startedAt);
+    const currentTime = now();
+    const elapsedMs = getEffectiveElapsedMs(currentTime, state.stats.startedAt);
     const limitMs = getTimeLimitMs(state.settings);
     const stats = toSessionStats({
       startedAt: state.stats.startedAt,
@@ -467,10 +510,10 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs)
     };
 
-    if (state.settings.mode === "practice" && now() - lastActivityAt >= ZEN_INACTIVITY_TIMEOUT_MS) {
-      nextState = finalizeSession(nextState, now());
+    if (state.settings.mode === "practice" && currentTime - lastActivityAt >= ZEN_INACTIVITY_TIMEOUT_MS) {
+      nextState = finalizeSession(nextState, currentTime);
     } else if (limitMs !== null && elapsedMs >= limitMs) {
-      nextState = finalizeSession(nextState, now());
+      nextState = finalizeSession(nextState, currentTime);
     }
 
     if (state.status !== "running" || state.stats.startedAt !== sessionStartedAt) {
@@ -503,6 +546,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       nextSettings.selectedTopicIds,
       nextSettings.selectedSubtopicsByTopic
     );
+    excludedElapsedMs = 0;
+    activePauseStartedAt = null;
     const firstPick = pickNextExpression(
       nextSettings.difficulties,
       nextSettings.selectedTopicIds,
@@ -558,7 +603,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       return;
     }
 
-    const elapsedMs = Math.max(0, now() - sessionStartedAt);
+    const currentTime = now();
+    const elapsedMs = getEffectiveElapsedMs(currentTime, sessionStartedAt);
     const attempts = state.stats.attempts + 1;
     const correct = state.stats.correct + (result.isMatch ? 1 : 0);
     const currentStreak = result.isMatch ? state.currentStreak + 1 : 0;
@@ -587,6 +633,11 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       targetExpression.id
     );
 
+    const restartedAt = nextPick.poolRestarted ? now() : null;
+    if (restartedAt !== null) {
+      triggerPoolRestartPause(restartedAt);
+    }
+
     let nextState: GameState = {
       ...state,
       stats,
@@ -594,7 +645,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       isSubmitting: false,
       currentStreak,
       currentExpression: nextPick.expression,
-      poolRestartedAt: nextPick.poolRestarted ? now() : state.poolRestartedAt,
+      poolRestartedAt: restartedAt ?? state.poolRestartedAt,
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs),
       lastResult: {
         isCorrect: result.isMatch,
@@ -617,8 +668,9 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       return;
     }
 
-    const elapsedMs = Math.max(0, now() - state.stats.startedAt);
-    lastActivityAt = now();
+    const currentTime = now();
+    const elapsedMs = getEffectiveElapsedMs(currentTime, state.stats.startedAt);
+    lastActivityAt = currentTime;
     const attempts = state.stats.attempts + 1;
     const stats = toSessionStats({
       startedAt: state.stats.startedAt,
@@ -638,12 +690,17 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       state.currentExpression.id
     );
 
+    const restartedAt = nextPick.poolRestarted ? now() : null;
+    if (restartedAt !== null) {
+      triggerPoolRestartPause(restartedAt);
+    }
+
     let nextState: GameState = {
       ...state,
       stats,
       currentStreak: 0,
       currentExpression: nextPick.expression,
-      poolRestartedAt: nextPick.poolRestarted ? now() : state.poolRestartedAt,
+      poolRestartedAt: restartedAt ?? state.poolRestartedAt,
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs),
       lastResult: {
         isCorrect: false,
@@ -684,7 +741,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   function updateSettings(settingsPatch: Partial<SessionSettings>): void {
     const previousSettings = state.settings;
     const nextSettings = normalizeSettings(settingsPatch);
-    const elapsedMs = state.status === "running" ? Math.max(0, now() - state.stats.startedAt) : 0;
+    const elapsedMs = state.status === "running" ? getEffectiveElapsedMs(now(), state.stats.startedAt) : 0;
     const limitMs = getTimeLimitMs(nextSettings);
     const difficultiesChanged = !hasSameDifficulties(nextSettings.difficulties, previousSettings.difficulties);
     const topicsChanged = !hasSameTopicIds(nextSettings.selectedTopicIds, previousSettings.selectedTopicIds);

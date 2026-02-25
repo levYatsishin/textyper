@@ -10,7 +10,7 @@
   import { EXPRESSIONS } from "./lib/data/expressions";
   import { TOPICS } from "./lib/data/topics";
   import { getTopicScopedSubtopics } from "./lib/services/topicSubtopics";
-  import { createGameStore } from "./lib/stores/gameStore";
+  import { createGameStore, POOL_RESTART_LOCK_MS } from "./lib/stores/gameStore";
   import type { Difficulty, Mode, SessionSettings, TopicId } from "./lib/types";
 
   interface TopicSubtopicStat {
@@ -432,7 +432,7 @@
       if (get(game).status === "running") {
         inputFocusNonce += 1;
       }
-    }, 1250);
+    }, POOL_RESTART_LOCK_MS);
   }
 </script>
 

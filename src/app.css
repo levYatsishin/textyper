@@ -573,6 +573,18 @@ body {
   color: var(--muted);
   letter-spacing: 0.06em;
   text-transform: lowercase;
+  animation: formula-pool-restart-in 180ms ease-out;
+}
+
+@keyframes formula-pool-restart-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.988);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .formula-source {

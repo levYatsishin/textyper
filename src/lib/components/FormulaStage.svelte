@@ -14,6 +14,7 @@
   export let revealLatex = false;
   export let poolRestartFlashVisible = false;
   export let poolRestartFallbackLatex = "";
+  let displayedExpression: Expression | null = null;
   let outputContainer: HTMLDivElement | null = null;
   let formulaNode: HTMLDivElement | null = null;
   let tooltipNode: HTMLDivElement | null = null;
@@ -101,22 +102,26 @@
     return labels;
   }
 
-  $: instrumentedRender = expression ? buildInstrumentedRender(expression.latex) : { html: "", atomsById: {} };
-  $: renderedExpression = expression ? instrumentedRender.html : "";
-  $: baseAtomsById = expression ? instrumentedRender.atomsById : {};
+  $: if (!poolRestartFlashVisible) {
+    displayedExpression = expression;
+  }
+  $: effectiveExpression = poolRestartFlashVisible ? (displayedExpression ?? expression) : expression;
+  $: instrumentedRender = effectiveExpression ? buildInstrumentedRender(effectiveExpression.latex) : { html: "", atomsById: {} };
+  $: renderedExpression = effectiveExpression ? instrumentedRender.html : "";
+  $: baseAtomsById = effectiveExpression ? instrumentedRender.atomsById : {};
   $: atomsById = baseAtomsById;
-  $: sourceTopicId = expression?.topics[0] ?? "";
-  $: sourceTopic = expression ? formatTopic(sourceTopicId) : "";
-  $: sourceSubtopic = expression ? getTopicScopedSubtopics(expression, sourceTopicId)[0] ?? "" : "";
-  $: sourceLabel = expression ? (sourceSubtopic ? `${sourceTopic} · ${sourceSubtopic}` : sourceTopic) : "";
+  $: sourceTopicId = effectiveExpression?.topics[0] ?? "";
+  $: sourceTopic = effectiveExpression ? formatTopic(sourceTopicId) : "";
+  $: sourceSubtopic = effectiveExpression ? getTopicScopedSubtopics(effectiveExpression, sourceTopicId)[0] ?? "" : "";
+  $: sourceLabel = effectiveExpression ? (sourceSubtopic ? `${sourceTopic} · ${sourceSubtopic}` : sourceTopic) : "";
   $: revealLatexValue =
     poolRestartFlashVisible && poolRestartFallbackLatex.trim().length > 0
       ? poolRestartFallbackLatex
-      : (expression?.latex ?? "");
-  $: additionalSourceLabels = expression
-    ? getTopicSubtopicLabels(expression).filter((label) => label !== sourceLabel)
+      : (effectiveExpression?.latex ?? "");
+  $: additionalSourceLabels = effectiveExpression
+    ? getTopicSubtopicLabels(effectiveExpression).filter((label) => label !== sourceLabel)
     : [];
-  $: currentExpressionId = expression?.id ?? "";
+  $: currentExpressionId = effectiveExpression?.id ?? "";
   $: if (currentExpressionId !== previousExpressionId) {
     previousExpressionId = currentExpressionId;
     hideTooltip();
@@ -427,12 +432,12 @@
   }
 
   function applyLeftRightDelimiterHoverMapping(): void {
-    if (!outputContainer || !expression) {
+    if (!outputContainer || !effectiveExpression) {
       atomsById = baseAtomsById;
       return;
     }
 
-    const leftRightSnippets = extractLeftRightDelimiterSnippets(expression.latex);
+    const leftRightSnippets = extractLeftRightDelimiterSnippets(effectiveExpression.latex);
     if (leftRightSnippets.length === 0) {
       atomsById = baseAtomsById;
       return;
@@ -515,7 +520,7 @@
 </script>
 
 <section class="formula-stage">
-  {#if expression}
+  {#if effectiveExpression}
     <div class="formula-source-wrap">
       <div class="formula-source formula-source-trigger">
         {sourceLabel}
@@ -529,12 +534,12 @@
         </div>
       {/if}
     </div>
-    <div class="formula-topic">{expression.name}</div>
-    <div class="formula-difficulty">{formatDifficulty(expression.difficulty)}</div>
+    <div class="formula-topic">{effectiveExpression.name}</div>
+    <div class="formula-difficulty">{formatDifficulty(effectiveExpression.difficulty)}</div>
     <div class="formula-card">
       {#if poolRestartFlashVisible}
         <div class="formula-output formula-pool-restart-inline" role="status" aria-live="polite">
-          ↻ pool restarted
+          ↻ pool reset
         </div>
       {:else}
         <div

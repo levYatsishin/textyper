@@ -319,6 +319,8 @@ export interface ActiveSessionSnapshot {
   lastActivityAt: number;
   settings: SessionSettings;
   startedAt: number;
+  excludedElapsedMs: number;
+  activePauseStartedAt: number | null;
   attempts: number;
   correct: number;
   bestStreak: number;
@@ -353,6 +355,11 @@ function isActiveSessionSnapshot(raw: unknown): raw is ActiveSessionSnapshot {
     typeof value.savedAt === "number" &&
     (value.lastActivityAt === undefined || typeof value.lastActivityAt === "number") &&
     typeof value.startedAt === "number" &&
+    ((value as { excludedElapsedMs?: unknown }).excludedElapsedMs === undefined ||
+      typeof (value as { excludedElapsedMs?: unknown }).excludedElapsedMs === "number") &&
+    ((value as { activePauseStartedAt?: unknown }).activePauseStartedAt === undefined ||
+      typeof (value as { activePauseStartedAt?: unknown }).activePauseStartedAt === "number" ||
+      (value as { activePauseStartedAt?: unknown }).activePauseStartedAt === null) &&
     typeof value.attempts === "number" &&
     typeof value.correct === "number" &&
     typeof value.bestStreak === "number" &&
@@ -375,6 +382,14 @@ export function loadActiveSession(): ActiveSessionSnapshot | null {
 
   return {
     ...parsed,
+    excludedElapsedMs:
+      typeof (parsed as { excludedElapsedMs?: unknown }).excludedElapsedMs === "number"
+        ? (parsed as { excludedElapsedMs: number }).excludedElapsedMs
+        : 0,
+    activePauseStartedAt:
+      typeof (parsed as { activePauseStartedAt?: unknown }).activePauseStartedAt === "number"
+        ? (parsed as { activePauseStartedAt: number }).activePauseStartedAt
+        : null,
     lastActivityAt:
       typeof (parsed as { lastActivityAt?: unknown }).lastActivityAt === "number"
         ? (parsed as { lastActivityAt: number }).lastActivityAt

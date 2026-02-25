@@ -16,6 +16,7 @@ Minimal trainer for typing LaTeX math quickly.
 - When you’re learning, you can enable “show formula”, so you can just retype the answer to learn new symbols and syntax. As you're doing this only for yourself there is no cheating, so it won't be anyhow reflected on the statistics. Double-clik the formula box to copy it.
 - You can also look up how individual symbols and tokens are written by just hovering over them in the rendered formula. Double-clicking while doing this, copies the code for them.
 - After 5 minutes of inactivity in zen mode session automaticaly end to not spoil statistics. 
+- When all formulas in the current pool have been used, the pool resets and the formulas are reshuffled; the reset time isn’t counted toward the timers.
 ## Comparison
 **TODO**
 ## FAQ
