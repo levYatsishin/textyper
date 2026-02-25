@@ -5,8 +5,171 @@ import type { CompareLatexFn } from "../types";
 
 const DEFAULT_TOLERANCE = 0.018;
 
+type TokenType = "whitespace" | "commandWord" | "commandSymbol" | "char" | "removed";
+
+interface Token {
+  type: TokenType;
+  value: string;
+}
+
+const COMMAND_ALIASES: Record<string, string> = {
+  "\\le": "\\leq",
+  "\\ge": "\\geq",
+  "\\to": "\\rightarrow",
+  "\\iff": "\\Leftrightarrow",
+  "\\implies": "\\Rightarrow"
+};
+
+const SPACING_WORD_COMMANDS = new Set(["\\quad", "\\qquad"]);
+const SPACING_SYMBOL_COMMANDS = new Set(["\\,", "\\;", "\\!", "\\:"]);
+
+function isLetter(char: string): boolean {
+  return /[A-Za-z]/.test(char);
+}
+
+function isAsciiLetterToken(token: Token): boolean {
+  return token.type === "char" && /^[A-Za-z]$/.test(token.value);
+}
+
+function tokenizeLatex(input: string): Token[] {
+  const tokens: Token[] = [];
+  let index = 0;
+
+  while (index < input.length) {
+    const char = input[index];
+
+    if (/\s/.test(char)) {
+      let end = index + 1;
+      while (end < input.length && /\s/.test(input[end])) {
+        end += 1;
+      }
+      tokens.push({ type: "whitespace", value: input.slice(index, end) });
+      index = end;
+      continue;
+    }
+
+    if (char === "\\") {
+      const next = input[index + 1];
+      if (!next) {
+        tokens.push({ type: "char", value: "\\" });
+        index += 1;
+        continue;
+      }
+
+      if (isLetter(next)) {
+        let end = index + 2;
+        while (end < input.length && isLetter(input[end])) {
+          end += 1;
+        }
+        tokens.push({ type: "commandWord", value: input.slice(index, end) });
+        index = end;
+        continue;
+      }
+
+      tokens.push({ type: "commandSymbol", value: input.slice(index, index + 2) });
+      index += 2;
+      continue;
+    }
+
+    tokens.push({ type: "char", value: char });
+    index += 1;
+  }
+
+  return tokens;
+}
+
+function applyCanonicalTransforms(tokens: Token[]): Token[] {
+  return tokens.map((token) => {
+    if (token.type === "commandWord") {
+      const alias = COMMAND_ALIASES[token.value];
+      const value = alias ?? token.value;
+      if (SPACING_WORD_COMMANDS.has(value)) {
+        return { type: "removed", value: "" };
+      }
+      return { ...token, value };
+    }
+
+    if (token.type === "commandSymbol" && SPACING_SYMBOL_COMMANDS.has(token.value)) {
+      return { type: "removed", value: "" };
+    }
+
+    return token;
+  });
+}
+
+function nextMeaningfulIndex(tokens: Token[], fromIndex: number): number {
+  for (let index = fromIndex + 1; index < tokens.length; index += 1) {
+    if (tokens[index].type !== "whitespace" && tokens[index].type !== "removed") {
+      return index;
+    }
+  }
+  return -1;
+}
+
+function shouldInsertCommandBoundary(tokens: Token[], commandIndex: number): boolean {
+  let sawWhitespace = false;
+
+  for (let index = commandIndex + 1; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (token.type === "removed") {
+      continue;
+    }
+    if (token.type === "whitespace") {
+      sawWhitespace = true;
+      continue;
+    }
+    return sawWhitespace && isAsciiLetterToken(token);
+  }
+
+  return false;
+}
+
+function buildCanonicalLatex(tokens: Token[]): string {
+  let output = "";
+
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (token.type === "whitespace" || token.type === "removed") {
+      continue;
+    }
+
+    if (token.type === "char" && (token.value === "_" || token.value === "^")) {
+      const argumentIndex = nextMeaningfulIndex(tokens, index);
+      if (argumentIndex === -1) {
+        output += token.value;
+        continue;
+      }
+
+      const argument = tokens[argumentIndex];
+      if (argument.type === "char" && argument.value === "{") {
+        output += token.value;
+        continue;
+      }
+
+      if (argument.type === "commandWord" || argument.type === "commandSymbol" || argument.type === "char") {
+        output += `${token.value}{${argument.value}}`;
+        index = argumentIndex;
+        continue;
+      }
+
+      output += token.value;
+      continue;
+    }
+
+    output += token.value;
+
+    if (token.type === "commandWord" && shouldInsertCommandBoundary(tokens, index)) {
+      output += "{}";
+    }
+  }
+
+  return output;
+}
+
 export function normalizeLatex(input: string): string {
-  return input.replace(/\s+/g, "").trim();
+  const tokens = tokenizeLatex(input);
+  const canonicalTokens = applyCanonicalTransforms(tokens);
+  return buildCanonicalLatex(canonicalTokens).trim();
 }
 
 function createRenderHost(label: string): HTMLDivElement {

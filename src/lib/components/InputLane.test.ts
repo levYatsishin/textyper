@@ -98,4 +98,22 @@ describe("InputLane run controls", () => {
     const preview = container.querySelector(".preview-output") as HTMLElement;
     expect(preview.querySelector("wbr")).toBeTruthy();
   });
+
+  it("auto-submits when typed form is canonically equivalent to target", async () => {
+    const target = "\\mathbf{p}_{n}=\\nabla f(\\mathbf{a_{n}})";
+    const typed = "\\mathbf{p}_n=\\nabla f(\\mathbf{a_n})";
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      targetLatex: target
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    expect(textarea).toBeTruthy();
+    textarea.value = typed;
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toBe("");
+  });
 });
