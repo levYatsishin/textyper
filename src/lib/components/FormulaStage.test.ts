@@ -65,6 +65,27 @@ describe("FormulaStage hover tooltip", () => {
     expect(writeText).toHaveBeenCalledWith("a");
   });
 
+  it("copies full latex from reveal box on double click", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      value: { writeText },
+      configurable: true
+    });
+
+    const revealedExpression: Expression = {
+      ...expression,
+      id: "reveal-copy",
+      latex: "\\frac{a+b}{c+d}"
+    };
+    const { container } = render(FormulaStage, { expression: revealedExpression, revealLatex: true });
+    const revealBox = container.querySelector(".latex-reveal") as HTMLElement;
+    expect(revealBox).toBeTruthy();
+
+    await fireEvent.dblClick(revealBox, { clientX: 28, clientY: 28 });
+    expect(writeText).toHaveBeenCalledWith(revealedExpression.latex);
+    expect(container.querySelector(".formula-copy-notice")?.textContent?.trim()).toBe("formula copied");
+  });
+
   it("hides tooltip on pointer leave", async () => {
     const { container } = render(FormulaStage, { expression, revealLatex: false });
     const atom = container.querySelector("[data-ltx-id]") as HTMLElement;

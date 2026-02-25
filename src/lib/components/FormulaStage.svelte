@@ -32,6 +32,9 @@
   let touchStartY = 0;
   let touchStartAtomId: string | null = null;
   let copiedResetTimer: number | null = null;
+  let noticeHideTimer: number | null = null;
+  let copyNoticeVisible = false;
+  let copyNoticeText = "";
   let previousExpressionId = "";
   let lastPointerX = 0;
   let lastPointerY = 0;
@@ -235,6 +238,18 @@
     tick().then(() => updateTooltipPosition(clientX, clientY));
   }
 
+  function showCopyNotice(message: string): void {
+    copyNoticeText = message;
+    copyNoticeVisible = true;
+    if (noticeHideTimer !== null) {
+      window.clearTimeout(noticeHideTimer);
+    }
+    noticeHideTimer = window.setTimeout(() => {
+      copyNoticeVisible = false;
+      noticeHideTimer = null;
+    }, 650);
+  }
+
   function hideTooltip(): void {
     tooltipVisible = false;
     tooltipCopied = false;
@@ -244,6 +259,12 @@
       window.clearTimeout(copiedResetTimer);
       copiedResetTimer = null;
     }
+    if (noticeHideTimer !== null) {
+      window.clearTimeout(noticeHideTimer);
+      noticeHideTimer = null;
+    }
+    copyNoticeVisible = false;
+    copyNoticeText = "";
   }
 
   function clearLongPressTracker(): void {
@@ -387,6 +408,18 @@
     await copyTooltipSnippet();
   }
 
+  async function handleRevealDoubleClick(event: MouseEvent): Promise<void> {
+    if (!expression || !navigator?.clipboard?.writeText) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(expression.latex);
+      showCopyNotice("formula copied");
+    } catch {
+      showCopyNotice("copy failed");
+    }
+  }
+
   function applyLeftRightDelimiterHoverMapping(): void {
     if (!outputContainer || !expression) {
       atomsById = baseAtomsById;
@@ -468,6 +501,10 @@
       window.clearTimeout(copiedResetTimer);
       copiedResetTimer = null;
     }
+    if (noticeHideTimer !== null) {
+      window.clearTimeout(noticeHideTimer);
+      noticeHideTimer = null;
+    }
   });
 </script>
 
@@ -521,7 +558,12 @@
         {/if}
       </div>
       {#if revealLatex}
-        <pre class="latex-reveal">{expression.latex}</pre>
+        <div class="latex-reveal-wrap">
+          <pre class="latex-reveal" on:dblclick={handleRevealDoubleClick}>{expression.latex}</pre>
+          {#if copyNoticeVisible}
+            <div class="formula-copy-notice" role="status">{copyNoticeText}</div>
+          {/if}
+        </div>
       {/if}
     </div>
   {:else}

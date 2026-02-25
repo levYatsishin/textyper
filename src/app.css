@@ -651,6 +651,7 @@ body {
   place-content: center;
   gap: 0.9rem;
   padding: 0.45rem 0 0.95rem;
+  position: relative;
 }
 
 .formula-card.empty {
@@ -760,9 +761,15 @@ body {
   color: var(--bad);
 }
 
-.latex-reveal {
-  margin: 0 auto;
+.latex-reveal-wrap {
+  position: relative;
   width: min(100%, 620px);
+  margin: 0 auto;
+}
+
+.latex-reveal {
+  margin: 0;
+  width: 100%;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   padding: 0.58rem 0.72rem;
@@ -771,6 +778,25 @@ body {
   color: var(--muted);
   font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
   font-size: 0.82rem;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.formula-copy-notice {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, -36%);
+  padding: 0.28rem 0.54rem;
+  border: 1px solid var(--line);
+  border-radius: 0.42rem;
+  background: var(--bg-soft);
+  color: var(--fg);
+  font-size: 0.76rem;
+  white-space: nowrap;
+  z-index: 20;
+  pointer-events: none;
 }
 
 .formula-skip {
