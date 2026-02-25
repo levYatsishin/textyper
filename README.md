@@ -15,11 +15,11 @@ Minimal trainer for typing LaTeX math quickly. QoL features included.
 ## Features
 ### Hints
 1. When you’re learning, you can enable “show formula” mode. It will show the answer under each render, so you can just retype it to learn new symbols and syntax. Double-clik this codeblock to copy it.
-2. You can also look up how individual rendered symbols and tokens by just hovering over them in the target formula. Double-clicking while doing this, copies the code for the selected one.
+2. You can also look up the code for individual rendered symbols and structures just by hovering over them in the target formula (note that, they are nested, so move your cursor around complex strutures to get differnt depth levels). Double-clicking while doing this, copies the code for the selected one.
 
 As you're doing this only for yourself you cannot really "cheat", so it won't be anyhow reflected on the statistics. 
 ### Difficulty 
-Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read about it more in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read more about it in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 ### Local storage
 1. History cap for session storage is currently set to 500. After reaching this limit the very first session will be deleted to reclaim space for the new one.
 2. The whole history, as well as individual sessions, can be deleted by pressing a little bin icon next to them (a confirmation message first will be shown).
@@ -37,6 +37,7 @@ Note that when you filter formulas by difficulty, the formulas shown in the topi
 ### Other things you should know
 - After 5 minutes of inactivity in zen mode session automaticaly end to not spoil statistics. 
 - When all formulas in the current pool have been used, the pool resets and the formulas are reshuffled; the reset time isn’t counted toward the timers.
+- Dark theme is set by default, but it can be changed to light at the top right corner. Themes are based on Gruvbox Material ([morhetz](https://github.com/morhetz/gruvbox) → [sainnhe](https://github.com/sainnhe/gruvbox-material))
 ## Comparison
 **TODO**
 ## Planned features
@@ -47,6 +48,7 @@ Note that when you filter formulas by difficulty, the formulas shown in the topi
     - better ontology and llm auto classification
     - parse more formulas from wikipedea, wikidata, proof wiki
 - integrate auto-shortcuts/expansions 
+- tauri
 - ?
     - symbols library as a separate page
     - Gamefication mode: add rarity to formulas and probability of them appearing (for the first time / after they appeared once) with some collors and little effects. Bestiary/collection.
