@@ -20,7 +20,7 @@ Minimal trainer for typing LaTeX math quickly.
 **TODO**
 ## FAQ
 ### About difficulty 
-Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read about it more in ... **TODO** 
+Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read about it more in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 ### About number of formulas in categories 
 Any single formula can belong to multiple topics/subtopics. Counts are membership totals, not mutually exclusive buckets.
 
@@ -30,7 +30,7 @@ Note that when you filter formulas by difficulty, the formulas shown in the topi
 ## Local storage and statistics
 For history cap for sessions is set to 500, after that the very first session will be deleted to reclame space for the new one.
 
-In "total" overview of statistics first 3 metrics i.e. accuracy, min/formula, chars/min are calculated withing a rolling window of 7 last runs, because while typing you improve your results and really old attempts can really ruin these metrics. On the other hand, second 3 metrics i.e. are calculated over the entire history, because they are there to show you big numbers, make you proud of efforts you put into your practice and inspire you to continue.
+In "total" overview of statistics first 3 metrics i.e. accuracy, min/formula, chars/min are calculated withing a rolling window of 7 last runs, because while typing you improve your results and really old attempts can really ruin these metrics. On the other hand, second 3 metrics i.e. are calculated over the entire history, because they are there to show you big numbers, make you proud of efforts you put into your practice and inspire you to continue. Scoring formulas are documented in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 ## Planned features
 - Render-aware correctness check 
 - load custom user formulas
