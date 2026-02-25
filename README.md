@@ -14,10 +14,11 @@ Minimal trainer for typing LaTeX math quickly. QoL features included.
 - Progress and best scores are saved locally in your browser.
 ## Features
 ### Hints
-When you’re learning, you can enable “show formula”, so you can just retype the answer to learn new symbols and syntax. As you're doing this only for yourself there is no cheating, so it won't be anyhow reflected on the statistics. Double-clik the formula box to copy it.
+When you’re learning, you can enable “show formula” mode. It will show the answer under each render, so you can just retype it to learn new symbols and syntax. Double-clik this codeblock to copy it.
 
-You can also look up how individual symbols and tokens are written by just hovering over them in the rendered formula. Double-clicking while doing this, copies the code for them.
-### Difficulty 
+You can also look up how individual rendered symbols and tokens by just hovering over them in the target formula. Double-clicking while doing this, copies the code for the selected one.
+
+As you're doing this only for yourself you cannot really "cheat", so it won't be anyhow reflected on the statistics. ### Difficulty 
 Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read about it more in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 ### Local storage
 History cap for session storage is currently set to 500. After reaching this limit the very first session will be deleted to reclaim space for the new one.
