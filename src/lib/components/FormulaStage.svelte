@@ -1,7 +1,12 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from "svelte";
   import { TOPIC_MAP } from "../data/topics";
-  import { buildInstrumentedRender, extractHoverSnippet, type HoverAtom } from "../services/latexHoverMap";
+  import {
+    buildInstrumentedRender,
+    extractHoverSnippet,
+    extractLeftRightDelimiterSnippets,
+    type HoverAtom
+  } from "../services/latexHoverMap";
   import { getTopicScopedSubtopics } from "../services/topicSubtopics";
   import type { Expression } from "../types";
 
@@ -12,6 +17,7 @@
   let tooltipNode: HTMLDivElement | null = null;
   let formulaScale = 1;
   let resizeObserver: ResizeObserver | null = null;
+  let baseAtomsById: Record<string, HoverAtom> = {};
   let atomsById: Record<string, HoverAtom> = {};
   let activeAtomId: string | null = null;
   let tooltipText = "";
@@ -92,7 +98,8 @@
 
   $: instrumentedRender = expression ? buildInstrumentedRender(expression.latex) : { html: "", atomsById: {} };
   $: renderedExpression = expression ? instrumentedRender.html : "";
-  $: atomsById = expression ? instrumentedRender.atomsById : {};
+  $: baseAtomsById = expression ? instrumentedRender.atomsById : {};
+  $: atomsById = baseAtomsById;
   $: sourceTopicId = expression?.topics[0] ?? "";
   $: sourceTopic = expression ? formatTopic(sourceTopicId) : "";
   $: sourceSubtopic = expression ? getTopicScopedSubtopics(expression, sourceTopicId)[0] ?? "" : "";
@@ -380,8 +387,62 @@
     await copyTooltipSnippet();
   }
 
+  function applyLeftRightDelimiterHoverMapping(): void {
+    if (!outputContainer || !expression) {
+      atomsById = baseAtomsById;
+      return;
+    }
+
+    const leftRightSnippets = extractLeftRightDelimiterSnippets(expression.latex);
+    if (leftRightSnippets.length === 0) {
+      atomsById = baseAtomsById;
+      return;
+    }
+
+    outputContainer.querySelectorAll<HTMLElement>("[data-ltx-id^='ltx-post-']").forEach((node) => {
+      node.removeAttribute("data-ltx-id");
+    });
+
+    const delimiterNodes = Array.from(outputContainer.querySelectorAll<HTMLElement>(".katex .mopen, .katex .mclose"))
+      .filter((node) => !node.classList.contains("nulldelimiter"))
+      .filter((node) => !node.closest("[data-ltx-id]"));
+
+    if (delimiterNodes.length === 0) {
+      atomsById = baseAtomsById;
+      return;
+    }
+
+    const mappedCount = Math.min(delimiterNodes.length, leftRightSnippets.length);
+    if (mappedCount <= 0) {
+      atomsById = baseAtomsById;
+      return;
+    }
+
+    const mergedAtoms: Record<string, HoverAtom> = { ...baseAtomsById };
+    for (let index = 0; index < mappedCount; index += 1) {
+      const node = delimiterNodes[index];
+      const snippet = leftRightSnippets[index];
+      const id = `ltx-post-${currentExpressionId}-${index}`;
+      node.dataset.ltxId = id;
+      mergedAtoms[id] = {
+        id,
+        snippet,
+        start: -1,
+        end: -1,
+        kind: "command"
+      };
+    }
+
+    atomsById = mergedAtoms;
+  }
+
   $: if (renderedExpression) {
-    tick().then(updateFormulaScale);
+    tick().then(() => {
+      applyLeftRightDelimiterHoverMapping();
+      updateFormulaScale();
+    });
+  } else {
+    atomsById = baseAtomsById;
   }
 
   onMount(() => {

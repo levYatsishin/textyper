@@ -107,6 +107,30 @@ const LETTER_RE = /[A-Za-z]/;
 
 const renderCache = new Map<string, InstrumentedRender>();
 
+function readRawCommandToken(source: string, from: number): { token: string; end: number } | null {
+  if (from >= source.length || source[from] !== "\\") {
+    return null;
+  }
+
+  let index = from + 1;
+  if (index >= source.length) {
+    return null;
+  }
+
+  if (LETTER_RE.test(source[index])) {
+    while (index < source.length && LETTER_RE.test(source[index])) {
+      index += 1;
+    }
+    if (source[index] === "*") {
+      index += 1;
+    }
+    return { token: source.slice(from, index), end: index };
+  }
+
+  index += 1;
+  return { token: source.slice(from, index), end: index };
+}
+
 function trustHtmlData(context: TrustContext): boolean {
   if (context.command !== "\\htmlData") {
     return false;
@@ -654,4 +678,54 @@ export function buildInstrumentedRender(latex: string): InstrumentedRender {
 
 export function extractHoverSnippet(atomId: string, atomsById: Record<string, HoverAtom>): string | null {
   return atomsById[atomId]?.snippet ?? null;
+}
+
+export function extractLeftRightDelimiterSnippets(latex: string): string[] {
+  const source = latex ?? "";
+  const snippets: string[] = [];
+  let index = 0;
+
+  while (index < source.length) {
+    if (source[index] !== "\\") {
+      index += 1;
+      continue;
+    }
+
+    const command = readRawCommandToken(source, index);
+    if (!command) {
+      index += 1;
+      continue;
+    }
+
+    const normalizedCommand = command.token.slice(1).replace(/\*$/, "");
+    if (normalizedCommand !== "left" && normalizedCommand !== "right") {
+      index = command.end;
+      continue;
+    }
+
+    let delimiterStart = command.end;
+    while (delimiterStart < source.length && /\s/.test(source[delimiterStart])) {
+      delimiterStart += 1;
+    }
+    if (delimiterStart >= source.length) {
+      index = command.end;
+      continue;
+    }
+
+    if (source[delimiterStart] === "\\") {
+      const delimiterCommand = readRawCommandToken(source, delimiterStart);
+      if (!delimiterCommand) {
+        index = command.end;
+        continue;
+      }
+      snippets.push(source.slice(index, delimiterCommand.end).trim());
+      index = delimiterCommand.end;
+      continue;
+    }
+
+    snippets.push(source.slice(index, delimiterStart + 1).trim());
+    index = delimiterStart + 1;
+  }
+
+  return snippets;
 }

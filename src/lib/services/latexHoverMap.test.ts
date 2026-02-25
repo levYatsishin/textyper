@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildInstrumentedRender, extractHoverSnippet } from "./latexHoverMap";
+import { buildInstrumentedRender, extractHoverSnippet, extractLeftRightDelimiterSnippets } from "./latexHoverMap";
 
 describe("latexHoverMap", () => {
   it("extracts stable atoms for simple symbol input", () => {
@@ -37,6 +37,20 @@ describe("latexHoverMap", () => {
     expect(result.html).toContain("data-ltx-id");
     expect(result.html).not.toContain("formula-error");
     expect(Object.keys(result.atomsById).length).toBeGreaterThan(0);
+  });
+
+  it("keeps left-right formulas renderable and hoverable via inner atoms", () => {
+    const result = buildInstrumentedRender("\\left|\\frac{x-a}{x-b}\\right|");
+    const snippets = Object.values(result.atomsById).map((atom) => atom.snippet);
+
+    expect(result.html).toContain("katex");
+    expect(result.html).not.toContain("formula-error");
+    expect(snippets).toContain("\\frac{x-a}{x-b}");
+  });
+
+  it("extracts left-right delimiter snippets for post-processing", () => {
+    const snippets = extractLeftRightDelimiterSnippets("\\left|\\frac{x-a}{x-b}\\right|");
+    expect(snippets).toEqual(["\\left|", "\\right|"]);
   });
 
   it("keeps styled command snippets as single hover atoms", () => {

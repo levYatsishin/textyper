@@ -229,4 +229,20 @@ describe("FormulaStage hover tooltip", () => {
     const snippetNode = container.querySelector(".formula-hover-snippet");
     expect(snippetNode?.textContent?.trim()).toBe("x");
   });
+
+  it("shows left-right delimiter snippet when hovering outer bars", async () => {
+    const barsExpression: Expression = {
+      ...expression,
+      id: "hover-left-right-bars",
+      latex: "\\left|\\frac{x-a}{x-b}\\right|"
+    };
+    const { container } = render(FormulaStage, { expression: barsExpression, revealLatex: false });
+    await tick();
+    const barNode = container.querySelector<HTMLElement>("[data-ltx-id^='ltx-post-']");
+    expect(barNode).toBeTruthy();
+
+    await fireEvent.pointerOver(barNode!, { pointerType: "mouse", clientX: 30, clientY: 30 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+    expect(snippetNode?.textContent?.trim()).toContain("\\left|");
+  });
 });
