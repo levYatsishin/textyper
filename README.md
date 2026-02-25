@@ -28,6 +28,7 @@ Difficulty is based on **typing complexity**, not conceptual math depth. It uses
 2. First 3 metrics (i.e. accuracy, min/formula, chars/min) are calculated withing a rolling window of 7 last sessions. This is because while practicing, you improve your results and old attempts can significantly ruin these metrics, making the overall impression misleading. The next 3 metrics (i.e. best streak, total attempts, and time elapsed), on the other hand, are calculated over the entire history, because they are there to show you some big numbers, make you feel proud of the efforts you put into your skill and inspire you to continue. 
 3. Best 5 list is derived from all the session stored and ranged based on a scoring formula. You can read more on it in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 4. While session is runnig, statistics rail is calculating specifically for this session in real time. But you can peek at the overall value of a metric by hovering over its box. 
+5. You can expand each session info by pressing a little arrow on the right.
 ### Topics 
 Any single formula can belong to multiple topics/subtopics. Counts in the list are membership totals, not mutually exclusive buckets.
 
@@ -35,8 +36,9 @@ Moreover, classification was mostly automatic and, to be honest, should not be t
 
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
 ### Other things you should know
-- After 5 minutes of inactivity in zen mode session automaticaly end to not spoil statistics. 
-- When all formulas in the current pool have been used, the pool resets and the formulas are reshuffled; the reset time isn’t counted toward the timers.
+- After 5 minutes of inactivity in zen mode, session automaticaly ends, therefore preventing spoiling of statistics. 
+- In zen mode ticking timer is hidden and can be viewed bellow live preview by hovering over a little dot. This is to minize distraction. 
+- When all formulas in the current pool have been shown, the pool resets and the formulas are reshuffled; the reset time isn’t counted toward the timers.
 - Dark theme is set by default, but it can be changed to light at the top right corner. Themes are based on Gruvbox Material ([morhetz](https://github.com/morhetz/gruvbox) → [sainnhe](https://github.com/sainnhe/gruvbox-material))
 ## Comparison
 **TODO**
