@@ -902,6 +902,11 @@ body {
   white-space: normal !important;
 }
 
+.preview-output .katex-html .base {
+  display: inline;
+  white-space: normal !important;
+}
+
 .preview-placeholder {
   margin: 0.45rem 0 0;
   color: var(--muted);

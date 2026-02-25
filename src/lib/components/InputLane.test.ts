@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import InputLane from "./InputLane.svelte";
 
@@ -79,5 +79,23 @@ describe("InputLane run controls", () => {
     });
 
     expect(screen.getByText("Skipped (fail)")).toBeTruthy();
+  });
+
+  it("injects line-break hints for long live preview formulas", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    expect(textarea).toBeTruthy();
+    textarea.value =
+      "\\hat{y}=\\hat{f}(x)=\\frac{\\sum_{i=1}^{m} \\tau_{i} \\hat{y}_{i}}{\\sum_{i=1}^{m} \\tau_{i}}=\\sum_{i=1}^{m} \\tau_{i}^{*}\\hat{y}_{i}".repeat(
+        3
+      );
+    await fireEvent.input(textarea);
+
+    const preview = container.querySelector(".preview-output") as HTMLElement;
+    expect(preview.querySelector("wbr")).toBeTruthy();
   });
 });
