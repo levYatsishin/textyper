@@ -119,6 +119,7 @@ export interface GameState {
   settings: SessionSettings;
   stats: SessionStats;
   currentExpression: Expression | null;
+  poolRestartedAt: number | null;
   remainingMs: number | null;
   currentStreak: number;
   typedChars: number;

@@ -12,6 +12,7 @@
 
   export let expression: Expression | null = null;
   export let revealLatex = false;
+  export let poolRestartFlashVisible = false;
   let outputContainer: HTMLDivElement | null = null;
   let formulaNode: HTMLDivElement | null = null;
   let tooltipNode: HTMLDivElement | null = null;
@@ -526,37 +527,43 @@
     <div class="formula-topic">{expression.name}</div>
     <div class="formula-difficulty">{formatDifficulty(expression.difficulty)}</div>
     <div class="formula-card">
-      <div
-        class="formula-output"
-        role="figure"
-        aria-label="target formula"
-        aria-live="polite"
-        bind:this={outputContainer}
-        on:pointerover={handlePointerOver}
-        on:pointermove={handlePointerMove}
-        on:pointerleave={handlePointerLeave}
-        on:pointerdown={handlePointerDown}
-        on:pointerup={handlePointerUp}
-        on:pointercancel={handlePointerCancel}
-        on:dblclick={handleDoubleClick}
-      >
-        <div class="formula-scale" bind:this={formulaNode} style={`transform: scale(${formulaScale});`}>
-          {@html renderedExpression}
+      {#if poolRestartFlashVisible}
+        <div class="formula-output formula-pool-restart-inline" role="status" aria-live="polite">
+          ↻ pool restarted
         </div>
-        {#if tooltipVisible && tooltipText}
-          <div
-            class="formula-hover-popout visible"
-            role="note"
-            bind:this={tooltipNode}
-            style={`left: ${tooltipX}px; top: ${tooltipY}px;`}
-          >
-            <code class="formula-hover-snippet" title={tooltipText}>{tooltipText}</code>
-            <button type="button" class="formula-hover-copy text-option" on:click|stopPropagation={copyTooltipSnippet}>
-              {tooltipCopied ? "copied" : "copy"}
-            </button>
+      {:else}
+        <div
+          class="formula-output"
+          role="figure"
+          aria-label="target formula"
+          aria-live="polite"
+          bind:this={outputContainer}
+          on:pointerover={handlePointerOver}
+          on:pointermove={handlePointerMove}
+          on:pointerleave={handlePointerLeave}
+          on:pointerdown={handlePointerDown}
+          on:pointerup={handlePointerUp}
+          on:pointercancel={handlePointerCancel}
+          on:dblclick={handleDoubleClick}
+        >
+          <div class="formula-scale" bind:this={formulaNode} style={`transform: scale(${formulaScale});`}>
+            {@html renderedExpression}
           </div>
-        {/if}
-      </div>
+          {#if tooltipVisible && tooltipText}
+            <div
+              class="formula-hover-popout visible"
+              role="note"
+              bind:this={tooltipNode}
+              style={`left: ${tooltipX}px; top: ${tooltipY}px;`}
+            >
+              <code class="formula-hover-snippet" title={tooltipText}>{tooltipText}</code>
+              <button type="button" class="formula-hover-copy text-option" on:click|stopPropagation={copyTooltipSnippet}>
+                {tooltipCopied ? "copied" : "copy"}
+              </button>
+            </div>
+          {/if}
+        </div>
+      {/if}
       {#if revealLatex}
         <div class="latex-reveal-wrap">
           <pre class="latex-reveal" on:dblclick={handleRevealDoubleClick}>{expression.latex}</pre>

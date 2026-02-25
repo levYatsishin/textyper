@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { get } from "svelte/store";
   import ControlBar from "./lib/components/ControlBar.svelte";
   import FormulaStage from "./lib/components/FormulaStage.svelte";
@@ -54,6 +54,9 @@
   const game = createGameStore(EXPRESSIONS);
   const allSubtopicsByTopic = getAllSubtopicsByTopic();
   let themeMode: ThemeMode = "dark";
+  let poolRestartFlashVisible = false;
+  let poolRestartFlashTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastPoolRestartedAt: number | null = null;
 
   function isThemeMode(value: unknown): value is ThemeMode {
     return value === "dark" || value === "light";
@@ -82,6 +85,13 @@
     applyTheme(themeMode);
     game.loadHistory();
     return;
+  });
+
+  onDestroy(() => {
+    if (poolRestartFlashTimer !== null) {
+      clearTimeout(poolRestartFlashTimer);
+      poolRestartFlashTimer = null;
+    }
   });
 
   function handleModeChange(mode: Mode): void {
@@ -406,6 +416,17 @@
 
   $: topicCounts = getTopicCounts($game.settings);
   $: topicSubtopicStats = getTopicSubtopicStats($game.settings);
+  $: if ($game.poolRestartedAt !== null && $game.poolRestartedAt !== lastPoolRestartedAt) {
+    lastPoolRestartedAt = $game.poolRestartedAt;
+    poolRestartFlashVisible = true;
+    if (poolRestartFlashTimer !== null) {
+      clearTimeout(poolRestartFlashTimer);
+    }
+    poolRestartFlashTimer = setTimeout(() => {
+      poolRestartFlashVisible = false;
+      poolRestartFlashTimer = null;
+    }, 1250);
+  }
 </script>
 
 <main class="app-shell">
@@ -475,7 +496,11 @@
     on:topicSelectAll={handleTopicSelectAll}
   />
 
-  <FormulaStage expression={$game.currentExpression} revealLatex={$game.settings.revealLatex} />
+  <FormulaStage
+    expression={$game.currentExpression}
+    revealLatex={$game.settings.revealLatex}
+    poolRestartFlashVisible={poolRestartFlashVisible}
+  />
 
   <div class="formula-skip">
     <button type="button" class="text-option" on:click={handleSkip} disabled={$game.status !== "running" || $game.isSubmitting}>

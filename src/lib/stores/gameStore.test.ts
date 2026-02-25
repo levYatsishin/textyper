@@ -280,4 +280,53 @@ describe("gameStore", () => {
     expect(state.settings.mode).toBe("timed");
     expect(state.remainingMs).toBe(60000);
   });
+
+  it("cycles through the filtered pool before restarting it", async () => {
+    let tickNow = 1_000;
+    const matcher = vi.fn().mockResolvedValue({
+      isMatch: true,
+      mismatchRatio: 0,
+      strategy: "exact"
+    });
+
+    const store = createGameStore(SAMPLE_EXPRESSIONS, {
+      matcher,
+      now: () => {
+        tickNow += 1;
+        return tickNow;
+      },
+      random: () => 0.42
+    });
+
+    store.start({
+      mode: "practice",
+      difficulties: ["beginner", "intermediate", "advanced"],
+      selectedTopicIds: [...ALL_TOPIC_IDS]
+    });
+
+    const firstState = getState(store);
+    const seenIds = new Set<string>();
+    if (firstState.currentExpression?.id) {
+      seenIds.add(firstState.currentExpression.id);
+    }
+
+    await store.submit("a");
+    const secondState = getState(store);
+    if (secondState.currentExpression?.id) {
+      seenIds.add(secondState.currentExpression.id);
+    }
+
+    await store.submit("b");
+    const thirdState = getState(store);
+    if (thirdState.currentExpression?.id) {
+      seenIds.add(thirdState.currentExpression.id);
+    }
+
+    expect(seenIds.size).toBe(3);
+    expect(thirdState.poolRestartedAt).toBeNull();
+
+    await store.submit("c");
+    const restartedState = getState(store);
+    expect(restartedState.poolRestartedAt).not.toBeNull();
+  });
 });

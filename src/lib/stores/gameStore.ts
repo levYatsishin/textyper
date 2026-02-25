@@ -27,6 +27,7 @@ import type {
 interface GameStoreOptions {
   matcher?: CompareLatexFn;
   now?: () => number;
+  random?: () => number;
   timerIntervalMs?: number;
   setTimer?: typeof setInterval;
   clearTimer?: typeof clearInterval;
@@ -153,13 +154,15 @@ function findExpressionById(expressions: Expression[], expressionId: string | nu
 
 export function createGameStore(expressions: Expression[], options: GameStoreOptions = {}): GameStore {
   const now = options.now ?? (() => Date.now());
+  const random = options.random ?? Math.random;
   const matcher = options.matcher ?? compareLatex;
   const setTimer = options.setTimer ?? setInterval;
   const clearTimer = options.clearTimer ?? clearInterval;
   const timerIntervalMs = options.timerIntervalMs ?? DEFAULT_TIMER_INTERVAL_MS;
   const subtopicUniverse = buildSubtopicUniverse(expressions);
-  let seenExpressionIds = new Set<string>();
-  let seenExpressionKey = "";
+  let queuedExpressionIds: string[] = [];
+  let queuedExpressionKey = "";
+  let hasPickedFromQueue = false;
 
   function applySubtopicDefaults(settings: SessionSettings): SessionSettings {
     const normalizedMap: SessionSettings["selectedSubtopicsByTopic"] = {};
@@ -188,48 +191,74 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     return `${difficulties.join("|")}::${selectedTopicIds.join("|")}::${subtopicsKey}`;
   }
 
+  function shuffleExpressionIds(expressionIds: string[]): string[] {
+    const shuffled = [...expressionIds];
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(random() * (index + 1));
+      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+    return shuffled;
+  }
+
+  function moveDifferentIdToFront(expressionIds: string[], previousId: string | null): void {
+    if (!previousId || expressionIds.length <= 1 || expressionIds[0] !== previousId) {
+      return;
+    }
+    const swapIndex = expressionIds.findIndex((expressionId) => expressionId !== previousId);
+    if (swapIndex <= 0) {
+      return;
+    }
+    [expressionIds[0], expressionIds[swapIndex]] = [expressionIds[swapIndex], expressionIds[0]];
+  }
+
   function pickNextExpression(
     difficulties: SessionSettings["difficulties"],
     selectedTopicIds: SessionSettings["selectedTopicIds"],
     selectedSubtopicsByTopic: SessionSettings["selectedSubtopicsByTopic"],
     previousId: string | null
-  ): Expression | null {
+  ): { expression: Expression | null; poolRestarted: boolean } {
     const pool = getExpressionPool(expressions, difficulties, selectedTopicIds, selectedSubtopicsByTopic);
     if (pool.length === 0) {
-      return null;
+      return { expression: null, poolRestarted: false };
     }
 
     const key = getFilterKey(difficulties, selectedTopicIds, selectedSubtopicsByTopic);
-    if (key !== seenExpressionKey) {
-      seenExpressionKey = key;
-      seenExpressionIds = new Set();
+    if (key !== queuedExpressionKey) {
+      queuedExpressionKey = key;
+      queuedExpressionIds = [];
+      hasPickedFromQueue = false;
     }
 
-    let candidates = pool.filter((item) => !seenExpressionIds.has(item.id) && item.id !== previousId);
+    const poolIdSet = new Set(pool.map((item) => item.id));
+    queuedExpressionIds = queuedExpressionIds.filter((expressionId) => poolIdSet.has(expressionId));
 
-    if (candidates.length === 0) {
-      seenExpressionIds = new Set(previousId ? [previousId] : []);
-      candidates = pool.filter((item) => item.id !== previousId);
+    let poolRestarted = false;
+    if (queuedExpressionIds.length === 0) {
+      poolRestarted = hasPickedFromQueue;
+      queuedExpressionIds = shuffleExpressionIds(pool.map((item) => item.id));
     }
 
-    if (candidates.length === 0) {
-      candidates = pool;
+    moveDifferentIdToFront(queuedExpressionIds, previousId);
+
+    const pickedExpressionId = queuedExpressionIds.shift() ?? null;
+    if (!pickedExpressionId) {
+      return { expression: null, poolRestarted };
     }
 
-    const index = Math.floor(Math.random() * candidates.length);
-    const picked = candidates[index];
-    seenExpressionIds.add(picked.id);
-    return picked;
+    const picked = pool.find((item) => item.id === pickedExpressionId) ?? null;
+    hasPickedFromQueue = picked !== null;
+    return { expression: picked, poolRestarted };
   }
 
   function resetExpressionCycle(
     difficulties: SessionSettings["difficulties"],
     selectedTopicIds: SessionSettings["selectedTopicIds"],
     selectedSubtopicsByTopic: SessionSettings["selectedSubtopicsByTopic"],
-    currentExpressionId: string | null = null
+    _currentExpressionId: string | null = null
   ): void {
-    seenExpressionKey = getFilterKey(difficulties, selectedTopicIds, selectedSubtopicsByTopic);
-    seenExpressionIds = new Set(currentExpressionId ? [currentExpressionId] : []);
+    queuedExpressionKey = getFilterKey(difficulties, selectedTopicIds, selectedSubtopicsByTopic);
+    queuedExpressionIds = [];
+    hasPickedFromQueue = false;
   }
 
   const initialSettings = applySubtopicDefaults(sanitizeSettings(loadSettings()));
@@ -258,12 +287,13 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     clearActiveSession();
   }
 
-  const initialPreviewExpression = pickNextExpression(
+  const initialPreviewPick = pickNextExpression(
     initialSettings.difficulties,
     initialSettings.selectedTopicIds,
     initialSettings.selectedSubtopicsByTopic,
     null
   );
+  const initialPreviewExpression = initialPreviewPick.expression;
 
   const restoredExpression = canRestoreActiveSession && activeSnapshot && restoredSettings
     ? findExpressionById(expressions, activeSnapshot.currentExpressionId)
@@ -304,7 +334,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
             restoredSettings.selectedTopicIds,
             restoredSettings.selectedSubtopicsByTopic,
             null
-          ),
+          ).expression,
+        poolRestartedAt: null,
         remainingMs:
           restoredLimitMs === null ? null : Math.max(0, restoredLimitMs - restoredElapsedMs),
         currentStreak: activeSnapshot.currentStreak,
@@ -320,6 +351,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
         settings: initialSettings,
         stats: createEmptyStats(now()),
         currentExpression: initialPreviewExpression,
+        poolRestartedAt: null,
         remainingMs: getTimeLimitMs(initialSettings),
         currentStreak: 0,
         typedChars: 0,
@@ -471,7 +503,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       nextSettings.selectedTopicIds,
       nextSettings.selectedSubtopicsByTopic
     );
-    const firstExpression = pickNextExpression(
+    const firstPick = pickNextExpression(
       nextSettings.difficulties,
       nextSettings.selectedTopicIds,
       nextSettings.selectedSubtopicsByTopic,
@@ -483,7 +515,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
       status: "running",
       settings: nextSettings,
       stats: createEmptyStats(startedAt),
-      currentExpression: firstExpression,
+      currentExpression: firstPick.expression,
+      poolRestartedAt: null,
       remainingMs: getTimeLimitMs(nextSettings),
       currentStreak: 0,
       typedChars: 0,
@@ -547,18 +580,21 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     });
     const limitMs = getTimeLimitMs(state.settings);
 
+    const nextPick = pickNextExpression(
+      state.settings.difficulties,
+      state.settings.selectedTopicIds,
+      state.settings.selectedSubtopicsByTopic,
+      targetExpression.id
+    );
+
     let nextState: GameState = {
       ...state,
       stats,
       typedChars,
       isSubmitting: false,
       currentStreak,
-      currentExpression: pickNextExpression(
-        state.settings.difficulties,
-        state.settings.selectedTopicIds,
-        state.settings.selectedSubtopicsByTopic,
-        targetExpression.id
-      ),
+      currentExpression: nextPick.expression,
+      poolRestartedAt: nextPick.poolRestarted ? now() : state.poolRestartedAt,
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs),
       lastResult: {
         isCorrect: result.isMatch,
@@ -595,16 +631,19 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     });
     const limitMs = getTimeLimitMs(state.settings);
 
+    const nextPick = pickNextExpression(
+      state.settings.difficulties,
+      state.settings.selectedTopicIds,
+      state.settings.selectedSubtopicsByTopic,
+      state.currentExpression.id
+    );
+
     let nextState: GameState = {
       ...state,
       stats,
       currentStreak: 0,
-      currentExpression: pickNextExpression(
-        state.settings.difficulties,
-        state.settings.selectedTopicIds,
-        state.settings.selectedSubtopicsByTopic,
-        state.currentExpression.id
-      ),
+      currentExpression: nextPick.expression,
+      poolRestartedAt: nextPick.poolRestarted ? now() : state.poolRestartedAt,
       remainingMs: limitMs === null ? null : Math.max(0, limitMs - elapsedMs),
       lastResult: {
         isCorrect: false,
@@ -681,7 +720,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
           nextSettings.selectedTopicIds,
           nextSettings.selectedSubtopicsByTopic,
           state.currentExpression?.id ?? null
-        )
+        ).expression,
+        poolRestartedAt: null
       };
     } else if (state.status !== "running" && filtersChanged) {
       resetExpressionCycle(
@@ -697,7 +737,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
           nextSettings.selectedTopicIds,
           nextSettings.selectedSubtopicsByTopic,
           state.currentExpression?.id ?? null
-        )
+        ).expression,
+        poolRestartedAt: null
       };
     }
 

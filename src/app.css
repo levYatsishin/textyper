@@ -567,6 +567,14 @@ body {
   margin-top: 0.2rem;
 }
 
+.formula-pool-restart-inline {
+  place-items: center;
+  font-size: 0.96rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+}
+
 .formula-source {
   text-align: center;
   font-size: 0.64rem;
