@@ -3,20 +3,20 @@
   <h1>math latex typer</h1>
 </div>
 
-Minimal trainer for typing LaTeX math quickly.
+Minimal trainer for typing LaTeX math quickly. QoL features included.
 
 **Heavily** inspired by [typelatex](https://github.com/JaidenRatti/type-latex) and therefore, as the geneology goes, by [texnique](https://github.com/akshayravikumar/TeXnique).
 ## What it does
 - Shows a rendered target formula.
-- You type LaTeX in the input that must produce the same render.
+- You type LaTeX code in the input that must produce the same render.
 - It auto-advances when your input is correct.
 - You can filter formulas by difficulty, topic and subtopic.
 - Progress and best scores are saved locally in your browser.
-## Other features
-- When you’re learning, you can enable “show formula”, so you can just retype the answer to learn new symbols and syntax. As you're doing this only for yourself there is no cheating, so it won't be anyhow reflected on the statistics. Double-clik the formula box to copy it.
-- You can also look up how individual symbols and tokens are written by just hovering over them in the rendered formula. Double-clicking while doing this, copies the code for them.
-- After 5 minutes of inactivity in zen mode session automaticaly end to not spoil statistics. 
-- When all formulas in the current pool have been used, the pool resets and the formulas are reshuffled; the reset time isn’t counted toward the timers.
+## Features
+### Hints
+When you’re learning, you can enable “show formula”, so you can just retype the answer to learn new symbols and syntax. As you're doing this only for yourself there is no cheating, so it won't be anyhow reflected on the statistics. Double-clik the formula box to copy it.
+
+You can also look up how individual symbols and tokens are written by just hovering over them in the rendered formula. Double-clicking while doing this, copies the code for them.
 ### Difficulty 
 Difficulty is based on **typing complexity**, not conceptual math depth. It uses a deterministic complexity score from expression structure and symbol load. You can read about it more in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 ### Local storage
@@ -37,6 +37,9 @@ Any single formula can belong to multiple topics/subtopics. Counts in the list a
 Moreover, classification was mostly automatic and, to be honest, should not be treated too seriously, only as a helpful hint. You can hover on the displayed topic of the current formula and see to which other ones it also belongs. (Although I hope this will be improved in future) 
 
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
+### Other
+- After 5 minutes of inactivity in zen mode session automaticaly end to not spoil statistics. 
+- When all formulas in the current pool have been used, the pool resets and the formulas are reshuffled; the reset time isn’t counted toward the timers.
 ## Comparison
 **TODO**
 ## Planned features
