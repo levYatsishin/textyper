@@ -212,4 +212,21 @@ describe("FormulaStage hover tooltip", () => {
     const snippetNode = container.querySelector(".formula-hover-snippet");
     expect(snippetNode?.textContent?.trim()).toContain("\\int");
   });
+
+  it("prefers smallest hovered atom inside fraction", async () => {
+    const fracExpression: Expression = {
+      ...expression,
+      id: "hover-frac-smallest",
+      latex: "\\frac{1}{1+x}"
+    };
+    const { container } = render(FormulaStage, { expression: fracExpression, revealLatex: false });
+    const xNode = Array.from(container.querySelectorAll<HTMLElement>("[data-ltx-id]")).find(
+      (node) => node.textContent?.trim() === "x"
+    );
+    expect(xNode).toBeTruthy();
+
+    await fireEvent.pointerOver(xNode!, { pointerType: "mouse", clientX: 30, clientY: 30 });
+    const snippetNode = container.querySelector(".formula-hover-snippet");
+    expect(snippetNode?.textContent?.trim()).toBe("x");
+  });
 });

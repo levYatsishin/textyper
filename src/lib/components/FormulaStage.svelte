@@ -32,6 +32,25 @@
   const STYLE_COMMAND_RE =
     /^\\(?:operatorname|text|mathbf|mathrm|mathit|mathsf|mathcal|mathfrak|mathbb|boldsymbol|bm|vec|hat|bar|overline|underline|widehat|widetilde)\b/;
 
+  function pickSmallestCandidate(candidateIds: string[]): string | null {
+    let bestId: string | null = null;
+    let bestSpan = Number.POSITIVE_INFINITY;
+
+    for (const candidateId of candidateIds) {
+      const atom = atomsById[candidateId];
+      if (!atom) {
+        continue;
+      }
+      const span = Math.max(0, atom.end - atom.start);
+      if (span < bestSpan) {
+        bestSpan = span;
+        bestId = candidateId;
+      }
+    }
+
+    return bestId;
+  }
+
   function formatDifficulty(difficulty: Expression["difficulty"]): string {
     if (difficulty === "beginner") {
       return "easy";
@@ -111,9 +130,9 @@
     }
   }
 
-  function getAtomIdFromTarget(target: EventTarget | null): string | null {
+  function collectCandidateIdsFromTarget(target: EventTarget | null): string[] {
     if (!(target instanceof Element)) {
-      return null;
+      return [];
     }
     const candidateIds: string[] = [];
     let current = target.closest<HTMLElement>("[data-ltx-id]");
@@ -125,22 +144,53 @@
       const parent = current.parentElement;
       current = parent ? parent.closest<HTMLElement>("[data-ltx-id]") : null;
     }
+    return candidateIds;
+  }
 
-    const styledCommandId = candidateIds.find((candidateId) => {
+  function collectCandidateIdsFromPoint(clientX: number, clientY: number): string[] {
+    if (typeof document.elementsFromPoint !== "function") {
+      return [];
+    }
+    const elements = document.elementsFromPoint(clientX, clientY);
+    const candidateIds: string[] = [];
+    const seen = new Set<string>();
+    for (const element of elements) {
+      if (!(element instanceof Element)) {
+        continue;
+      }
+      if (!outputContainer?.contains(element)) {
+        continue;
+      }
+      const holder = element.closest<HTMLElement>("[data-ltx-id]");
+      const atomId = holder?.dataset.ltxId;
+      if (!atomId || seen.has(atomId)) {
+        continue;
+      }
+      seen.add(atomId);
+      candidateIds.push(atomId);
+    }
+    return candidateIds;
+  }
+
+  function getAtomIdFromPointer(target: EventTarget | null, clientX: number, clientY: number): string | null {
+    const pointCandidates = collectCandidateIdsFromPoint(clientX, clientY);
+    const targetCandidates = collectCandidateIdsFromTarget(target);
+    const candidateIds = [...pointCandidates, ...targetCandidates].filter((id, index, all) => all.indexOf(id) === index);
+
+    if (candidateIds.length === 0) {
+      return null;
+    }
+
+    const styledCandidates = candidateIds.filter((candidateId) => {
       const atom = atomsById[candidateId];
       return Boolean(atom?.snippet && STYLE_COMMAND_RE.test(atom.snippet));
     });
 
-    if (styledCommandId) {
-      return styledCommandId;
+    if (styledCandidates.length > 0) {
+      return pickSmallestCandidate(styledCandidates) ?? styledCandidates[0] ?? null;
     }
 
-    const scriptClusterId = candidateIds.find((candidateId) => {
-      const atom = atomsById[candidateId];
-      return atom?.kind === "script" && (atom.snippet.includes("^") || atom.snippet.includes("_"));
-    });
-
-    return scriptClusterId ?? candidateIds[0] ?? null;
+    return pickSmallestCandidate(candidateIds) ?? null;
   }
 
   function updateTooltipPosition(clientX: number, clientY: number): void {
@@ -205,7 +255,7 @@
     if (event.target instanceof Element && event.target.closest(".formula-hover-popout")) {
       return;
     }
-    const atomId = getAtomIdFromTarget(event.target);
+    const atomId = getAtomIdFromPointer(event.target, event.clientX, event.clientY);
     if (!atomId) {
       return;
     }
@@ -227,7 +277,7 @@
     if (touchTooltipPinned || (event.target instanceof Element && event.target.closest(".formula-hover-popout"))) {
       return;
     }
-    const atomId = getAtomIdFromTarget(event.target);
+    const atomId = getAtomIdFromPointer(event.target, event.clientX, event.clientY);
     if (!atomId) {
       hideTooltip();
       return;
@@ -250,7 +300,7 @@
     if (event.pointerType === "mouse") {
       return;
     }
-    const atomId = getAtomIdFromTarget(event.target);
+    const atomId = getAtomIdFromPointer(event.target, event.clientX, event.clientY);
     if (!atomId) {
       clearLongPressTracker();
       return;
@@ -322,7 +372,7 @@
     if (event.target instanceof Element && event.target.closest(".formula-hover-popout")) {
       return;
     }
-    const atomId = getAtomIdFromTarget(event.target);
+    const atomId = getAtomIdFromPointer(event.target, event.clientX, event.clientY);
     if (!atomId) {
       return;
     }
