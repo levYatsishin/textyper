@@ -1,0 +1,43 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?item ?itemLabel ?formula ?classLabel
+WHERE {
+  {
+    SELECT ?item ?itemLabel ?formula ?classLabel WHERE {
+      ?item wdt:P2534 ?formula .
+      ?item rdfs:label ?itemLabel .
+      FILTER(LANG(?itemLabel) = "en")
+
+      OPTIONAL {
+        ?item wdt:P31 ?class .
+        ?class rdfs:label ?classLabel .
+        FILTER(LANG(?classLabel) = "en")
+      }
+
+      BIND(STR(?formula) AS ?f)
+      BIND(LCASE(STR(?itemLabel)) AS ?label)
+      BIND(LCASE(COALESCE(STR(?classLabel), "")) AS ?cls)
+
+      FILTER(STRLEN(?f) >= 5)
+      FILTER(!REGEX(?label, "^[0-9 .·×*+\\-^()]+$"))
+      FILTER(
+        !REGEX(
+          ?label,
+          "^[0-9]+\\s*(?:·|×|\\*)?\\s*[0-9]+\\^[0-9]+\\s*[+\\-]\\s*[0-9]+$"
+        )
+      )
+      FILTER(!REGEX(?label, "[0-9]{5,}"))
+      FILTER(REGEX(?label, "[a-z]"))
+
+      FILTER(
+        ?cls = "" ||
+        REGEX(
+          ?cls,
+          "formula|equation|identity|theorem|function|polynomial|integral|series|sequence|transform|law|rule"
+        )
+      )
+    }
+    ORDER BY ?item
+    LIMIT 100
+  }
+}
