@@ -42,6 +42,10 @@ Note that when you filter formulas by difficulty, the formulas shown in the topi
 - Dark theme is set by default, but it can be changed to light at the top right corner. Themes are based on Gruvbox Material ([morhetz](https://github.com/morhetz/gruvbox) → [sainnhe](https://github.com/sainnhe/gruvbox-material))
 ## Comparison
 **TODO**
+## Motivation
+Some time ago, I found an incredible [Readest](https://readest.com) app. Since then, I have stopped reading any serious literature both on paper and on e-readers. It became clear that reading ebooks on a computer or phone, with all these features, is superior. The same thing happened to me around 5 years ago, when I stumbled upon Obsidian. It took me some time back then to learn to type faster, but now writing stuff on a computer instead of on paper is so much more convenient that I can hardly imagine going back.
+
+So I thought that maybe doing math entirely on a computer will be more fun and convenient. But first I need to master the technique.
 ## Planned features
 - better formulas
     - better ontology and llm auto classification
@@ -53,6 +57,7 @@ Note that when you filter formulas by difficulty, the formulas shown in the topi
 - ?
     - symbols library as a separate page
     - Gamefication mode: add rarity to formulas and probability of them appearing (for the first time / after they appeared once) with some collors and little effects. Bestiary/collection.
+    - lean/agda 
 ## Run it yourself 
 ```bash
 git clone https://github.com/levYatsishin/textyper.git
