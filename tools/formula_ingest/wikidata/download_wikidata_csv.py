@@ -1,6 +1,7 @@
 import argparse
 import csv
 import json
+import subprocess
 import sys
 import time
 import urllib.error
@@ -14,10 +15,11 @@ DEFAULT_ENDPOINT = "https://query.wikidata.org/sparql"
 DEFAULT_WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
 DEFAULT_USER_AGENT = "textyper-formula-ingest/1.0 (wikidata csv downloader)"
 DEFAULT_WIKIPEDIA_LANGS = "en,de,ru,fr,ja"
+DEFAULT_CONVERTER_SCRIPT = Path("tools/formula_ingest/wikidata/convert_mathml_to_latex.mjs")
 MAX_PREFERRED_LINKS = 2
 MAX_FALLBACK_LINKS = 2
 
-OUTPUT_COLUMNS = ["item", "itemLabel", "formula", "classLabel", "wikipediaPages"]
+OUTPUT_COLUMNS = ["item", "itemLabel", "formula", "formula_latex", "classLabel", "wikipediaPages"]
 
 
 def read_query(path: Path) -> str:
@@ -204,23 +206,63 @@ def fetch_sitelinks(
   return sitelinks_by_item
 
 
-def write_csv(output_path: Path, rows: list[dict[str, str]], sitelinks_by_item: dict[str, list[str]]) -> None:
+def convert_mathml_formulas_to_latex(formulas: list[str], converter_script: Path) -> list[str]:
+  if not converter_script.exists():
+    raise FileNotFoundError(f"Converter script not found: {converter_script}")
+
+  payload = json.dumps(formulas, ensure_ascii=False)
+  completed = subprocess.run(
+    ["node", str(converter_script)],
+    input=payload,
+    capture_output=True,
+    text=True,
+    check=False,
+  )
+  if completed.returncode != 0:
+    stderr = completed.stderr.strip()
+    details = stderr if stderr else "unknown converter error"
+    raise ValueError(f"MathML to LaTeX conversion failed: {details}")
+
+  try:
+    converted = json.loads(completed.stdout)
+  except json.JSONDecodeError as exc:
+    raise ValueError("Failed to parse MathML converter output as JSON.") from exc
+
+  if not isinstance(converted, list):
+    raise ValueError("MathML converter returned non-list output.")
+  if len(converted) != len(formulas):
+    raise ValueError("MathML converter output length does not match input length.")
+
+  normalized: list[str] = []
+  for value in converted:
+    normalized.append(value if isinstance(value, str) else "")
+  return normalized
+
+
+def write_csv(
+  output_path: Path,
+  rows: list[dict[str, str]],
+  formula_latex_values: list[str],
+  sitelinks_by_item: dict[str, list[str]]
+) -> None:
   output_path.parent.mkdir(parents=True, exist_ok=True)
 
   with output_path.open("w", encoding="utf-8", newline="") as handle:
     writer = csv.DictWriter(handle, fieldnames=OUTPUT_COLUMNS)
     writer.writeheader()
 
-    for row in rows:
+    for index, row in enumerate(rows):
       item_uri = row.get("item", "")
       item_id = parse_item_id(item_uri)
       wikipedia_pages = " | ".join(sitelinks_by_item.get(item_id, []))
+      formula_latex = formula_latex_values[index] if index < len(formula_latex_values) else ""
 
       writer.writerow(
         {
           "item": item_uri,
           "itemLabel": row.get("itemLabel", ""),
           "formula": row.get("formula", ""),
+          "formula_latex": formula_latex,
           "classLabel": row.get("classLabel", ""),
           "wikipediaPages": wikipedia_pages,
         }
@@ -239,6 +281,7 @@ def parse_args() -> argparse.Namespace:
   parser.add_argument("--timeout", type=int, default=60)
   parser.add_argument("--retries", type=int, default=2)
   parser.add_argument("--retry-backoff-seconds", type=float, default=1.5)
+  parser.add_argument("--converter-script", type=Path, default=DEFAULT_CONVERTER_SCRIPT)
   parser.add_argument(
     "--wikipedia-langs",
     default=DEFAULT_WIKIPEDIA_LANGS,
@@ -277,11 +320,16 @@ def main() -> None:
       retries=args.retries,
       backoff_seconds=args.retry_backoff_seconds,
     )
+    formula_latex_values = convert_mathml_formulas_to_latex(
+      formulas=[row.get("formula", "") for row in rows],
+      converter_script=args.converter_script,
+    )
 
-    write_csv(args.output, rows, sitelinks_by_item)
+    write_csv(args.output, rows, formula_latex_values, sitelinks_by_item)
 
     print(f"Discovered rows: {len(rows)}")
     print(f"Preferred sitelink languages (max {MAX_PREFERRED_LINKS} per item): {', '.join(preferred_wikipedia_langs)}")
+    print(f"MathML formulas converted to LaTeX: {sum(1 for value in formula_latex_values if value.strip())}")
     print(f"Wrote CSV to {args.output}")
 
   except (FileNotFoundError, ValueError) as exc:
