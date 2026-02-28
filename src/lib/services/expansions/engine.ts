@@ -145,13 +145,13 @@ function findSnippetMatch(
 }
 
 function applySnippetMatch(input: ExpansionInput, match: SnippetMatch): ExpansionMutation {
-  const { value, selectionEnd } = input;
+  const { value } = input;
   const rawReplacement = match.captures.length
     ? replaceRegexCaptures(match.snippet.replacement, match.captures)
     : match.snippet.replacement;
   const parsed = resolveTabstops(rawReplacement);
   const tabstops = offsetTabstopState(parsed.tabstops, match.start);
-  const nextValue = `${value.slice(0, match.start)}${parsed.text}${value.slice(selectionEnd)}`;
+  const nextValue = `${value.slice(0, match.start)}${parsed.text}${value.slice(match.end)}`;
   const selection = getActiveTabstopRange(tabstops);
   const defaultCursor = match.start + parsed.text.length;
 
@@ -159,7 +159,9 @@ function applySnippetMatch(input: ExpansionInput, match: SnippetMatch): Expansio
     value: nextValue,
     selectionStart: selection?.start ?? defaultCursor,
     selectionEnd: selection?.end ?? defaultCursor,
-    tabstops
+    tabstops,
+    matchStart: match.start,
+    matchEnd: match.end
   };
 }
 

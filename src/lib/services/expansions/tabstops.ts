@@ -196,6 +196,61 @@ export function offsetTabstopState(state: TabstopState | null, offset: number): 
   return next;
 }
 
+export function shiftTabstopState(state: TabstopState | null, from: number, delta: number): TabstopState | null {
+  if (!state || delta === 0) {
+    return state ? cloneState(state) : null;
+  }
+
+  const next = cloneState(state);
+  shiftRanges(next, from, delta);
+  return next;
+}
+
+export function mergeNestedTabstopState(
+  parentState: TabstopState | null,
+  childState: TabstopState | null,
+  matchStart: number,
+  matchEnd: number,
+  insertedLength: number
+): TabstopState | null {
+  if (!parentState && !childState) {
+    return null;
+  }
+
+  if (!parentState) {
+    return childState ? cloneState(childState) : null;
+  }
+
+  const activeParentIndex = Math.max(0, Math.min(parentState.activeGroupIndex, parentState.groups.length - 1));
+  const delta = insertedLength - (matchEnd - matchStart);
+  const shiftedParent = shiftTabstopState(parentState, matchEnd, delta);
+  if (!shiftedParent) {
+    return childState ? cloneState(childState) : null;
+  }
+
+  const parentBefore = shiftedParent.groups.slice(0, activeParentIndex);
+  const parentAfter = shiftedParent.groups.slice(activeParentIndex + 1);
+
+  if (!childState || childState.groups.length === 0) {
+    const groups = [...parentBefore, ...parentAfter];
+    if (groups.length === 0) {
+      return null;
+    }
+    return {
+      groups,
+      activeGroupIndex: parentAfter.length > 0 ? parentBefore.length : Math.max(0, parentBefore.length - 1)
+    };
+  }
+
+  const childClone = cloneState(childState);
+  const groups = [...parentBefore, ...childClone.groups, ...parentAfter];
+
+  return {
+    groups,
+    activeGroupIndex: parentBefore.length + childClone.activeGroupIndex
+  };
+}
+
 export function getActiveTabstopRange(state: TabstopState | null): TabstopRange | null {
   if (!state || state.groups.length === 0) {
     return null;
@@ -247,7 +302,11 @@ export function stepTabstop(
   const nextIndex = currentIndex + direction;
 
   if (nextIndex < 0 || nextIndex >= synced.state.groups.length) {
-    return { value: synced.value, state: null, selection: null };
+    return {
+      value: synced.value,
+      state: synced.state,
+      selection: getActiveTabstopRange(synced.state)
+    };
   }
 
   const nextState = cloneState(synced.state);

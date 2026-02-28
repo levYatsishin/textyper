@@ -240,6 +240,55 @@ describe("InputLane run controls", () => {
     expect(textarea.selectionEnd).toBe(1);
   });
 
+  it("expands // into an empty fraction via snippets", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "auto-fraction-snippet",
+        trigger: "//",
+        triggerSource: "//",
+        replacement: "\\frac{$1}{$2}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "/";
+    textarea.setSelectionRange(1, 1);
+    await fireEvent.input(textarea);
+
+    textarea.value = "//";
+    textarea.setSelectionRange(2, 2);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toBe("\\frac{}{}");
+  });
+
+  it("auto-enlarges brackets after autofraction inside paired delimiters", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "(1/)";
+    textarea.setSelectionRange(3, 3);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toBe("\\left(\\frac{1}{}\\right)");
+  });
+
   it("auto-enlarges bracket pair when closing key is pressed", async () => {
     const { container } = render(InputLane, {
       status: "running",
@@ -292,5 +341,70 @@ describe("InputLane run controls", () => {
     expect(textarea.value).toBe("_{}");
     expect(textarea.selectionStart).toBe(2);
     expect(textarea.selectionEnd).toBe(2);
+  });
+
+  it("keeps parent tabstop flow after nested auto expansion inside int template", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "auto-int",
+        trigger: "int",
+        triggerSource: "int",
+        replacement: "\\int $1 \\, d$2 $0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      }),
+      createSnippet({
+        id: "auto-bf",
+        trigger: "bf",
+        triggerSource: "bf",
+        replacement: "\\mathbf{$1}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "int";
+    textarea.setSelectionRange(3, 3);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toContain("\\int");
+    expect(textarea.value).toContain("\\, d");
+
+    const insertAt = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, insertAt)}bf${textarea.value.slice(insertAt)}`;
+    textarea.setSelectionRange(insertAt + 2, insertAt + 2);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toContain("\\mathbf{}");
+    const beforeTab = textarea.selectionStart;
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+
+    const boldEnd = textarea.value.indexOf("\\mathbf{}") + "\\mathbf{}".length;
+    expect(textarea.selectionStart).toBeGreaterThan(beforeTab);
+    expect(textarea.selectionStart).toBeGreaterThanOrEqual(boldEnd);
+    expect(textarea.selectionEnd).toBe(textarea.selectionStart);
+
+    const afterChildTab = textarea.selectionStart;
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    expect(textarea.selectionStart).toBeGreaterThan(afterChildTab);
+    expect(textarea.selectionEnd).toBe(textarea.selectionStart);
   });
 });

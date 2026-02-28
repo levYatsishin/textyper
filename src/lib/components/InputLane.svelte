@@ -8,7 +8,12 @@
   import { applyAutofraction } from "../services/expansions/helpers/autofraction";
   import { applyMatrixShortcuts } from "../services/expansions/helpers/matrixShortcuts";
   import { applyTabout } from "../services/expansions/helpers/tabout";
-  import { getActiveTabstopRange, stepTabstop, updateTabstopStateAfterInput } from "../services/expansions/tabstops";
+  import {
+    getActiveTabstopRange,
+    mergeNestedTabstopState,
+    stepTabstop,
+    updateTabstopStateAfterInput
+  } from "../services/expansions/tabstops";
   import { normalizeLatex } from "../services/matcher";
   import { formatElapsedDuration } from "../services/statsDisplay";
   import type {
@@ -311,7 +316,9 @@
         selectionStart: baseInput.selectionStart,
         selectionEnd: baseInput.selectionEnd,
         symbol: expansionSettings.helpers.autofractionSymbol,
-        breakingChars: expansionSettings.helpers.autofractionBreakingChars
+        breakingChars: expansionSettings.helpers.autofractionBreakingChars,
+        autoEnlargeEnabled: expansionSettings.helpers.autoEnlargeBracketsEnabled,
+        autoEnlargeTriggers: expansionSettings.helpers.autoEnlargeTriggers
       });
       if (autofractionMutation) {
         await applyMutation(autofractionMutation);
@@ -320,9 +327,29 @@
       }
     }
 
+    const tabstopsBeforeAuto = tabstopState;
+    const valueBeforeAuto = value;
     const autoSnippetMutation = applySnippetExpansions(baseInput, "auto", 2);
     if (autoSnippetMutation) {
-      await applyMutation(autoSnippetMutation);
+      const matchStart = autoSnippetMutation.matchStart ?? baseInput.selectionStart;
+      const matchEnd = autoSnippetMutation.matchEnd ?? baseInput.selectionEnd;
+      const insertedLength = autoSnippetMutation.value.length - (valueBeforeAuto.length - (matchEnd - matchStart));
+      const preservedTabstops = mergeNestedTabstopState(
+        tabstopsBeforeAuto,
+        autoSnippetMutation.tabstops,
+        matchStart,
+        matchEnd,
+        insertedLength
+      );
+      const mergedMutation =
+        preservedTabstops && preservedTabstops.groups.length > 0
+          ? {
+              ...autoSnippetMutation,
+              tabstops: preservedTabstops
+            }
+          : autoSnippetMutation;
+
+      await applyMutation(mergedMutation);
       await tryPassiveAutoEnlarge();
       return;
     }

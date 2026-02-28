@@ -252,4 +252,6 @@ export interface ExpansionMutation {
   selectionStart: number;
   selectionEnd: number;
   tabstops: TabstopState | null;
+  matchStart?: number;
+  matchEnd?: number;
 }
