@@ -270,7 +270,27 @@ describe("InputLane run controls", () => {
     await fireEvent.input(textarea);
 
     expect(textarea.value).toBe("\\left(\\sum\\right)");
-    expect(textarea.selectionStart).toBe("\\left(\\sum\\right)".length);
-    expect(textarea.selectionEnd).toBe("\\left(\\sum\\right)".length);
+    expect(textarea.selectionStart).toBe("\\left(\\sum".length);
+    expect(textarea.selectionEnd).toBe("\\left(\\sum".length);
+  });
+
+  it("does not run auto expansion pipeline on delete input", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "_{n}";
+    textarea.setSelectionRange(3, 3);
+    await fireEvent.input(textarea);
+
+    textarea.value = "_{}";
+    textarea.setSelectionRange(2, 2);
+    await fireEvent.input(textarea, { inputType: "deleteContentBackward" });
+
+    expect(textarea.value).toBe("_{}");
+    expect(textarea.selectionStart).toBe(2);
+    expect(textarea.selectionEnd).toBe(2);
   });
 });

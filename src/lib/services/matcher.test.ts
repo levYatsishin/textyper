@@ -15,6 +15,11 @@ describe("matcher", () => {
     expect(normalizeLatex("x^2")).toBe(normalizeLatex("x^{2}"));
   });
 
+  it("normalizes equivalent sub/superscript order", () => {
+    expect(normalizeLatex("\\prod_{i=1}^{n}\\lambda_i")).toBe(normalizeLatex("\\prod^{n}_{i=1}\\lambda_{i}"));
+    expect(normalizeLatex("x_{0}^{1}")).toBe(normalizeLatex("x^{1}_{0}"));
+  });
+
   it("matches exact normalized strings immediately", async () => {
     const result = await compareLatex("x + y", "x+y");
     expect(result.isMatch).toBe(true);
@@ -36,6 +41,15 @@ describe("matcher", () => {
 
   it("preserves command boundaries when whitespace is removed", async () => {
     const result = await compareLatex("\\int_{0}^{\\infty} e^{-x^2} dx", "\\int_0^\\infty e^{-x^2} dx");
+    expect(result.isMatch).toBe(true);
+    expect(result.strategy).toBe("exact");
+  });
+
+  it("matches integral bounds regardless of script order", async () => {
+    const result = await compareLatex(
+      "\\int_{0}^{1} x^{m-1}(1-x)^{n-1} \\, dx",
+      "\\int^{1}_{0} x^{m-1}(1-x)^{n-1} \\, d x"
+    );
     expect(result.isMatch).toBe(true);
     expect(result.strategy).toBe("exact");
   });

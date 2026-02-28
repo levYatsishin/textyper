@@ -95,7 +95,8 @@ function tryAutoEnlarge(
   value: string,
   cursorIndex: number,
   closingChar: string,
-  autoEnlargeTriggers: string[]
+  autoEnlargeTriggers: string[],
+  keepCursorInside: boolean
 ): ExpansionMutation | null {
   const openingReplacement = ENLARGE_OPEN[CLOSE_TO_OPEN[closingChar] ?? ""];
   const closingReplacement = ENLARGE_CLOSE[closingChar];
@@ -129,7 +130,9 @@ function tryAutoEnlarge(
   const nextValue = `${value.slice(0, openingIndex)}${openingReplacement}${content}${closingReplacement}${value.slice(
     cursorIndex + 1
   )}`;
-  const nextCursor = openingIndex + openingReplacement.length + content.length + closingReplacement.length;
+  const nextCursor = keepCursorInside
+    ? openingIndex + openingReplacement.length + content.length
+    : openingIndex + openingReplacement.length + content.length + closingReplacement.length;
 
   return {
     value: nextValue,
@@ -157,7 +160,7 @@ export function applyPassiveAutoEnlarge(input: PassiveAutoEnlargeInput): Expansi
     return null;
   }
 
-  return tryAutoEnlarge(input.value, input.selectionStart, closingChar, input.autoEnlargeTriggers);
+  return tryAutoEnlarge(input.value, input.selectionStart, closingChar, input.autoEnlargeTriggers, true);
 }
 
 function handleOpeningBracket(input: AutoBracketsInput): ExpansionMutation | null {
@@ -195,7 +198,7 @@ function handleClosingBracket(input: AutoBracketsInput): ExpansionMutation | nul
   }
 
   if (input.autoEnlargeEnabled) {
-    const enlarged = tryAutoEnlarge(input.value, input.selectionStart, input.key, input.autoEnlargeTriggers);
+    const enlarged = tryAutoEnlarge(input.value, input.selectionStart, input.key, input.autoEnlargeTriggers, false);
     if (enlarged) {
       return enlarged;
     }

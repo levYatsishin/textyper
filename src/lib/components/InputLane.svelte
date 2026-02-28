@@ -364,6 +364,10 @@
   }
 
   async function onInput(event: Event): Promise<void> {
+    const inputEvent = event as InputEvent;
+    const inputType = typeof inputEvent.inputType === "string" ? inputEvent.inputType : "";
+    const isDeleteInput = inputType.startsWith("delete");
+
     value = (event.currentTarget as HTMLTextAreaElement).value;
     if (expansionsEnabled && tabstopState) {
       tabstopState = updateTabstopStateAfterInput(
@@ -375,7 +379,9 @@
       );
     }
     dispatch("activity");
-    await runAutoExpansionPipeline();
+    if (!isDeleteInput) {
+      await runAutoExpansionPipeline();
+    }
     void autoSubmitIfCorrect();
   }
 

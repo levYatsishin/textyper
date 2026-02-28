@@ -85,7 +85,7 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "@Q", replacement: "\\\\Psi", options: "A" },
   { trigger: "@o", replacement: "\\\\omega", options: "A" },
   { trigger: "@O", replacement: "\\\\Omega", options: "A" },
-  { trigger: /(^|[^\\\\A-Za-z])(\\\${GREEK}|\\\${SYMBOL}|\\\${SHORT_SYMBOL})/, replacement: "[[0]]\\\\[[1]]", options: "rAw" },
+  { trigger: /(^|[^\\\\A-Za-z])(\\\${GREEK}|\\\${SYMBOL}|\\\${SHORT_SYMBOL})/, replacement: "[[0]]\\\\[[1]]", options: "rAw", priority: -1 },
   { trigger: /\\\\(\\\${GREEK}|\\\${SYMBOL}|\\\${SHORT_SYMBOL})([A-Za-z])/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
 
   // Core operations
@@ -130,7 +130,7 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: /\\\\(arcsin|arccos|arctan|sin|cos|tan|cot|csc)([A-Za-gi-z])/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
   { trigger: /\\\\(sinh|cosh|tanh|coth|csch|sech)([A-Za-z])/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
   { trigger: /\\\\(neq|geq|leq|gg|ll|sim)([0-9]+)/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
-  { trigger: /(^|[^\\\\A-Za-z])(to|iff|implies)/, replacement: "[[0]]\\\\[[1]]", options: "rAw", description: "add slash before relation words" },
+  { trigger: /(^|[^\\\\A-Za-z])(to|iff|implies)/, replacement: "[[0]]\\\\[[1]]", options: "rAw", priority: -1, description: "add slash before relation words" },
 
   // Symbols
   { trigger: "ooo", replacement: "\\\\infty", options: "A" },
@@ -209,13 +209,13 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "ddt", replacement: "\\\\frac{d}{dt} ", options: "A" },
 
   // Integrals
-  { trigger: "oinf", replacement: "\\\\int_{0}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw" },
-  { trigger: "infi", replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw" },
-  { trigger: "dint", replacement: "\\\\int_{$1}^{$2} $3 \\\\, d$4 $0", options: "Aw" },
-  { trigger: "oint", replacement: "\\\\oint", options: "Aw" },
-  { trigger: "iiint", replacement: "\\\\iiint", options: "Aw" },
-  { trigger: "iint", replacement: "\\\\iint", options: "Aw" },
-  { trigger: "int", replacement: "\\\\int $1 \\\\, d$2 $0", options: "Aw" },
+  { trigger: "oinf", replacement: "\\\\int_{0}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
+  { trigger: "infi", replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
+  { trigger: "dint", replacement: "\\\\int_{$1}^{$2} $3 \\\\, d$4 $0", options: "Aw", priority: 2 },
+  { trigger: "oint", replacement: "\\\\oint", options: "Aw", priority: 2 },
+  { trigger: "iiint", replacement: "\\\\iiint", options: "Aw", priority: 2 },
+  { trigger: "iint", replacement: "\\\\iint", options: "Aw", priority: 2 },
+  { trigger: "int", replacement: "\\\\int $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
 
   // Environments and brackets (trainer-friendly subset)
   { trigger: "beg", replacement: "\\\\begin{$1}\\\\n$2\\\\n\\\\end{$1}$0", options: "A" },

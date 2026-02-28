@@ -102,8 +102,8 @@ describe("applyAutoBrackets", () => {
     });
 
     expect(mutation?.value).toBe("\\left(\\sum\\right)");
-    expect(mutation?.selectionStart).toBe("\\left(\\sum\\right)".length);
-    expect(mutation?.selectionEnd).toBe("\\left(\\sum\\right)".length);
+    expect(mutation?.selectionStart).toBe("\\left(\\sum".length);
+    expect(mutation?.selectionEnd).toBe("\\left(\\sum".length);
   });
 
   it("does not enlarge when no trigger command is inside", () => {

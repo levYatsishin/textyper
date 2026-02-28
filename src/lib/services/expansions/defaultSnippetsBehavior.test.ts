@@ -45,11 +45,12 @@ describe("default snippet pack behavior", () => {
     const cases: Array<[string, RegExp]> = [
       ["sum", /^\\sum$/],
       ["prod", /^\\prod$/],
-      ["int", /^\\int$/],
+      ["int", /^\\int\b/],
       ["ooo", /^\\infty$/],
       ["->", /^\\to$/],
       [">=", /^\\geq$/],
       ["@b", /^\\beta$/],
+      ["@p", /^\\pi$/],
       ["@g", /^\\gamma$/],
       ["@o", /^\\omega$/]
     ];
@@ -57,12 +58,16 @@ describe("default snippet pack behavior", () => {
     for (const [trigger, expected] of cases) {
       const output = runAutoExpansion(trigger, snippets);
       expect(output).toMatch(expected);
+      if (trigger === "int") {
+        expect(output).toContain("\\, d");
+      }
       expect(output).not.toMatch(/\\\\[A-Za-z]/);
     }
   });
 
   it("normalizes bare greek words without corrupting existing commands", () => {
     expect(runAutoExpansion(" beta", snippets)).toBe(" \\beta");
+    expect(runAutoExpansion("(pi", snippets)).toBe("(\\pi");
     expect(runAutoExpansion("\\beta", snippets)).toBe("\\beta");
     expect(runAutoExpansion("@beta", snippets)).toBe("@\\beta");
   });

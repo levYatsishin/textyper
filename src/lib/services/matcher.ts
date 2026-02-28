@@ -124,6 +124,152 @@ function shouldInsertCommandBoundary(tokens: Token[], commandIndex: number): boo
   return false;
 }
 
+type ScriptOperator = "_" | "^";
+
+interface ScriptPiece {
+  operator: ScriptOperator;
+  argument: string;
+  endIndex: number;
+}
+
+function appendTokenCanonicalValue(tokens: Token[], tokenIndex: number): string {
+  const token = tokens[tokenIndex];
+  if (token.type === "whitespace" || token.type === "removed") {
+    return "";
+  }
+
+  let value = token.value;
+  if (token.type === "commandWord" && shouldInsertCommandBoundary(tokens, tokenIndex)) {
+    value += "{}";
+  }
+  return value;
+}
+
+function findMatchingBraceIndex(tokens: Token[], openBraceIndex: number): number {
+  let depth = 0;
+
+  for (let index = openBraceIndex; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (token.type === "whitespace" || token.type === "removed") {
+      continue;
+    }
+    if (token.type !== "char") {
+      continue;
+    }
+
+    if (token.value === "{") {
+      depth += 1;
+      continue;
+    }
+
+    if (token.value === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return index;
+      }
+    }
+  }
+
+  return -1;
+}
+
+function readScriptArgument(
+  tokens: Token[],
+  operatorIndex: number
+): { argument: string; endIndex: number } | null {
+  const argumentIndex = nextMeaningfulIndex(tokens, operatorIndex);
+  if (argumentIndex === -1) {
+    return null;
+  }
+
+  const argumentToken = tokens[argumentIndex];
+  if (argumentToken.type === "char" && argumentToken.value === "{") {
+    const closingBraceIndex = findMatchingBraceIndex(tokens, argumentIndex);
+    if (closingBraceIndex === -1) {
+      return {
+        argument: "{",
+        endIndex: argumentIndex
+      };
+    }
+    return {
+      argument: buildCanonicalLatex(tokens.slice(argumentIndex, closingBraceIndex + 1)),
+      endIndex: closingBraceIndex
+    };
+  }
+
+  return {
+    argument: `{${buildCanonicalLatex(tokens.slice(argumentIndex, argumentIndex + 1))}}`,
+    endIndex: argumentIndex
+  };
+}
+
+function collectScriptPieces(tokens: Token[], baseIndex: number): { pieces: ScriptPiece[]; consumedUntil: number } {
+  const pieces: ScriptPiece[] = [];
+  let cursor = baseIndex;
+
+  while (true) {
+    const operatorIndex = nextMeaningfulIndex(tokens, cursor);
+    if (operatorIndex === -1) {
+      break;
+    }
+
+    const operatorToken = tokens[operatorIndex];
+    if (operatorToken.type !== "char" || (operatorToken.value !== "_" && operatorToken.value !== "^")) {
+      break;
+    }
+
+    const argument = readScriptArgument(tokens, operatorIndex);
+    if (!argument) {
+      pieces.push({
+        operator: operatorToken.value as ScriptOperator,
+        argument: "",
+        endIndex: operatorIndex
+      });
+      cursor = operatorIndex;
+      continue;
+    }
+
+    pieces.push({
+      operator: operatorToken.value as ScriptOperator,
+      argument: argument.argument,
+      endIndex: argument.endIndex
+    });
+    cursor = argument.endIndex;
+  }
+
+  return {
+    pieces,
+    consumedUntil: cursor
+  };
+}
+
+function canonicalizeScriptPieces(pieces: ScriptPiece[]): string {
+  if (pieces.length === 0) {
+    return "";
+  }
+
+  const hasDuplicateOperator = pieces.some(
+    (piece, index) => pieces.findIndex((candidate) => candidate.operator === piece.operator) !== index
+  );
+
+  if (hasDuplicateOperator) {
+    return pieces.map((piece) => `${piece.operator}${piece.argument}`).join("");
+  }
+
+  let output = "";
+  const subscript = pieces.find((piece) => piece.operator === "_");
+  const superscript = pieces.find((piece) => piece.operator === "^");
+
+  if (subscript) {
+    output += `_${subscript.argument}`;
+  }
+  if (superscript) {
+    output += `^${superscript.argument}`;
+  }
+
+  return output;
+}
+
 function buildCanonicalLatex(tokens: Token[]): string {
   let output = "";
 
@@ -134,32 +280,23 @@ function buildCanonicalLatex(tokens: Token[]): string {
     }
 
     if (token.type === "char" && (token.value === "_" || token.value === "^")) {
-      const argumentIndex = nextMeaningfulIndex(tokens, index);
-      if (argumentIndex === -1) {
+      const standaloneArgument = readScriptArgument(tokens, index);
+      if (!standaloneArgument) {
         output += token.value;
         continue;
       }
 
-      const argument = tokens[argumentIndex];
-      if (argument.type === "char" && argument.value === "{") {
-        output += token.value;
-        continue;
-      }
-
-      if (argument.type === "commandWord" || argument.type === "commandSymbol" || argument.type === "char") {
-        output += `${token.value}{${argument.value}}`;
-        index = argumentIndex;
-        continue;
-      }
-
-      output += token.value;
+      output += `${token.value}${standaloneArgument.argument}`;
+      index = standaloneArgument.endIndex;
       continue;
     }
 
-    output += token.value;
+    output += appendTokenCanonicalValue(tokens, index);
 
-    if (token.type === "commandWord" && shouldInsertCommandBoundary(tokens, index)) {
-      output += "{}";
+    const scripts = collectScriptPieces(tokens, index);
+    if (scripts.pieces.length > 0) {
+      output += canonicalizeScriptPieces(scripts.pieces);
+      index = scripts.consumedUntil;
     }
   }
 

@@ -6,6 +6,7 @@ interface SnippetMatch {
   start: number;
   end: number;
   captures: string[];
+  fullMatch: string;
 }
 
 interface ExpansionInput {
@@ -14,6 +15,10 @@ interface ExpansionInput {
   selectionEnd: number;
   snippets: CompiledSnippet[];
   wordDelimiters: string;
+}
+
+function isRegexSnippet(snippet: CompiledSnippet): boolean {
+  return snippet.options.regex || snippet.trigger instanceof RegExp;
 }
 
 function isWordLikeTrigger(trigger: string): boolean {
@@ -49,6 +54,18 @@ function replaceRegexCaptures(template: string, captures: string[]): string {
   return output;
 }
 
+function isInsideCommandToken(value: string, index: number): boolean {
+  if (index <= 0) {
+    return false;
+  }
+
+  let cursor = index - 1;
+  while (cursor >= 0 && /[A-Za-z]/.test(value[cursor])) {
+    cursor -= 1;
+  }
+  return value[cursor] === "\\";
+}
+
 function findSnippetMatch(
   input: ExpansionInput,
   runMode: "auto" | "manual"
@@ -61,7 +78,7 @@ function findSnippetMatch(
   const beforeCursor = value.slice(0, selectionStart);
   const ordered = snippets.filter((snippet) => (runMode === "auto" ? snippet.options.auto : !snippet.options.auto));
   for (const snippet of ordered) {
-    if (snippet.options.regex) {
+    if (isRegexSnippet(snippet)) {
       const trigger = snippet.trigger as RegExp;
       trigger.lastIndex = 0;
       const match = trigger.exec(beforeCursor);
@@ -71,6 +88,9 @@ function findSnippetMatch(
 
       const start = selectionStart - match[0].length;
       const end = selectionStart;
+      if (isInsideCommandToken(value, start)) {
+        continue;
+      }
       if (snippet.options.wordBoundary && !hasWordBoundary(value, start, end, wordDelimiters)) {
         continue;
       }
@@ -79,7 +99,8 @@ function findSnippetMatch(
         snippet,
         start,
         end,
-        captures: match.slice(1)
+        captures: match.slice(1),
+        fullMatch: match[0]
       };
     }
 
@@ -95,6 +116,18 @@ function findSnippetMatch(
       continue;
     }
 
+    if (isWordLikeTrigger(trigger)) {
+      let cursor = start - 1;
+      let hasCommandPrefixLetters = false;
+      while (cursor >= 0 && /[A-Za-z]/.test(value[cursor])) {
+        hasCommandPrefixLetters = true;
+        cursor -= 1;
+      }
+      if (hasCommandPrefixLetters && value[cursor] === "\\") {
+        continue;
+      }
+    }
+
     if (snippet.options.wordBoundary && !hasWordBoundary(value, start, end, wordDelimiters)) {
       continue;
     }
@@ -103,7 +136,8 @@ function findSnippetMatch(
       snippet,
       start,
       end,
-      captures: []
+      captures: [],
+      fullMatch: trigger
     };
   }
 
