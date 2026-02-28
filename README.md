@@ -51,7 +51,7 @@ So I thought that maybe doing math entirely on a computer will be more fun and c
     - better ontology and llm auto classification
     - parse more formulas from wikipedea, wikidata, proof wiki
 - load custom user formulas
-    - export statistics (and formulas?)
+- export all user related data
 - integrate auto-shortcuts/expansions 
 - tauri
 - ?
