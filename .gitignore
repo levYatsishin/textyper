@@ -30,3 +30,4 @@ tools/formula_ingest/data/generated/
 
 resources/
 references/
+.worktrees/
