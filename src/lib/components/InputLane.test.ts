@@ -1,6 +1,33 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
+import type { CompiledSnippet } from "../types";
 import InputLane from "./InputLane.svelte";
+
+function createSnippet(partial: Partial<CompiledSnippet>): CompiledSnippet {
+  return {
+    id: "snippet",
+    trigger: "",
+    triggerSource: "",
+    replacement: "",
+    options: {
+      auto: false,
+      regex: false,
+      visual: false,
+      wordBoundary: false,
+      modes: {
+        text: false,
+        math: false,
+        blockMath: false,
+        inlineMath: false,
+        code: false
+      }
+    },
+    priority: 0,
+    description: "",
+    triggerKey: null,
+    ...partial
+  };
+}
 
 describe("InputLane run controls", () => {
   it("renders one centered run mode label above one elapsed timer", () => {
@@ -115,5 +142,84 @@ describe("InputLane run controls", () => {
     await fireEvent.input(textarea);
 
     expect(textarea.value).toBe("");
+  });
+
+  it("expands non-auto snippets on Tab in running session", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "manual-fraction",
+        trigger: "fr",
+        triggerSource: "fr",
+        replacement: "\\frac{$1}{$2}$0",
+        options: {
+          auto: false,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "fr";
+    await fireEvent.input(textarea);
+    textarea.setSelectionRange(2, 2);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+
+    expect(textarea.value).toBe("\\frac{}{}");
+  });
+
+  it("traverses tabstops with Tab and Shift+Tab", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "manual-linked",
+        trigger: "tt",
+        triggerSource: "tt",
+        replacement: "${1:a}+${2:b}$0",
+        options: {
+          auto: false,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "tt";
+    await fireEvent.input(textarea);
+    textarea.setSelectionRange(2, 2);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    const firstStart = textarea.selectionStart;
+    const firstEnd = textarea.selectionEnd;
+    expect(textarea.value).toBe("a+b");
+    expect(firstStart).toBe(0);
+    expect(firstEnd).toBe(1);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    const secondStart = textarea.selectionStart;
+    const secondEnd = textarea.selectionEnd;
+    expect(secondStart).toBe(2);
+    expect(secondEnd).toBe(3);
+
+    await fireEvent.keyDown(textarea, { key: "Tab", shiftKey: true });
+    expect(textarea.selectionStart).toBe(0);
+    expect(textarea.selectionEnd).toBe(1);
   });
 });

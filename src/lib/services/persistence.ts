@@ -1,9 +1,25 @@
 import { ALL_TOPIC_IDS } from "../data/topics";
-import type { BestScores, Difficulty, SessionRecord, SessionSettings, SubmissionResult, TopicId } from "../types";
+import {
+  DEFAULT_EXPANSION_SETTINGS,
+  DEFAULT_EXPANSION_VARIABLES_SOURCE,
+  DEFAULT_OBSIDIAN_SNIPPETS_SOURCE
+} from "../data/expansionsDefaults";
+import type {
+  BestScores,
+  Difficulty,
+  ExpansionSettings,
+  SessionRecord,
+  SessionSettings,
+  SubmissionResult,
+  TopicId
+} from "../types";
 
 export const SETTINGS_STORAGE_KEY = "mathTyper.settings.v1";
 export const HISTORY_STORAGE_KEY = "mathTyper.history.v1";
 export const ACTIVE_SESSION_STORAGE_KEY = "mathTyper.activeSession.v1";
+export const EXPANSION_SETTINGS_STORAGE_KEY = "mathTyper.expansions.settings.v1";
+export const EXPANSION_SNIPPETS_STORAGE_KEY = "mathTyper.expansions.snippets.v1";
+export const EXPANSION_VARIABLES_STORAGE_KEY = "mathTyper.expansions.variables.v1";
 const HISTORY_LIMIT = 500;
 const BEST_SCORES_LIMIT = 5;
 const DIFFICULTY_ORDER: Difficulty[] = ["beginner", "intermediate", "advanced"];
@@ -194,6 +210,132 @@ export function saveSettings(settings: SessionSettings): void {
   }
 
   localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+}
+
+function sanitizeStringArray(raw: unknown, fallback: string[]): string[] {
+  if (!Array.isArray(raw)) {
+    return [...fallback];
+  }
+  const unique = [...new Set(raw.filter((item): item is string => typeof item === "string").map((item) => item.trim()))];
+  return unique.filter((item) => item.length > 0);
+}
+
+function sanitizeExpansionHelperSettings(raw: unknown): ExpansionSettings["helpers"] {
+  if (!raw || typeof raw !== "object") {
+    return {
+      ...DEFAULT_EXPANSION_SETTINGS.helpers,
+      matrixShortcutEnvironments: [...DEFAULT_EXPANSION_SETTINGS.helpers.matrixShortcutEnvironments],
+      taboutClosingSymbols: [...DEFAULT_EXPANSION_SETTINGS.helpers.taboutClosingSymbols],
+      autoEnlargeTriggers: [...DEFAULT_EXPANSION_SETTINGS.helpers.autoEnlargeTriggers]
+    };
+  }
+
+  const input = raw as Partial<ExpansionSettings["helpers"]>;
+  return {
+    autofractionEnabled:
+      typeof input.autofractionEnabled === "boolean"
+        ? input.autofractionEnabled
+        : DEFAULT_EXPANSION_SETTINGS.helpers.autofractionEnabled,
+    taboutEnabled:
+      typeof input.taboutEnabled === "boolean" ? input.taboutEnabled : DEFAULT_EXPANSION_SETTINGS.helpers.taboutEnabled,
+    matrixShortcutsEnabled:
+      typeof input.matrixShortcutsEnabled === "boolean"
+        ? input.matrixShortcutsEnabled
+        : DEFAULT_EXPANSION_SETTINGS.helpers.matrixShortcutsEnabled,
+    autoEnlargeBracketsEnabled:
+      typeof input.autoEnlargeBracketsEnabled === "boolean"
+        ? input.autoEnlargeBracketsEnabled
+        : DEFAULT_EXPANSION_SETTINGS.helpers.autoEnlargeBracketsEnabled,
+    autofractionSymbol:
+      typeof input.autofractionSymbol === "string" && input.autofractionSymbol.trim().length > 0
+        ? input.autofractionSymbol
+        : DEFAULT_EXPANSION_SETTINGS.helpers.autofractionSymbol,
+    autofractionBreakingChars:
+      typeof input.autofractionBreakingChars === "string"
+        ? input.autofractionBreakingChars
+        : DEFAULT_EXPANSION_SETTINGS.helpers.autofractionBreakingChars,
+    matrixShortcutEnvironments: sanitizeStringArray(
+      input.matrixShortcutEnvironments,
+      DEFAULT_EXPANSION_SETTINGS.helpers.matrixShortcutEnvironments
+    ),
+    taboutClosingSymbols: sanitizeStringArray(
+      input.taboutClosingSymbols,
+      DEFAULT_EXPANSION_SETTINGS.helpers.taboutClosingSymbols
+    ),
+    autoEnlargeTriggers: sanitizeStringArray(
+      input.autoEnlargeTriggers,
+      DEFAULT_EXPANSION_SETTINGS.helpers.autoEnlargeTriggers
+    )
+  };
+}
+
+export function sanitizeExpansionSettings(raw: unknown): ExpansionSettings {
+  if (!raw || typeof raw !== "object") {
+    return {
+      ...DEFAULT_EXPANSION_SETTINGS,
+      helpers: sanitizeExpansionHelperSettings(DEFAULT_EXPANSION_SETTINGS.helpers)
+    };
+  }
+
+  const input = raw as Partial<ExpansionSettings>;
+  return {
+    enabled: typeof input.enabled === "boolean" ? input.enabled : DEFAULT_EXPANSION_SETTINGS.enabled,
+    sourceFormat: "obsidian",
+    manualTriggerKey: "Tab",
+    wordDelimiters:
+      typeof input.wordDelimiters === "string" && input.wordDelimiters.length > 0
+        ? input.wordDelimiters
+        : DEFAULT_EXPANSION_SETTINGS.wordDelimiters,
+    helpers: sanitizeExpansionHelperSettings(input.helpers)
+  };
+}
+
+export function loadExpansionSettings(): ExpansionSettings {
+  if (!hasLocalStorage()) {
+    return sanitizeExpansionSettings(null);
+  }
+
+  const parsed = safeParseJson<unknown>(localStorage.getItem(EXPANSION_SETTINGS_STORAGE_KEY));
+  return sanitizeExpansionSettings(parsed);
+}
+
+export function saveExpansionSettings(settings: ExpansionSettings): void {
+  if (!hasLocalStorage()) {
+    return;
+  }
+  localStorage.setItem(EXPANSION_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+}
+
+function sanitizeSourceString(raw: unknown, fallback: string): string {
+  return typeof raw === "string" && raw.trim().length > 0 ? raw : fallback;
+}
+
+export function loadExpansionSnippetSource(): string {
+  if (!hasLocalStorage()) {
+    return DEFAULT_OBSIDIAN_SNIPPETS_SOURCE;
+  }
+  return sanitizeSourceString(localStorage.getItem(EXPANSION_SNIPPETS_STORAGE_KEY), DEFAULT_OBSIDIAN_SNIPPETS_SOURCE);
+}
+
+export function saveExpansionSnippetSource(source: string): void {
+  if (!hasLocalStorage()) {
+    return;
+  }
+  localStorage.setItem(EXPANSION_SNIPPETS_STORAGE_KEY, source);
+}
+
+export function loadExpansionVariablesSource(): string {
+  if (!hasLocalStorage()) {
+    return DEFAULT_EXPANSION_VARIABLES_SOURCE;
+  }
+  return sanitizeSourceString(localStorage.getItem(EXPANSION_VARIABLES_STORAGE_KEY), DEFAULT_EXPANSION_VARIABLES_SOURCE);
+}
+
+export function saveExpansionVariablesSource(source: string): void {
+  if (!hasLocalStorage()) {
+    return;
+  }
+  localStorage.setItem(EXPANSION_VARIABLES_STORAGE_KEY, source);
 }
 
 function isSessionRecord(raw: unknown): raw is SessionRecord {

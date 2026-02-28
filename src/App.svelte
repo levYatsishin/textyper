@@ -2,16 +2,40 @@
   import { onDestroy, onMount } from "svelte";
   import { get } from "svelte/store";
   import ControlBar from "./lib/components/ControlBar.svelte";
+  import {
+    DEFAULT_EXPANSION_SETTINGS,
+    DEFAULT_EXPANSION_VARIABLES_SOURCE,
+    DEFAULT_OBSIDIAN_SNIPPETS_SOURCE
+  } from "./lib/data/expansionsDefaults";
   import FormulaStage from "./lib/components/FormulaStage.svelte";
   import HistoryPanel from "./lib/components/HistoryPanel.svelte";
   import InputLane from "./lib/components/InputLane.svelte";
   import ResultsModal from "./lib/components/ResultsModal.svelte";
   import StatsRail from "./lib/components/StatsRail.svelte";
   import { EXPRESSIONS } from "./lib/data/expressions";
+  import { parseObsidianSnippetSource } from "./lib/services/expansions/parserObsidian";
+  import { parseSnippetVariablesSource } from "./lib/services/expansions/variables";
+  import {
+    loadExpansionSettings,
+    loadExpansionSnippetSource,
+    loadExpansionVariablesSource,
+    saveExpansionSettings,
+    saveExpansionSnippetSource,
+    saveExpansionVariablesSource
+  } from "./lib/services/persistence";
   import { TOPICS } from "./lib/data/topics";
   import { getTopicScopedSubtopics } from "./lib/services/topicSubtopics";
   import { createGameStore, POOL_RESTART_LOCK_MS } from "./lib/stores/gameStore";
-  import type { Difficulty, Mode, SessionSettings, TopicId } from "./lib/types";
+  import type {
+    CompiledSnippet,
+    Difficulty,
+    ExpansionSettings,
+    Mode,
+    SessionSettings,
+    SnippetParseIssue,
+    SnippetVariables,
+    TopicId
+  } from "./lib/types";
 
   interface TopicSubtopicStat {
     label: string;
@@ -23,9 +47,27 @@
     subtopic: string;
   }
 
+  type BooleanHelperKey =
+    | "autofractionEnabled"
+    | "taboutEnabled"
+    | "matrixShortcutsEnabled"
+    | "autoEnlargeBracketsEnabled";
+
   type TopicSubtopicStats = Record<TopicId, TopicSubtopicStat[]>;
   type ThemeMode = "dark" | "light";
   const THEME_STORAGE_KEY = "mathTyper.theme.v1";
+
+  function cloneExpansionSettings(settings: ExpansionSettings): ExpansionSettings {
+    return {
+      ...settings,
+      helpers: {
+        ...settings.helpers,
+        matrixShortcutEnvironments: [...settings.helpers.matrixShortcutEnvironments],
+        taboutClosingSymbols: [...settings.helpers.taboutClosingSymbols],
+        autoEnlargeTriggers: [...settings.helpers.autoEnlargeTriggers]
+      }
+    };
+  }
 
   function getAllSubtopicsByTopic(): Record<TopicId, string[]> {
     const byTopic = TOPICS.reduce<Record<TopicId, Set<string>>>((accumulator, topic) => {
@@ -59,6 +101,15 @@
   let lastPoolRestartedAt: number | null = null;
   let poolRestartFallbackLatex = "";
   let inputFocusNonce = 0;
+  let expansionMenuOpen = false;
+  let expansionButtonElement: HTMLButtonElement | null = null;
+  let expansionMenuElement: HTMLDivElement | null = null;
+  let expansionSettings = cloneExpansionSettings(DEFAULT_EXPANSION_SETTINGS);
+  let expansionSnippetsSource = DEFAULT_OBSIDIAN_SNIPPETS_SOURCE;
+  let expansionVariablesSource = DEFAULT_EXPANSION_VARIABLES_SOURCE;
+  let expansionCompiledSnippets: CompiledSnippet[] = [];
+  let expansionVariables: SnippetVariables = {};
+  let expansionParseIssues: SnippetParseIssue[] = [];
 
   function isThemeMode(value: unknown): value is ThemeMode {
     return value === "dark" || value === "light";
@@ -82,14 +133,103 @@
     localStorage.setItem(THEME_STORAGE_KEY, themeMode);
   }
 
+  function recompileExpansions(): void {
+    const variablesResult = parseSnippetVariablesSource(expansionVariablesSource);
+    expansionVariables = variablesResult.variables;
+    const snippetsResult = parseObsidianSnippetSource(expansionSnippetsSource, expansionVariables);
+    expansionCompiledSnippets = snippetsResult.snippets;
+    expansionParseIssues = [...variablesResult.issues, ...snippetsResult.issues];
+  }
+
+  function closeExpansionMenu(): void {
+    expansionMenuOpen = false;
+  }
+
+  function toggleExpansionMenu(): void {
+    expansionMenuOpen = !expansionMenuOpen;
+  }
+
+  function updateExpansionSettings(next: ExpansionSettings): void {
+    expansionSettings = cloneExpansionSettings(next);
+    saveExpansionSettings(expansionSettings);
+  }
+
+  function handleExpansionEnabledToggle(): void {
+    updateExpansionSettings({
+      ...expansionSettings,
+      enabled: !expansionSettings.enabled
+    });
+  }
+
+  function handleExpansionHelperToggle(key: BooleanHelperKey, value: boolean): void {
+    updateExpansionSettings({
+      ...expansionSettings,
+      helpers: {
+        ...expansionSettings.helpers,
+        [key]: value
+      }
+    });
+  }
+
+  function handleExpansionInput(event: Event): void {
+    expansionSnippetsSource = (event.currentTarget as HTMLTextAreaElement).value;
+    saveExpansionSnippetSource(expansionSnippetsSource);
+    recompileExpansions();
+  }
+
+  function handleVariablesInput(event: Event): void {
+    expansionVariablesSource = (event.currentTarget as HTMLTextAreaElement).value;
+    saveExpansionVariablesSource(expansionVariablesSource);
+    recompileExpansions();
+  }
+
+  function resetExpansionDefaults(): void {
+    expansionSettings = cloneExpansionSettings(DEFAULT_EXPANSION_SETTINGS);
+    expansionSnippetsSource = DEFAULT_OBSIDIAN_SNIPPETS_SOURCE;
+    expansionVariablesSource = DEFAULT_EXPANSION_VARIABLES_SOURCE;
+    saveExpansionSettings(expansionSettings);
+    saveExpansionSnippetSource(expansionSnippetsSource);
+    saveExpansionVariablesSource(expansionVariablesSource);
+    recompileExpansions();
+  }
+
+  function handleDocumentMouseDown(event: MouseEvent): void {
+    if (!expansionMenuOpen) {
+      return;
+    }
+    const target = event.target as Node | null;
+    if (!target) {
+      return;
+    }
+    const inToggle = !!expansionButtonElement?.contains(target);
+    const inPanel = !!expansionMenuElement?.contains(target);
+    if (!inToggle && !inPanel) {
+      closeExpansionMenu();
+    }
+  }
+
+  function handleWindowKeyDown(event: KeyboardEvent): void {
+    if (event.key === "Escape" && expansionMenuOpen) {
+      closeExpansionMenu();
+    }
+  }
+
   onMount(() => {
     themeMode = loadThemePreference();
     applyTheme(themeMode);
+    expansionSettings = cloneExpansionSettings(loadExpansionSettings());
+    expansionSnippetsSource = loadExpansionSnippetSource();
+    expansionVariablesSource = loadExpansionVariablesSource();
+    recompileExpansions();
+    document.addEventListener("mousedown", handleDocumentMouseDown);
+    window.addEventListener("keydown", handleWindowKeyDown);
     game.loadHistory();
     return;
   });
 
   onDestroy(() => {
+    document.removeEventListener("mousedown", handleDocumentMouseDown);
+    window.removeEventListener("keydown", handleWindowKeyDown);
     if (poolRestartFlashTimer !== null) {
       clearTimeout(poolRestartFlashTimer);
       poolRestartFlashTimer = null;
@@ -471,6 +611,102 @@
       <div class="github-help-popout-link">read more on github readme above</div>
     </div>
   </div>
+  <div class="expansion-settings-wrap">
+    <button
+      type="button"
+      class="expansion-settings-trigger text-option"
+      bind:this={expansionButtonElement}
+      aria-label="Expansion settings"
+      on:click={toggleExpansionMenu}
+    >
+      ⚙
+    </button>
+    {#if expansionMenuOpen}
+      <div class="expansion-settings-popout" bind:this={expansionMenuElement} role="dialog" aria-label="Expansion settings">
+        <div class="expansion-popout-header">
+          <span>expansions</span>
+          <button type="button" class="text-option expansion-link-button" on:click={resetExpansionDefaults}>reset</button>
+        </div>
+        <div class="expansion-popout-row">
+          <button
+            type="button"
+            class="text-option"
+            class:active-option={expansionSettings.enabled}
+            aria-pressed={expansionSettings.enabled}
+            on:click={handleExpansionEnabledToggle}
+          >
+            enabled
+          </button>
+          <span class="bar-divider" aria-hidden="true">|</span>
+          <span class="expansion-muted">format: obsidian</span>
+        </div>
+        <div class="expansion-popout-row">
+          <button
+            type="button"
+            class="text-option"
+            class:active-option={expansionSettings.helpers.autofractionEnabled}
+            on:click={() => handleExpansionHelperToggle("autofractionEnabled", !expansionSettings.helpers.autofractionEnabled)}
+          >
+            autofraction
+          </button>
+          <button
+            type="button"
+            class="text-option"
+            class:active-option={expansionSettings.helpers.taboutEnabled}
+            on:click={() => handleExpansionHelperToggle("taboutEnabled", !expansionSettings.helpers.taboutEnabled)}
+          >
+            tabout
+          </button>
+          <button
+            type="button"
+            class="text-option"
+            class:active-option={expansionSettings.helpers.matrixShortcutsEnabled}
+            on:click={() =>
+              handleExpansionHelperToggle("matrixShortcutsEnabled", !expansionSettings.helpers.matrixShortcutsEnabled)}
+          >
+            matrix
+          </button>
+          <button
+            type="button"
+            class="text-option"
+            class:active-option={expansionSettings.helpers.autoEnlargeBracketsEnabled}
+            on:click={() =>
+              handleExpansionHelperToggle("autoEnlargeBracketsEnabled", !expansionSettings.helpers.autoEnlargeBracketsEnabled)}
+          >
+            enlarge
+          </button>
+        </div>
+        <label class="expansion-editor-label" for="expansion-snippets-input">snippets source</label>
+        <textarea
+          id="expansion-snippets-input"
+          class="expansion-editor"
+          value={expansionSnippetsSource}
+          on:input={handleExpansionInput}
+        ></textarea>
+        <label class="expansion-editor-label" for="expansion-variables-input">variables</label>
+        <textarea
+          id="expansion-variables-input"
+          class="expansion-editor expansion-editor-vars"
+          value={expansionVariablesSource}
+          on:input={handleVariablesInput}
+        ></textarea>
+        <div class="expansion-issues">
+          <div class="expansion-issues-title">diagnostics</div>
+          {#if expansionParseIssues.length === 0}
+            <div class="expansion-issues-empty">no issues</div>
+          {:else}
+            <ul>
+              {#each expansionParseIssues as issue}
+                <li class={issue.severity === "error" ? "issue-error" : "issue-warning"}>
+                  {issue.severity}: {issue.message}
+                </li>
+              {/each}
+            </ul>
+          {/if}
+        </div>
+      </div>
+    {/if}
+  </div>
 
   <button
     type="button"
@@ -531,6 +767,9 @@
     focusNonce={inputFocusNonce}
     lastResult={$game.lastResult}
     targetLatex={$game.currentExpression?.latex ?? ""}
+    expansionsEnabled={expansionSettings.enabled}
+    expansionSettings={expansionSettings}
+    compiledSnippets={expansionCompiledSnippets}
     on:submit={(event) => handleSubmit(event.detail)}
     on:activity={handleActivity}
   />

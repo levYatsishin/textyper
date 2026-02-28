@@ -155,3 +155,101 @@ export interface GameStore extends Readable<GameState> {
   deleteHistoryRecord: (sessionId: string) => void;
   updateSettings: (settings: Partial<SessionSettings>) => void;
 }
+
+export type SnippetSourceFormat = "obsidian";
+
+export interface SnippetModeFlags {
+  text: boolean;
+  math: boolean;
+  blockMath: boolean;
+  inlineMath: boolean;
+  code: boolean;
+}
+
+export interface SnippetOptionFlags {
+  auto: boolean;
+  regex: boolean;
+  visual: boolean;
+  wordBoundary: boolean;
+  modes: SnippetModeFlags;
+}
+
+export interface RawObsidianSnippet {
+  trigger: string | RegExp;
+  replacement: string | ((input: unknown) => string | false);
+  options?: string;
+  priority?: number;
+  description?: string;
+  flags?: string;
+  triggerKey?: string;
+}
+
+export interface CompiledSnippet {
+  id: string;
+  trigger: string | RegExp;
+  triggerSource: string;
+  replacement: string;
+  options: SnippetOptionFlags;
+  priority: number;
+  description: string;
+  triggerKey: string | null;
+}
+
+export interface SnippetVariables {
+  [variable: string]: string;
+}
+
+export type SnippetParseIssueSeverity = "error" | "warning";
+
+export interface SnippetParseIssue {
+  severity: SnippetParseIssueSeverity;
+  message: string;
+  snippetIndex?: number;
+}
+
+export interface TabstopRange {
+  start: number;
+  end: number;
+}
+
+export interface TabstopGroup {
+  index: number;
+  ranges: TabstopRange[];
+}
+
+export interface TabstopState {
+  groups: TabstopGroup[];
+  activeGroupIndex: number;
+}
+
+export interface ExpansionHelperSettings {
+  autofractionEnabled: boolean;
+  taboutEnabled: boolean;
+  matrixShortcutsEnabled: boolean;
+  autoEnlargeBracketsEnabled: boolean;
+  autofractionSymbol: string;
+  autofractionBreakingChars: string;
+  matrixShortcutEnvironments: string[];
+  taboutClosingSymbols: string[];
+  autoEnlargeTriggers: string[];
+}
+
+export interface ExpansionSettings {
+  enabled: boolean;
+  sourceFormat: SnippetSourceFormat;
+  manualTriggerKey: "Tab";
+  wordDelimiters: string;
+  helpers: ExpansionHelperSettings;
+}
+
+export interface SnippetParseResult {
+  snippets: CompiledSnippet[];
+  issues: SnippetParseIssue[];
+}
+
+export interface ExpansionMutation {
+  value: string;
+  selectionStart: number;
+  selectionEnd: number;
+  tabstops: TabstopState | null;
+}

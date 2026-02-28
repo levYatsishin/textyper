@@ -1,9 +1,24 @@
 <script lang="ts">
   import { createEventDispatcher, tick } from "svelte";
   import katex from "katex";
+  import { DEFAULT_EXPANSION_SETTINGS } from "../data/expansionsDefaults";
+  import { applySnippetExpansions } from "../services/expansions/engine";
+  import { applyAutoEnlargeBrackets } from "../services/expansions/helpers/autoEnlargeBrackets";
+  import { applyAutofraction } from "../services/expansions/helpers/autofraction";
+  import { applyMatrixShortcuts } from "../services/expansions/helpers/matrixShortcuts";
+  import { applyTabout } from "../services/expansions/helpers/tabout";
+  import { getActiveTabstopRange, stepTabstop, updateTabstopStateAfterInput } from "../services/expansions/tabstops";
   import { normalizeLatex } from "../services/matcher";
   import { formatElapsedDuration } from "../services/statsDisplay";
-  import type { Mode, SessionStatus, SubmissionResult } from "../types";
+  import type {
+    CompiledSnippet,
+    ExpansionMutation,
+    ExpansionSettings,
+    Mode,
+    SessionStatus,
+    SubmissionResult,
+    TabstopState
+  } from "../types";
 
   export let status: SessionStatus;
   export let mode: Mode = "practice";
@@ -14,6 +29,9 @@
   export let focusNonce = 0;
   export let lastResult: SubmissionResult | null = null;
   export let targetLatex = "";
+  export let expansionsEnabled = true;
+  export let expansionSettings: ExpansionSettings = DEFAULT_EXPANSION_SETTINGS;
+  export let compiledSnippets: CompiledSnippet[] = [];
 
   const dispatch = createEventDispatcher<{
     submit: string;
@@ -25,6 +43,10 @@
   let isAutoSubmitting = false;
   let lastFocusedTarget = "";
   let lastAppliedFocusNonce = -1;
+  let tabstopState: TabstopState | null = null;
+  let previousInputValue = "";
+  let previousSelectionStart = 0;
+  let previousSelectionEnd = 0;
 
   const SOFT_BREAK_SELECTOR = ".mbin, .mrel, .mpunct, .mclose";
   const HARD_BREAK_BASE_TEXT_THRESHOLD = 24;
@@ -103,6 +125,167 @@
     }
   }
 
+  function captureInputSnapshot(): void {
+    previousInputValue = value;
+    previousSelectionStart = inputElement?.selectionStart ?? value.length;
+    previousSelectionEnd = inputElement?.selectionEnd ?? previousSelectionStart;
+  }
+
+  function isInputDisabled(): boolean {
+    return status !== "running" || isSubmitting || inputLocked;
+  }
+
+  async function applyMutation(mutation: ExpansionMutation): Promise<void> {
+    value = mutation.value;
+    tabstopState = mutation.tabstops;
+    await tick();
+    if (!inputElement || inputElement.disabled) {
+      return;
+    }
+    inputElement.focus();
+    inputElement.setSelectionRange(mutation.selectionStart, mutation.selectionEnd);
+  }
+
+  async function handleTabKey(event: KeyboardEvent): Promise<void> {
+    if (!expansionsEnabled || !inputElement) {
+      return;
+    }
+    event.preventDefault();
+    dispatch("activity");
+
+    if (tabstopState) {
+      const stepped = stepTabstop(value, tabstopState, event.shiftKey ? -1 : 1);
+      tabstopState = stepped.state;
+      if (stepped.value !== value) {
+        value = stepped.value;
+      }
+
+      const activeRange = stepped.selection ?? getActiveTabstopRange(stepped.state);
+      if (activeRange) {
+        await tick();
+        inputElement.focus();
+        inputElement.setSelectionRange(activeRange.start, activeRange.end);
+      }
+      return;
+    }
+
+    if (!event.shiftKey && expansionSettings.helpers.matrixShortcutsEnabled) {
+      const matrixMutation = applyMatrixShortcuts({
+        value,
+        selectionStart: inputElement.selectionStart ?? value.length,
+        selectionEnd: inputElement.selectionEnd ?? value.length,
+        key: "Tab",
+        environments: expansionSettings.helpers.matrixShortcutEnvironments
+      });
+      if (matrixMutation) {
+        await applyMutation(matrixMutation);
+        return;
+      }
+    }
+
+    if (expansionSettings.helpers.taboutEnabled) {
+      const taboutMutation = applyTabout({
+        value,
+        selectionStart: inputElement.selectionStart ?? value.length,
+        selectionEnd: inputElement.selectionEnd ?? value.length,
+        closingSymbols: expansionSettings.helpers.taboutClosingSymbols
+      });
+      if (taboutMutation) {
+        await applyMutation(taboutMutation);
+        return;
+      }
+    }
+
+    if (!event.shiftKey) {
+      const manualExpansion = applySnippetExpansions(
+        {
+          value,
+          selectionStart: inputElement.selectionStart ?? value.length,
+          selectionEnd: inputElement.selectionEnd ?? value.length,
+          snippets: compiledSnippets,
+          wordDelimiters: expansionSettings.wordDelimiters
+        },
+        "manual",
+        1
+      );
+
+      if (manualExpansion) {
+        await applyMutation(manualExpansion);
+        await autoSubmitIfCorrect();
+      }
+    }
+  }
+
+  async function handleEnterKey(event: KeyboardEvent): Promise<void> {
+    if (!expansionsEnabled || !expansionSettings.helpers.matrixShortcutsEnabled || !inputElement) {
+      return;
+    }
+
+    const matrixMutation = applyMatrixShortcuts({
+      value,
+      selectionStart: inputElement.selectionStart ?? value.length,
+      selectionEnd: inputElement.selectionEnd ?? value.length,
+      key: "Enter",
+      environments: expansionSettings.helpers.matrixShortcutEnvironments
+    });
+
+    if (!matrixMutation) {
+      return;
+    }
+
+    event.preventDefault();
+    dispatch("activity");
+    await applyMutation(matrixMutation);
+  }
+
+  async function runAutoExpansionPipeline(): Promise<void> {
+    if (!expansionsEnabled || !inputElement) {
+      return;
+    }
+
+    const selectionStart = inputElement.selectionStart ?? value.length;
+    const selectionEnd = inputElement.selectionEnd ?? selectionStart;
+    const baseInput = {
+      value,
+      selectionStart,
+      selectionEnd,
+      snippets: compiledSnippets,
+      wordDelimiters: expansionSettings.wordDelimiters
+    };
+
+    if (expansionSettings.helpers.autofractionEnabled) {
+      const autofractionMutation = applyAutofraction({
+        value: baseInput.value,
+        selectionStart: baseInput.selectionStart,
+        selectionEnd: baseInput.selectionEnd,
+        symbol: expansionSettings.helpers.autofractionSymbol,
+        breakingChars: expansionSettings.helpers.autofractionBreakingChars
+      });
+      if (autofractionMutation) {
+        await applyMutation(autofractionMutation);
+        return;
+      }
+    }
+
+    const autoSnippetMutation = applySnippetExpansions(baseInput, "auto", 2);
+    if (autoSnippetMutation) {
+      await applyMutation(autoSnippetMutation);
+      return;
+    }
+
+    if (expansionSettings.helpers.autoEnlargeBracketsEnabled) {
+      const autoEnlargeMutation = applyAutoEnlargeBrackets({
+        value: baseInput.value,
+        selectionStart: baseInput.selectionStart,
+        selectionEnd: baseInput.selectionEnd,
+        triggers: expansionSettings.helpers.autoEnlargeTriggers
+      });
+      if (autoEnlargeMutation) {
+        await applyMutation(autoEnlargeMutation);
+      }
+    }
+  }
+
   async function autoSubmitIfCorrect(): Promise<void> {
     if (status !== "running" || isSubmitting || inputLocked || isAutoSubmitting) {
       return;
@@ -116,15 +299,43 @@
     isAutoSubmitting = true;
     dispatch("submit", value);
     value = "";
+    tabstopState = null;
     await tick();
     inputElement?.focus();
     isAutoSubmitting = false;
   }
 
-  function onInput(event: Event): void {
+  async function onInput(event: Event): Promise<void> {
     value = (event.currentTarget as HTMLTextAreaElement).value;
+    if (expansionsEnabled && tabstopState) {
+      tabstopState = updateTabstopStateAfterInput(
+        tabstopState,
+        previousInputValue,
+        value,
+        previousSelectionStart,
+        previousSelectionEnd
+      );
+    }
     dispatch("activity");
+    await runAutoExpansionPipeline();
     void autoSubmitIfCorrect();
+  }
+
+  async function onKeydown(event: KeyboardEvent): Promise<void> {
+    captureInputSnapshot();
+    if (isInputDisabled()) {
+      return;
+    }
+
+    if (event.key === "Tab") {
+      await handleTabKey(event);
+      return;
+    }
+
+    if (event.key === "Enter") {
+      await handleEnterKey(event);
+      return;
+    }
   }
 
   $: if (status === "running") {
@@ -145,6 +356,10 @@
     });
   }
 
+  $: if (status !== "running") {
+    tabstopState = null;
+  }
+
   $: livePreview = renderLivePreview(value);
   $: hasPreview = value.trim().length > 0;
   $: runModeLabel = mode === "practice" ? "zen" : "timed";
@@ -160,6 +375,7 @@
     rows="3"
     placeholder={status === "running" ? "Type LaTeX here..." : "Start a session to begin typing"}
     on:input={onInput}
+    on:keydown={onKeydown}
     disabled={status !== "running" || isSubmitting || inputLocked}
   ></textarea>
 
