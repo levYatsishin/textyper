@@ -79,6 +79,19 @@ describe("default snippet pack behavior", () => {
     expect(runAutoExpansion("qdot", snippets)).toBe("\\dot{q}");
   });
 
+  it("keeps integral shortcuts stable and non-intrusive", () => {
+    expect(runAutoExpansion("int", snippets)).toMatch(/^\\int/);
+    expect(runAutoExpansion("iint", snippets)).toBe("\\iint");
+    expect(runAutoExpansion("iiint", snippets)).toBe("\\iiint");
+    expect(runAutoExpansion("oint", snippets)).toBe("\\oint");
+    expect(runAutoExpansion("oinf", snippets).startsWith("\\int_{0}^{\\infty}")).toBe(true);
+    expect(runAutoExpansion("infi", snippets).startsWith("\\int_{-\\infty}^{\\infty}")).toBe(true);
+    expect(runAutoExpansion("dint", snippets).startsWith("\\int_{")).toBe(true);
+
+    expect(runAutoExpansion("point", snippets)).toBe("point");
+    expect(runAutoExpansion("print", snippets)).toBe("print");
+  });
+
   it("keeps relation and trig helpers stable around existing commands", () => {
     expect(runAutoExpansion(" implies", snippets)).toBe(" \\implies");
     expect(runAutoExpansion("\\implies", snippets)).toBe("\\implies");
