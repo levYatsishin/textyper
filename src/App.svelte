@@ -52,6 +52,7 @@
     | "taboutEnabled"
     | "matrixShortcutsEnabled"
     | "autoEnlargeBracketsEnabled";
+  type ExpansionCompileState = "idle" | "loading" | "ready";
 
   type TopicSubtopicStats = Record<TopicId, TopicSubtopicStat[]>;
   type ThemeMode = "dark" | "light";
@@ -110,6 +111,9 @@
   let expansionCompiledSnippets: CompiledSnippet[] = [];
   let expansionVariables: SnippetVariables = {};
   let expansionParseIssues: SnippetParseIssue[] = [];
+  let expansionCompileState: ExpansionCompileState = "idle";
+  let expansionCompilePromise: Promise<void> | null = null;
+  let expansionCompileDebounce: ReturnType<typeof setTimeout> | null = null;
 
   function isThemeMode(value: unknown): value is ThemeMode {
     return value === "dark" || value === "light";
@@ -133,12 +137,57 @@
     localStorage.setItem(THEME_STORAGE_KEY, themeMode);
   }
 
-  function recompileExpansions(): void {
+  function compileExpansionsSync(): void {
     const variablesResult = parseSnippetVariablesSource(expansionVariablesSource);
     expansionVariables = variablesResult.variables;
     const snippetsResult = parseObsidianSnippetSource(expansionSnippetsSource, expansionVariables);
     expansionCompiledSnippets = snippetsResult.snippets;
     expansionParseIssues = [...variablesResult.issues, ...snippetsResult.issues];
+  }
+
+  function shouldCompileExpansions(): boolean {
+    return expansionSettings.enabled && expansionSnippetsSource.trim().length > 0;
+  }
+
+  async function ensureExpansionsCompiled(force = false): Promise<void> {
+    if (!shouldCompileExpansions()) {
+      expansionCompiledSnippets = [];
+      expansionVariables = {};
+      expansionParseIssues = [];
+      expansionCompileState = "idle";
+      return;
+    }
+
+    if (!force && expansionCompileState === "ready") {
+      return;
+    }
+    if (expansionCompilePromise) {
+      await expansionCompilePromise;
+      return;
+    }
+
+    expansionCompileState = "loading";
+    expansionCompilePromise = new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        compileExpansionsSync();
+        expansionCompileState = "ready";
+        expansionCompilePromise = null;
+        resolve();
+      });
+    });
+
+    await expansionCompilePromise;
+  }
+
+  function debounceExpansionCompile(delayMs = 180): void {
+    if (expansionCompileDebounce !== null) {
+      clearTimeout(expansionCompileDebounce);
+    }
+    expansionCompileState = "idle";
+    expansionCompileDebounce = setTimeout(() => {
+      expansionCompileDebounce = null;
+      void ensureExpansionsCompiled(true);
+    }, delayMs);
   }
 
   function closeExpansionMenu(): void {
@@ -147,6 +196,9 @@
 
   function toggleExpansionMenu(): void {
     expansionMenuOpen = !expansionMenuOpen;
+    if (expansionMenuOpen) {
+      void ensureExpansionsCompiled();
+    }
   }
 
   function updateExpansionSettings(next: ExpansionSettings): void {
@@ -155,10 +207,19 @@
   }
 
   function handleExpansionEnabledToggle(): void {
+    const nextEnabled = !expansionSettings.enabled;
     updateExpansionSettings({
       ...expansionSettings,
-      enabled: !expansionSettings.enabled
+      enabled: nextEnabled
     });
+    if (nextEnabled) {
+      void ensureExpansionsCompiled();
+      return;
+    }
+    expansionCompileState = "idle";
+    expansionCompiledSnippets = [];
+    expansionVariables = {};
+    expansionParseIssues = [];
   }
 
   function handleExpansionHelperToggle(key: BooleanHelperKey, value: boolean): void {
@@ -174,13 +235,13 @@
   function handleExpansionInput(event: Event): void {
     expansionSnippetsSource = (event.currentTarget as HTMLTextAreaElement).value;
     saveExpansionSnippetSource(expansionSnippetsSource);
-    recompileExpansions();
+    debounceExpansionCompile();
   }
 
   function handleVariablesInput(event: Event): void {
     expansionVariablesSource = (event.currentTarget as HTMLTextAreaElement).value;
     saveExpansionVariablesSource(expansionVariablesSource);
-    recompileExpansions();
+    debounceExpansionCompile();
   }
 
   function resetExpansionDefaults(): void {
@@ -190,7 +251,7 @@
     saveExpansionSettings(expansionSettings);
     saveExpansionSnippetSource(expansionSnippetsSource);
     saveExpansionVariablesSource(expansionVariablesSource);
-    recompileExpansions();
+    void ensureExpansionsCompiled(true);
   }
 
   function handleDocumentMouseDown(event: MouseEvent): void {
@@ -220,7 +281,6 @@
     expansionSettings = cloneExpansionSettings(loadExpansionSettings());
     expansionSnippetsSource = loadExpansionSnippetSource();
     expansionVariablesSource = loadExpansionVariablesSource();
-    recompileExpansions();
     document.addEventListener("mousedown", handleDocumentMouseDown);
     window.addEventListener("keydown", handleWindowKeyDown);
     game.loadHistory();
@@ -233,6 +293,10 @@
     if (poolRestartFlashTimer !== null) {
       clearTimeout(poolRestartFlashTimer);
       poolRestartFlashTimer = null;
+    }
+    if (expansionCompileDebounce !== null) {
+      clearTimeout(expansionCompileDebounce);
+      expansionCompileDebounce = null;
     }
   });
 
@@ -281,6 +345,7 @@
 
   function handleStart(): void {
     game.start();
+    void ensureExpansionsCompiled();
   }
 
   function handleRestart(): void {
@@ -558,6 +623,9 @@
 
   $: topicCounts = getTopicCounts($game.settings);
   $: topicSubtopicStats = getTopicSubtopicStats($game.settings);
+  $: if ($game.status === "running" && expansionSettings.enabled && expansionCompileState === "idle") {
+    void ensureExpansionsCompiled();
+  }
   $: if ($game.poolRestartedAt !== null && $game.poolRestartedAt !== lastPoolRestartedAt) {
     lastPoolRestartedAt = $game.poolRestartedAt;
     poolRestartFallbackLatex = $game.lastResult?.targetLatex ?? "";
@@ -615,6 +683,7 @@
     <button
       type="button"
       class="expansion-settings-trigger text-option"
+      class:expansion-settings-trigger-loading={expansionCompileState === "loading"}
       bind:this={expansionButtonElement}
       aria-label="Expansion settings"
       on:click={toggleExpansionMenu}
@@ -640,6 +709,12 @@
           <span class="bar-divider" aria-hidden="true">|</span>
           <span class="expansion-muted">format: obsidian</span>
         </div>
+        {#if expansionCompileState === "loading"}
+          <div class="expansion-loading" role="status" aria-live="polite">
+            <span class="expansion-loading-spinner" aria-hidden="true"></span>
+            <span>loading snippets...</span>
+          </div>
+        {/if}
         <div class="expansion-popout-row">
           <button
             type="button"
@@ -767,7 +842,7 @@
     focusNonce={inputFocusNonce}
     lastResult={$game.lastResult}
     targetLatex={$game.currentExpression?.latex ?? ""}
-    expansionsEnabled={expansionSettings.enabled}
+    expansionsEnabled={expansionSettings.enabled && expansionCompileState === "ready"}
     expansionSettings={expansionSettings}
     compiledSnippets={expansionCompiledSnippets}
     on:submit={(event) => handleSubmit(event.detail)}
