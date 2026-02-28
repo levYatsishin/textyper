@@ -85,7 +85,7 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "@Q", replacement: "\\\\Psi", options: "A" },
   { trigger: "@o", replacement: "\\\\omega", options: "A" },
   { trigger: "@O", replacement: "\\\\Omega", options: "A" },
-  { trigger: /([^\\\\])(\\\${GREEK}|\\\${SYMBOL}|\\\${SHORT_SYMBOL})/, replacement: "[[0]]\\\\[[1]]", options: "rAw" },
+  { trigger: /(^|[^\\\\A-Za-z])(\\\${GREEK}|\\\${SYMBOL}|\\\${SHORT_SYMBOL})/, replacement: "[[0]]\\\\[[1]]", options: "rAw" },
   { trigger: /\\\\(\\\${GREEK}|\\\${SYMBOL}|\\\${SHORT_SYMBOL})([A-Za-z])/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
 
   // Core operations
@@ -126,11 +126,11 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "und", replacement: "\\\\underline{$1}$0", options: "A" },
 
   // Trig and relation helpers
-  { trigger: /([^\\\\])(arcsin|arccos|arctan|sin|cos|tan|cot|csc)/, replacement: "[[0]]\\\\[[1]]", options: "rA" },
+  { trigger: /(^|[^\\\\A-Za-z])(arcsin|arccos|arctan|sin|cos|tan|cot|csc)/, replacement: "[[0]]\\\\[[1]]", options: "rA" },
   { trigger: /\\\\(arcsin|arccos|arctan|sin|cos|tan|cot|csc)([A-Za-gi-z])/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
   { trigger: /\\\\(sinh|cosh|tanh|coth|csch|sech)([A-Za-z])/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
   { trigger: /\\\\(neq|geq|leq|gg|ll|sim)([0-9]+)/, replacement: "\\\\[[0]] [[1]]", options: "rA" },
-  { trigger: /([^\\\\])(to|iff|implies)/, replacement: "[[0]]\\\\[[1]]", options: "rAw", description: "add slash before relation words" },
+  { trigger: /(^|[^\\\\A-Za-z])(to|iff|implies)/, replacement: "[[0]]\\\\[[1]]", options: "rAw", description: "add slash before relation words" },
 
   // Symbols
   { trigger: "ooo", replacement: "\\\\infty", options: "A" },

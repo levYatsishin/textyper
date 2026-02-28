@@ -16,6 +16,10 @@ interface ExpansionInput {
   wordDelimiters: string;
 }
 
+function isWordLikeTrigger(trigger: string): boolean {
+  return /^[A-Za-z][A-Za-z0-9]*$/.test(trigger);
+}
+
 function isBoundaryCharacter(char: string | undefined, wordDelimiters: string): boolean {
   if (!char) {
     return true;
@@ -85,6 +89,12 @@ function findSnippetMatch(
     }
     const start = selectionStart - trigger.length;
     const end = selectionStart;
+    const preceding = value[start - 1];
+
+    if (preceding === "\\" && isWordLikeTrigger(trigger)) {
+      continue;
+    }
+
     if (snippet.options.wordBoundary && !hasWordBoundary(value, start, end, wordDelimiters)) {
       continue;
     }

@@ -176,4 +176,35 @@ describe("snippet expansion engine", () => {
     );
     expect(valid?.value).toBe(" \\to");
   });
+
+  it("does not re-expand word triggers inside existing commands", () => {
+    const snippets: CompiledSnippet[] = [
+      createSnippet({
+        id: "auto-sum",
+        trigger: "sum",
+        triggerSource: "sum",
+        replacement: "\\sum",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const result = applySnippetExpansions(
+      {
+        value: "\\sum",
+        selectionStart: 4,
+        selectionEnd: 4,
+        snippets,
+        wordDelimiters: " ,.;"
+      },
+      "auto"
+    );
+
+    expect(result).toBeNull();
+  });
 });
