@@ -12,6 +12,31 @@ function readStdin() {
   });
 }
 
+function normalizeLatex(input) {
+  let out = input;
+
+  out = out.replace(/\\left\./g, "");
+  out = out.replace(/\\right\./g, "");
+  out = out.replace(/\\left/g, "");
+  out = out.replace(/\\right/g, "");
+
+  out = out.replace(/\\text\{([^{}]*)\}/g, "\\mathrm{$1}");
+  out = out.replace(/\\Longrightarrow/g, "\\iff");
+
+  // Normalize differentials: "d z" -> "\, dz".
+  out = out.replace(/(^|[^\w\\])d\s+([A-Za-z])/g, "$1\\, d$2");
+
+  out = out.replace(/\}\s+\(/g, "}(");
+  out = out.replace(/\(\s+/g, "(");
+  out = out.replace(/\s+\)/g, ")");
+  out = out.replace(/\s+,/g, ",");
+  out = out.replace(/,\s*/g, ", ");
+  out = out.replace(/\s*:\s*/g, " : ");
+  out = out.replace(/\s+/g, " ");
+
+  return out.trim();
+}
+
 function toLatex(formula) {
   if (typeof formula !== "string") {
     return "";
@@ -22,15 +47,16 @@ function toLatex(formula) {
     return "";
   }
 
-  if (!value.toLowerCase().includes("<math")) {
-    return value;
+  let latex = value;
+  if (value.toLowerCase().includes("<math")) {
+    try {
+      latex = MathMLToLaTeX.convert(value).trim();
+    } catch {
+      return "";
+    }
   }
 
-  try {
-    return MathMLToLaTeX.convert(value).trim();
-  } catch {
-    return "";
-  }
+  return normalizeLatex(latex);
 }
 
 async function main() {
