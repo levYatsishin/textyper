@@ -222,4 +222,55 @@ describe("InputLane run controls", () => {
     expect(textarea.selectionStart).toBe(0);
     expect(textarea.selectionEnd).toBe(1);
   });
+
+  it("auto-pairs brackets from keyboard input", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.focus();
+    textarea.setSelectionRange(0, 0);
+
+    await fireEvent.keyDown(textarea, { key: "(" });
+
+    expect(textarea.value).toBe("()");
+    expect(textarea.selectionStart).toBe(1);
+    expect(textarea.selectionEnd).toBe(1);
+  });
+
+  it("auto-enlarges bracket pair when closing key is pressed", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "(\\sum)";
+    await fireEvent.input(textarea);
+    textarea.setSelectionRange("(\\sum".length, "(\\sum".length);
+
+    await fireEvent.keyDown(textarea, { key: ")" });
+
+    expect(textarea.value).toBe("\\left(\\sum\\right)");
+    expect(textarea.selectionStart).toBe("\\left(\\sum\\right)".length);
+    expect(textarea.selectionEnd).toBe("\\left(\\sum\\right)".length);
+  });
+
+  it("auto-enlarges when typing ends before an existing closing bracket", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "(\\sum)";
+    textarea.setSelectionRange("(\\sum".length, "(\\sum".length);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toBe("\\left(\\sum\\right)");
+    expect(textarea.selectionStart).toBe("\\left(\\sum\\right)".length);
+    expect(textarea.selectionEnd).toBe("\\left(\\sum\\right)".length);
+  });
 });

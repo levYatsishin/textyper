@@ -220,6 +220,25 @@ function sanitizeStringArray(raw: unknown, fallback: string[]): string[] {
   return unique.filter((item) => item.length > 0);
 }
 
+function sanitizeAutoEnlargeTriggers(raw: unknown, fallback: string[]): string[] {
+  const sanitized = sanitizeStringArray(raw, fallback);
+  if (sanitized.length === 0) {
+    return [...fallback];
+  }
+
+  const legacyShortcutMode = sanitized.every((trigger) => trigger.startsWith("lr"));
+  if (legacyShortcutMode) {
+    return [...fallback];
+  }
+
+  return sanitized.map((trigger) => {
+    if (/^[A-Za-z]+$/.test(trigger)) {
+      return `\\${trigger}`;
+    }
+    return trigger;
+  });
+}
+
 function sanitizeExpansionHelperSettings(raw: unknown): ExpansionSettings["helpers"] {
   if (!raw || typeof raw !== "object") {
     return {
@@ -262,7 +281,7 @@ function sanitizeExpansionHelperSettings(raw: unknown): ExpansionSettings["helpe
       input.taboutClosingSymbols,
       DEFAULT_EXPANSION_SETTINGS.helpers.taboutClosingSymbols
     ),
-    autoEnlargeTriggers: sanitizeStringArray(
+    autoEnlargeTriggers: sanitizeAutoEnlargeTriggers(
       input.autoEnlargeTriggers,
       DEFAULT_EXPANSION_SETTINGS.helpers.autoEnlargeTriggers
     )

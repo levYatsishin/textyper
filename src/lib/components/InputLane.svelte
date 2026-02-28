@@ -3,6 +3,7 @@
   import katex from "katex";
   import { DEFAULT_EXPANSION_SETTINGS } from "../data/expansionsDefaults";
   import { applySnippetExpansions } from "../services/expansions/engine";
+  import { applyAutoBrackets, applyPassiveAutoEnlarge } from "../services/expansions/helpers/autoBrackets";
   import { applyAutoEnlargeBrackets } from "../services/expansions/helpers/autoEnlargeBrackets";
   import { applyAutofraction } from "../services/expansions/helpers/autofraction";
   import { applyMatrixShortcuts } from "../services/expansions/helpers/matrixShortcuts";
@@ -238,6 +239,39 @@
     await applyMutation(matrixMutation);
   }
 
+  async function handleBracketKey(event: KeyboardEvent): Promise<boolean> {
+    if (
+      !expansionsEnabled ||
+      !expansionSettings.helpers.autoEnlargeBracketsEnabled ||
+      !inputElement ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey ||
+      event.isComposing
+    ) {
+      return false;
+    }
+
+    const mutation = applyAutoBrackets({
+      value,
+      selectionStart: inputElement.selectionStart ?? value.length,
+      selectionEnd: inputElement.selectionEnd ?? value.length,
+      key: event.key,
+      autoEnlargeEnabled: expansionSettings.helpers.autoEnlargeBracketsEnabled,
+      autoEnlargeTriggers: expansionSettings.helpers.autoEnlargeTriggers
+    });
+
+    if (!mutation) {
+      return false;
+    }
+
+    event.preventDefault();
+    dispatch("activity");
+    await applyMutation(mutation);
+    await autoSubmitIfCorrect();
+    return true;
+  }
+
   async function runAutoExpansionPipeline(): Promise<void> {
     if (!expansionsEnabled || !inputElement) {
       return;
@@ -253,6 +287,24 @@
       wordDelimiters: expansionSettings.wordDelimiters
     };
 
+    const tryPassiveAutoEnlarge = async (): Promise<boolean> => {
+      if (!expansionSettings.helpers.autoEnlargeBracketsEnabled || !inputElement) {
+        return false;
+      }
+      const passiveMutation = applyPassiveAutoEnlarge({
+        value,
+        selectionStart: inputElement.selectionStart ?? value.length,
+        selectionEnd: inputElement.selectionEnd ?? value.length,
+        autoEnlargeEnabled: expansionSettings.helpers.autoEnlargeBracketsEnabled,
+        autoEnlargeTriggers: expansionSettings.helpers.autoEnlargeTriggers
+      });
+      if (!passiveMutation) {
+        return false;
+      }
+      await applyMutation(passiveMutation);
+      return true;
+    };
+
     if (expansionSettings.helpers.autofractionEnabled) {
       const autofractionMutation = applyAutofraction({
         value: baseInput.value,
@@ -263,6 +315,7 @@
       });
       if (autofractionMutation) {
         await applyMutation(autofractionMutation);
+        await tryPassiveAutoEnlarge();
         return;
       }
     }
@@ -270,6 +323,11 @@
     const autoSnippetMutation = applySnippetExpansions(baseInput, "auto", 2);
     if (autoSnippetMutation) {
       await applyMutation(autoSnippetMutation);
+      await tryPassiveAutoEnlarge();
+      return;
+    }
+
+    if (await tryPassiveAutoEnlarge()) {
       return;
     }
 
@@ -324,6 +382,11 @@
   async function onKeydown(event: KeyboardEvent): Promise<void> {
     captureInputSnapshot();
     if (isInputDisabled()) {
+      return;
+    }
+
+    const handledBracket = await handleBracketKey(event);
+    if (handledBracket) {
       return;
     }
 

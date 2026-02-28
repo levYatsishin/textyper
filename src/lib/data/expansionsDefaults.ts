@@ -24,7 +24,7 @@ export const DEFAULT_EXPANSION_SETTINGS: ExpansionSettings = {
       "cases"
     ],
     taboutClosingSymbols: [")", "]", "}", "|"],
-    autoEnlargeTriggers: ["lr(", "lr[", "lr{", "lr|"]
+    autoEnlargeTriggers: ["\\sum", "\\int", "\\frac", "\\prod", "\\bigcup", "\\bigcap"]
   }
 };
 
