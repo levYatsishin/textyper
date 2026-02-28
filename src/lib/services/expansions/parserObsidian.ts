@@ -39,6 +39,7 @@ function applySnippetVariables(input: string, variables: SnippetVariables): stri
     if (!variable || !replacement) {
       continue;
     }
+    output = output.split(`\\${variable}`).join(replacement);
     output = output.split(variable).join(replacement);
   }
   return output;
