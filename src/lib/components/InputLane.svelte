@@ -26,6 +26,13 @@
     TabstopState
   } from "../types";
 
+  interface InputSnapshot {
+    value: string;
+    selectionStart: number;
+    selectionEnd: number;
+    tabstops: TabstopState | null;
+  }
+
   export let status: SessionStatus;
   export let mode: Mode = "practice";
   export let remainingMs: number | null = null;
@@ -53,6 +60,16 @@
   let previousInputValue = "";
   let previousSelectionStart = 0;
   let previousSelectionEnd = 0;
+  let previousTabstopState: TabstopState | null = null;
+  let undoStack: InputSnapshot[] = [];
+  let redoStack: InputSnapshot[] = [];
+  let lastCommittedSnapshot: InputSnapshot = {
+    value: "",
+    selectionStart: 0,
+    selectionEnd: 0,
+    tabstops: null
+  };
+  const INPUT_HISTORY_LIMIT = 200;
 
   const SOFT_BREAK_SELECTOR = ".mbin, .mrel, .mpunct, .mclose";
   const HARD_BREAK_BASE_TEXT_THRESHOLD = 24;
@@ -135,13 +152,88 @@
     previousInputValue = value;
     previousSelectionStart = inputElement?.selectionStart ?? value.length;
     previousSelectionEnd = inputElement?.selectionEnd ?? previousSelectionStart;
+    previousTabstopState = cloneTabstopState(tabstopState);
+  }
+
+  function cloneTabstopState(state: TabstopState | null): TabstopState | null {
+    if (!state) {
+      return null;
+    }
+
+    return {
+      groups: state.groups.map((group) => ({
+        index: group.index,
+        ranges: group.ranges.map((range) => ({ start: range.start, end: range.end }))
+      })),
+      activeGroupIndex: state.activeGroupIndex
+    };
+  }
+
+  function createSnapshot(): InputSnapshot {
+    return {
+      value,
+      selectionStart: inputElement?.selectionStart ?? value.length,
+      selectionEnd: inputElement?.selectionEnd ?? value.length,
+      tabstops: cloneTabstopState(tabstopState)
+    };
+  }
+
+  function snapshotsEqual(left: InputSnapshot, right: InputSnapshot): boolean {
+    return left.value === right.value && left.selectionStart === right.selectionStart && left.selectionEnd === right.selectionEnd;
+  }
+
+  function cloneSnapshot(snapshot: InputSnapshot): InputSnapshot {
+    return {
+      value: snapshot.value,
+      selectionStart: snapshot.selectionStart,
+      selectionEnd: snapshot.selectionEnd,
+      tabstops: cloneTabstopState(snapshot.tabstops)
+    };
+  }
+
+  function pushUndoSnapshot(snapshot: InputSnapshot): void {
+    const top = undoStack[undoStack.length - 1];
+    if (top && snapshotsEqual(top, snapshot)) {
+      return;
+    }
+    undoStack = [...undoStack, snapshot];
+    if (undoStack.length > INPUT_HISTORY_LIMIT) {
+      undoStack = undoStack.slice(undoStack.length - INPUT_HISTORY_LIMIT);
+    }
+  }
+
+  async function restoreSnapshot(snapshot: InputSnapshot): Promise<void> {
+    value = snapshot.value;
+    tabstopState = cloneTabstopState(snapshot.tabstops);
+    await tick();
+    if (!inputElement || inputElement.disabled) {
+      return;
+    }
+    inputElement.focus();
+    inputElement.setSelectionRange(snapshot.selectionStart, snapshot.selectionEnd);
+    lastCommittedSnapshot = cloneSnapshot(snapshot);
   }
 
   function isInputDisabled(): boolean {
     return status !== "running" || isSubmitting || inputLocked;
   }
 
-  async function applyMutation(mutation: ExpansionMutation): Promise<void> {
+  async function applyMutation(
+    mutation: ExpansionMutation,
+    options?: {
+      recordUndo?: boolean;
+      undoCheckpoint?: InputSnapshot;
+      clearRedo?: boolean;
+    }
+  ): Promise<void> {
+    const recordUndo = options?.recordUndo ?? true;
+    if (recordUndo && mutation.value !== value) {
+      pushUndoSnapshot(options?.undoCheckpoint ?? createSnapshot());
+      if (options?.clearRedo ?? true) {
+        redoStack = [];
+      }
+    }
+
     value = mutation.value;
     tabstopState = mutation.tabstops;
     await tick();
@@ -150,6 +242,7 @@
     }
     inputElement.focus();
     inputElement.setSelectionRange(mutation.selectionStart, mutation.selectionEnd);
+    lastCommittedSnapshot = createSnapshot();
   }
 
   async function handleTabKey(event: KeyboardEvent): Promise<void> {
@@ -284,6 +377,7 @@
 
     const selectionStart = inputElement.selectionStart ?? value.length;
     const selectionEnd = inputElement.selectionEnd ?? selectionStart;
+    const undoCheckpoint = createSnapshot();
     const baseInput = {
       value,
       selectionStart,
@@ -306,7 +400,7 @@
       if (!passiveMutation) {
         return false;
       }
-      await applyMutation(passiveMutation);
+      await applyMutation(passiveMutation, { undoCheckpoint });
       return true;
     };
 
@@ -321,7 +415,7 @@
         autoEnlargeTriggers: expansionSettings.helpers.autoEnlargeTriggers
       });
       if (autofractionMutation) {
-        await applyMutation(autofractionMutation);
+        await applyMutation(autofractionMutation, { undoCheckpoint });
         await tryPassiveAutoEnlarge();
         return;
       }
@@ -349,7 +443,7 @@
             }
           : autoSnippetMutation;
 
-      await applyMutation(mergedMutation);
+      await applyMutation(mergedMutation, { undoCheckpoint });
       await tryPassiveAutoEnlarge();
       return;
     }
@@ -366,9 +460,54 @@
         triggers: expansionSettings.helpers.autoEnlargeTriggers
       });
       if (autoEnlargeMutation) {
-        await applyMutation(autoEnlargeMutation);
+        await applyMutation(autoEnlargeMutation, { undoCheckpoint });
       }
     }
+  }
+
+  async function handleUndoRedoKey(event: KeyboardEvent): Promise<boolean> {
+    if (!inputElement) {
+      return false;
+    }
+
+    const key = event.key.toLowerCase();
+    const hasModifier = (event.ctrlKey || event.metaKey) && !event.altKey;
+    if (!hasModifier) {
+      return false;
+    }
+
+    const isUndo = key === "z" && !event.shiftKey;
+    const isRedo = (key === "z" && event.shiftKey) || key === "y";
+    if (!isUndo && !isRedo) {
+      return false;
+    }
+
+    if (isUndo) {
+      if (undoStack.length === 0) {
+        return false;
+      }
+      event.preventDefault();
+      const current = createSnapshot();
+      const target = undoStack[undoStack.length - 1];
+      undoStack = undoStack.slice(0, -1);
+      redoStack = [...redoStack, current];
+      await restoreSnapshot(target);
+      dispatch("activity");
+      return true;
+    }
+
+    if (redoStack.length === 0) {
+      return false;
+    }
+
+    event.preventDefault();
+    const current = createSnapshot();
+    const target = redoStack[redoStack.length - 1];
+    redoStack = redoStack.slice(0, -1);
+    pushUndoSnapshot(current);
+    await restoreSnapshot(target);
+    dispatch("activity");
+    return true;
   }
 
   async function autoSubmitIfCorrect(): Promise<void> {
@@ -385,6 +524,12 @@
     dispatch("submit", value);
     value = "";
     tabstopState = null;
+    lastCommittedSnapshot = {
+      value: "",
+      selectionStart: 0,
+      selectionEnd: 0,
+      tabstops: null
+    };
     await tick();
     inputElement?.focus();
     isAutoSubmitting = false;
@@ -394,15 +539,26 @@
     const inputEvent = event as InputEvent;
     const inputType = typeof inputEvent.inputType === "string" ? inputEvent.inputType : "";
     const isDeleteInput = inputType.startsWith("delete");
-
-    value = (event.currentTarget as HTMLTextAreaElement).value;
+    const nextValue = (event.currentTarget as HTMLTextAreaElement).value;
+    const priorSnapshot = cloneSnapshot(lastCommittedSnapshot);
+    const changedByUser = nextValue !== priorSnapshot.value;
+    if (changedByUser) {
+      pushUndoSnapshot({
+        value: priorSnapshot.value,
+        selectionStart: priorSnapshot.selectionStart,
+        selectionEnd: priorSnapshot.selectionEnd,
+        tabstops: cloneTabstopState(priorSnapshot.tabstops)
+      });
+      redoStack = [];
+    }
+    value = nextValue;
     if (expansionsEnabled && tabstopState) {
       tabstopState = updateTabstopStateAfterInput(
         tabstopState,
-        previousInputValue,
+        priorSnapshot.value,
         value,
-        previousSelectionStart,
-        previousSelectionEnd
+        priorSnapshot.selectionStart,
+        priorSnapshot.selectionEnd
       );
     }
     dispatch("activity");
@@ -410,12 +566,22 @@
       await runAutoExpansionPipeline();
     }
     void autoSubmitIfCorrect();
+    lastCommittedSnapshot = createSnapshot();
   }
 
   async function onKeydown(event: KeyboardEvent): Promise<void> {
     captureInputSnapshot();
     if (isInputDisabled()) {
       return;
+    }
+
+    const key = event.key.toLowerCase();
+    const isUndoRedoKey = (event.ctrlKey || event.metaKey) && !event.altKey && (key === "z" || key === "y");
+    if (isUndoRedoKey) {
+      const handledUndoRedo = await handleUndoRedoKey(event);
+      if (handledUndoRedo) {
+        return;
+      }
     }
 
     const handledBracket = await handleBracketKey(event);
@@ -454,6 +620,14 @@
 
   $: if (status !== "running") {
     tabstopState = null;
+    undoStack = [];
+    redoStack = [];
+    lastCommittedSnapshot = {
+      value,
+      selectionStart: 0,
+      selectionEnd: 0,
+      tabstops: null
+    };
   }
 
   $: livePreview = renderLivePreview(value);

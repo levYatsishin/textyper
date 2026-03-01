@@ -341,6 +341,83 @@ describe("InputLane run controls", () => {
     expect(textarea.value).toBe("\\frac{}{}");
   });
 
+  it("supports undo/redo for snippet expansions", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "auto-fraction-snippet",
+        trigger: "//",
+        triggerSource: "//",
+        replacement: "\\frac{$1}{$2}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "//";
+    textarea.setSelectionRange(2, 2);
+    await fireEvent.input(textarea);
+    expect(textarea.value).toBe("\\frac{}{}");
+
+    await fireEvent.keyDown(textarea, { key: "z", ctrlKey: true });
+    expect(textarea.value).toBe("//");
+
+    await fireEvent.keyDown(textarea, { key: "z", ctrlKey: true, shiftKey: true });
+    expect(textarea.value).toBe("\\frac{}{}");
+  });
+
+  it("undos field typing before undoing snippet expansion", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "auto-fraction-snippet",
+        trigger: "//",
+        triggerSource: "//",
+        replacement: "\\frac{$1}{$2}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "//";
+    textarea.setSelectionRange(2, 2);
+    await fireEvent.input(textarea);
+    expect(textarea.value).toBe("\\frac{}{}");
+
+    textarea.value = "\\frac{x}{}";
+    textarea.setSelectionRange("\\frac{x}{}".length, "\\frac{x}{}".length);
+    await fireEvent.input(textarea);
+    expect(textarea.value).toBe("\\frac{x}{}");
+
+    await fireEvent.keyDown(textarea, { key: "z", ctrlKey: true });
+    expect(textarea.value).toBe("\\frac{}{}");
+
+    await fireEvent.keyDown(textarea, { key: "z", ctrlKey: true });
+    expect(textarea.value).toBe("//");
+  });
+
   it("auto-enlarges brackets after autofraction inside paired delimiters", async () => {
     const { container } = render(InputLane, {
       status: "running",
