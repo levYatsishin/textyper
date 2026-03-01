@@ -74,6 +74,15 @@ const UNWRAPPED_MODIFIER_COMMANDS = new Set([
   "scriptscriptstyle"
 ]);
 const UNWRAPPED_OPERATOR_COMMANDS = new Set([
+  "lim",
+  "liminf",
+  "limsup",
+  "sup",
+  "inf",
+  "max",
+  "min",
+  "arg",
+  "Pr",
   "sum",
   "prod",
   "coprod",
@@ -89,6 +98,7 @@ const UNWRAPPED_OPERATOR_COMMANDS = new Set([
   "bigoplus",
   "bigotimes"
 ]);
+const FORCE_LIMITS_OPERATOR_COMMANDS = new Set(["lim", "liminf", "limsup"]);
 const SUPPORTED_ENVIRONMENTS = new Set([
   "align",
   "align*",
@@ -398,7 +408,9 @@ class LatexHoverParser {
   }
 
   private parseOperatorCommandCluster(rawCommand: string, start: number): string {
+    const normalizedCommand = rawCommand.slice(1).replace(/\*$/, "");
     let suffix = "";
+    let hasExplicitLimits = false;
     const modifierCheckpoint = this.index;
     const modifierSpacing = this.consumeWhitespace();
 
@@ -407,6 +419,7 @@ class LatexHoverParser {
       const modifierName = modifierToken.slice(1).replace(/\*$/, "");
       if (modifierName === "limits" || modifierName === "nolimits") {
         suffix += `${modifierSpacing}${modifierToken}`;
+        hasExplicitLimits = true;
       } else {
         this.index = modifierCheckpoint;
       }
@@ -416,10 +429,14 @@ class LatexHoverParser {
 
     suffix += this.parseTrailingScripts();
 
+    const hasScripts = suffix.includes("^") || suffix.includes("_");
+    const forceLimits = hasScripts && !hasExplicitLimits && FORCE_LIMITS_OPERATOR_COMMANDS.has(normalizedCommand);
+    const commandWithLimits = forceLimits ? `${rawCommand}\\limits` : rawCommand;
+
     const end = this.index;
-    const kind: HoverAtom["kind"] = suffix.includes("^") || suffix.includes("_") ? "script" : "command";
+    const kind: HoverAtom["kind"] = hasScripts ? "script" : "command";
     const id = this.registerAtom(start, end, kind);
-    return this.wrapAtom(id, `${rawCommand}${suffix}`);
+    return this.wrapAtom(id, `${commandWithLimits}${suffix}`);
   }
 
   private parseEnvironmentBlock(rawBeginCommand: string): string {

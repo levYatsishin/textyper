@@ -899,6 +899,7 @@ body {
   margin: 0;
   white-space: normal !important;
   overflow-wrap: anywhere;
+  counter-reset: katexEqnNo mmlEqnNo;
 }
 
 .formula-output .katex {
@@ -1083,6 +1084,7 @@ body {
   margin: 0;
   white-space: normal !important;
   overflow-wrap: anywhere;
+  counter-reset: katexEqnNo mmlEqnNo;
 }
 
 .preview-output .katex {
