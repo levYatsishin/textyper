@@ -198,7 +198,9 @@
                     {/if}
                   </div>
                 </div>
-                <span class="history-item-chevron" aria-hidden="true">▾</span>
+                <svg class="history-item-chevron" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M6 3.5 11 8 6 12.5"></path>
+                </svg>
               </summary>
               <div class="history-details">
                 <div class="history-details-header">
@@ -299,7 +301,9 @@
           disabled={recentPage <= 1}
           on:click={goToPreviousRecentPage}
         >
-          ‹
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M10 3.5 5 8l5 4.5"></path>
+          </svg>
         </button>
         <span class="history-page-indicator">{recentPage} / {totalRecentPages}</span>
         <button
@@ -309,7 +313,9 @@
           disabled={recentPage >= totalRecentPages}
           on:click={goToNextRecentPage}
         >
-          ›
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6 3.5 11 8l-5 4.5"></path>
+          </svg>
         </button>
       </div>
     {/if}
@@ -340,7 +346,9 @@
                     {/if}
                   </div>
                 </div>
-                <span class="history-item-chevron" aria-hidden="true">▾</span>
+                <svg class="history-item-chevron" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M6 3.5 11 8 6 12.5"></path>
+                </svg>
               </summary>
               <div class="history-details">
                 <div class="history-details-header">

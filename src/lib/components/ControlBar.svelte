@@ -299,7 +299,14 @@
                       aria-expanded={openTopicIdSet.has(topic.id)}
                       on:click={() => toggleTopicExpanded(topic.id)}
                     >
-                      {openTopicIdSet.has(topic.id) ? "▾" : "▸"}
+                      <svg
+                        class="topic-expand-icon"
+                        class:topic-expand-icon-open={openTopicIdSet.has(topic.id)}
+                        viewBox="0 0 16 16"
+                        aria-hidden="true"
+                      >
+                        <path d="M6 3.5 11 8 6 12.5"></path>
+                      </svg>
                     </button>
 
                     <button

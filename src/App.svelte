@@ -689,7 +689,12 @@
       aria-label="Expansion settings"
       on:click={toggleExpansionMenu}
     >
-      ⚙
+      <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.2"></circle>
+        <path
+          d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2l-.2.1a1 1 0 0 0-.6.9V20a2 2 0 0 1-4 0v-.2a1 1 0 0 0-.6-.9l-.2-.1a1 1 0 0 0-1.1.2l-.1.1a2 2 0 0 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1l-.1-.2a1 1 0 0 0-.9-.6H4a2 2 0 0 1 0-4h.2a1 1 0 0 0 .9-.6l.1-.2a1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1 1 0 0 0 1.1.2l.2-.1a1 1 0 0 0 .6-.9V4a2 2 0 0 1 4 0v.2a1 1 0 0 0 .6.9l.2.1a1 1 0 0 0 1.1-.2l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1 1 0 0 0-.2 1.1l.1.2a1 1 0 0 0 .9.6H20a2 2 0 0 1 0 4h-.2a1 1 0 0 0-.9.6z"
+        ></path>
+      </svg>
     </button>
     {#if expansionMenuOpen}
       <div class="expansion-settings-popout" bind:this={expansionMenuElement} role="dialog" aria-label="Expansion settings">
@@ -807,7 +812,25 @@
     aria-label={themeMode === "dark" ? "Switch to light theme" : "Switch to dark theme"}
     on:click={toggleTheme}
   >
-    {themeMode === "dark" ? "☾" : "☀"}
+    {#if themeMode === "dark"}
+      <svg class="ui-icon ui-icon-solid" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M21 13a9 9 0 1 1-10-10 7 7 0 1 0 10 10z"
+        ></path>
+      </svg>
+    {:else}
+      <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.5"></circle>
+        <path d="M12 2.5v3"></path>
+        <path d="M12 18.5v3"></path>
+        <path d="M4.9 4.9l2.1 2.1"></path>
+        <path d="M17 17l2.1 2.1"></path>
+        <path d="M2.5 12h3"></path>
+        <path d="M18.5 12h3"></path>
+        <path d="M4.9 19.1 7 17"></path>
+        <path d="M17 7l2.1-2.1"></path>
+      </svg>
+    {/if}
   </button>
 
   <header class="app-header">
@@ -869,7 +892,9 @@
 
   <details class="stats-drawer">
     <summary class="stats-drawer-toggle">
-      <span class="stats-chevron" aria-hidden="true">▸</span>
+      <svg class="stats-chevron" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M6 3.5 11 8 6 12.5"></path>
+      </svg>
       <span class="sr-only">Toggle statistics</span>
     </summary>
 

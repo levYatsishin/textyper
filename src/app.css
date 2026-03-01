@@ -1,6 +1,9 @@
 :root {
   color-scheme: dark;
-  font-family: "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-sans);
   --bg-hard: #1d2021;
   --bg: #282828;
   --bg-soft: #32302f;
@@ -64,6 +67,27 @@ body {
   min-height: 100vh;
   background: var(--bg-hard);
   color: var(--text);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ui-icon {
+  width: 1em;
+  height: 1em;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ui-icon-solid {
+  fill: currentColor;
+  stroke: none;
 }
 
 .app-shell {
@@ -84,8 +108,6 @@ body {
   display: inline-grid;
   place-items: center;
   padding: 0;
-  font-size: 1.05rem;
-  line-height: 1;
   color: var(--muted);
   z-index: 60;
   transform: translateZ(0);
@@ -95,6 +117,11 @@ body {
 
 .theme-toggle:hover {
   color: var(--fg);
+}
+
+.theme-toggle .ui-icon {
+  width: 1.02rem;
+  height: 1.02rem;
 }
 
 .github-link {
@@ -138,12 +165,14 @@ body {
 }
 
 .github-help-trigger {
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 1.15rem;
+  height: 1.15rem;
   display: inline-grid;
   place-items: center;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-family: inherit;
+  font-size: 1.08rem;
+  font-weight: 550;
   line-height: 1;
 }
 
@@ -261,12 +290,15 @@ body {
   display: inline-grid;
   place-items: center;
   color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1;
 }
 
 .expansion-settings-trigger:hover {
   color: var(--fg);
+}
+
+.expansion-settings-trigger .ui-icon {
+  width: 0.84rem;
+  height: 0.84rem;
 }
 
 .expansion-settings-trigger-loading {
@@ -416,7 +448,7 @@ body {
   border-radius: 0.42rem;
   background: transparent;
   color: var(--fg);
-  font: 0.77rem/1.35 "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font: 0.77rem/1.35 var(--font-mono);
   padding: 0.46rem 0.5rem;
 }
 
@@ -690,9 +722,26 @@ body {
 .topic-expand {
   color: var(--muted);
   width: 0.8rem;
+  display: inline-grid;
+  place-items: center;
   text-align: center;
   padding: 0;
   line-height: 1;
+}
+
+.topic-expand-icon {
+  width: 0.72rem;
+  height: 0.72rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.14s ease;
+}
+
+.topic-expand-icon-open {
+  transform: rotate(90deg);
 }
 
 .topic-row {
@@ -1001,7 +1050,7 @@ body {
 
 .formula-hover-snippet {
   margin: 0;
-  font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.74rem;
   max-width: min(320px, 58vw);
   white-space: nowrap;
@@ -1039,7 +1088,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 0.45rem;
   color: var(--muted);
-  font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.82rem;
   cursor: text;
   user-select: text;
@@ -1090,7 +1139,7 @@ body {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 1.02rem;
   padding: 0.45rem 0;
   white-space: pre-wrap;
@@ -1154,7 +1203,7 @@ body {
 .preview-placeholder {
   margin: 0.45rem 0 0;
   color: var(--muted);
-  font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
 }
 
 .preview-run-indicator {
@@ -1179,7 +1228,7 @@ body {
   color: var(--muted);
   font-size: 0.72rem;
   letter-spacing: 0.03em;
-  font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
   transition: color 120ms ease;
   user-select: none;
   cursor: default;
@@ -1259,8 +1308,14 @@ body {
 }
 
 .stats-chevron {
-  font-size: 1.72rem;
-  line-height: 1;
+  width: 1.06rem;
+  height: 1.06rem;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transition: transform 0.14s ease;
 }
 
@@ -1489,13 +1544,19 @@ body {
 
 .history-item-chevron {
   color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1;
+  width: 0.82rem;
+  height: 0.82rem;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transition: transform 0.14s ease;
 }
 
 .history-entry[open] .history-item-chevron {
-  transform: rotate(180deg);
+  transform: rotate(90deg);
 }
 
 .history-item + .history-item {
@@ -1632,8 +1693,19 @@ body {
   cursor: default;
 }
 
+.history-page-arrow svg {
+  width: 0.82rem;
+  height: 0.82rem;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .history-page-indicator {
-  font-family: "SF Mono", "Menlo", Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.01em;
   min-width: 3.8rem;
   text-align: center;
