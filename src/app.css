@@ -334,6 +334,40 @@ body {
   color: var(--muted);
 }
 
+.expansion-option[data-help] {
+  position: relative;
+}
+
+.expansion-option[data-help]::after {
+  content: attr(data-help);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.42rem);
+  transform: translateX(-50%);
+  min-width: 180px;
+  max-width: 260px;
+  white-space: normal;
+  text-wrap: balance;
+  border: 1px solid var(--line);
+  border-radius: 0.38rem;
+  background: color-mix(in srgb, var(--bg-soft) 95%, transparent);
+  color: var(--fg);
+  font-size: 0.68rem;
+  line-height: 1.25;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  padding: 0.3rem 0.4rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+  z-index: 45;
+}
+
+.expansion-option[data-help]:hover::after,
+.expansion-option[data-help]:focus-visible::after {
+  opacity: 1;
+}
+
 .expansion-loading {
   display: inline-flex;
   align-items: center;
