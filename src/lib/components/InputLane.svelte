@@ -153,7 +153,7 @@
   }
 
   async function handleTabKey(event: KeyboardEvent): Promise<void> {
-    if (!expansionsEnabled || !inputElement) {
+    if (!expansionsEnabled || !inputElement || !expansionSettings.helpers.taboutEnabled) {
       return;
     }
     event.preventDefault();

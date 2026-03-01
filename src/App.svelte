@@ -731,7 +731,7 @@
             class:active-option={expansionSettings.helpers.taboutEnabled}
             on:click={() => handleExpansionHelperToggle("taboutEnabled", !expansionSettings.helpers.taboutEnabled)}
           >
-            tabout
+            tab
           </button>
           <button
             type="button"
