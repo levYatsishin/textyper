@@ -129,6 +129,16 @@
     confirmAction = null;
   }
 
+  function handleConfirmOverlayKeydown(event: KeyboardEvent): void {
+    if (event.currentTarget !== event.target) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      closeConfirm();
+    }
+  }
+
   function confirmClear(): void {
     if (!confirmAction) {
       return;
@@ -405,9 +415,17 @@
   </details>
 
   {#if confirmAction}
-    <div class="confirm-overlay" role="dialog" aria-modal="true" on:click={closeConfirm}>
-      <div class="confirm-card" on:click|stopPropagation>
-        <h3 class="confirm-title">
+    <div
+      class="confirm-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-dialog-title"
+      tabindex="0"
+      on:click|self={closeConfirm}
+      on:keydown={handleConfirmOverlayKeydown}
+    >
+      <div class="confirm-card">
+        <h3 class="confirm-title" id="confirm-dialog-title">
           {confirmAction.type === "clearHistory" ? "Delete recent sessions?" : "Delete this session?"}
         </h3>
         <p class="confirm-text">
