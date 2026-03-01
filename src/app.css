@@ -318,6 +318,22 @@ body {
   flex-wrap: wrap;
 }
 
+.expansion-option.active-option {
+  color: var(--fg);
+}
+
+.expansion-option:not(.active-option) {
+  color: var(--muted);
+}
+
+.expansion-option.active-option:hover:enabled {
+  color: var(--fg);
+}
+
+.expansion-option:not(.active-option):hover:enabled {
+  color: var(--muted);
+}
+
 .expansion-loading {
   display: inline-flex;
   align-items: center;

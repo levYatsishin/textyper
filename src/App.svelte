@@ -700,7 +700,7 @@
         <div class="expansion-popout-row">
           <button
             type="button"
-            class="text-option"
+            class="text-option expansion-option"
             class:active-option={expansionSettings.enabled}
             aria-pressed={expansionSettings.enabled}
             on:click={handleExpansionEnabledToggle}
@@ -719,7 +719,7 @@
         <div class="expansion-popout-row">
           <button
             type="button"
-            class="text-option"
+            class="text-option expansion-option"
             class:active-option={expansionSettings.helpers.autofractionEnabled}
             on:click={() => handleExpansionHelperToggle("autofractionEnabled", !expansionSettings.helpers.autofractionEnabled)}
           >
@@ -727,7 +727,7 @@
           </button>
           <button
             type="button"
-            class="text-option"
+            class="text-option expansion-option"
             class:active-option={expansionSettings.helpers.taboutEnabled}
             on:click={() => handleExpansionHelperToggle("taboutEnabled", !expansionSettings.helpers.taboutEnabled)}
           >
@@ -735,7 +735,7 @@
           </button>
           <button
             type="button"
-            class="text-option"
+            class="text-option expansion-option"
             class:active-option={expansionSettings.helpers.matrixShortcutsEnabled}
             on:click={() =>
               handleExpansionHelperToggle("matrixShortcutsEnabled", !expansionSettings.helpers.matrixShortcutsEnabled)}
@@ -744,7 +744,7 @@
           </button>
           <button
             type="button"
-            class="text-option"
+            class="text-option expansion-option"
             class:active-option={expansionSettings.helpers.autoBracketPairingEnabled}
             on:click={() =>
               handleExpansionHelperToggle(
@@ -756,7 +756,7 @@
           </button>
           <button
             type="button"
-            class="text-option"
+            class="text-option expansion-option"
             class:active-option={expansionSettings.helpers.autoEnlargeBracketsEnabled}
             on:click={() =>
               handleExpansionHelperToggle("autoEnlargeBracketsEnabled", !expansionSettings.helpers.autoEnlargeBracketsEnabled)}
