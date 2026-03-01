@@ -722,7 +722,7 @@
             class="text-option expansion-option"
             class:active-option={expansionSettings.helpers.autofractionEnabled}
             on:click={() => handleExpansionHelperToggle("autofractionEnabled", !expansionSettings.helpers.autofractionEnabled)}
-            data-help={'Turns x/ into \\frac{x}{} and keeps tabstops.'}
+            data-help={"x/ -> \\frac{x}{} anchores included."}
           >
             autofraction
           </button>
@@ -731,7 +731,7 @@
             class="text-option expansion-option"
             class:active-option={expansionSettings.helpers.taboutEnabled}
             on:click={() => handleExpansionHelperToggle("taboutEnabled", !expansionSettings.helpers.taboutEnabled)}
-            data-help={"Enables custom Tab logic: tabstops, tabout, and manual Tab snippets."}
+            data-help={"switching anchores between."}
           >
             tab
           </button>
@@ -741,7 +741,7 @@
             class:active-option={expansionSettings.helpers.matrixShortcutsEnabled}
             on:click={() =>
               handleExpansionHelperToggle("matrixShortcutsEnabled", !expansionSettings.helpers.matrixShortcutsEnabled)}
-            data-help={"Inside matrix/align environments, Enter adds \\\\ and a new line."}
+            data-help={"enter adds \\\\ and a new line in align."}
           >
             matrix
           </button>
@@ -754,7 +754,7 @@
                 "autoBracketPairingEnabled",
                 !expansionSettings.helpers.autoBracketPairingEnabled
               )}
-            data-help={"Auto-pairs (), [], {}, and | | while typing."}
+            data-help={"auto-pairs (), [], {}, and ||."}
           >
             autopair
           </button>
