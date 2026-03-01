@@ -35,7 +35,7 @@ describe("applyAutofraction", () => {
     expect(mutation).toBeNull();
   });
 
-  it("lets double slash snippets handle //", () => {
+  it("expands double slash into an empty fraction", () => {
     const mutation = applyAutofraction({
       value: "//",
       selectionStart: 2,
@@ -44,7 +44,7 @@ describe("applyAutofraction", () => {
       breakingChars: "+-=,;:"
     });
 
-    expect(mutation).toBeNull();
+    expect(mutation?.value).toBe("\\frac{}{}");
   });
 
   it("keeps unmatched leading delimiter outside fraction", () => {
@@ -57,6 +57,18 @@ describe("applyAutofraction", () => {
     });
 
     expect(mutation?.value).toBe("(\\frac{1}{})");
+  });
+
+  it("does not expand a single slash inside empty paired delimiters", () => {
+    const mutation = applyAutofraction({
+      value: "(/)",
+      selectionStart: 2,
+      selectionEnd: 2,
+      symbol: "\\frac",
+      breakingChars: "+-=,;:"
+    });
+
+    expect(mutation).toBeNull();
   });
 
   it("auto-enlarges surrounding delimiters when fraction trigger is enabled", () => {

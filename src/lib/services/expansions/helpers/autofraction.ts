@@ -221,19 +221,20 @@ export function applyAutofraction(input: AutofractionInput): ExpansionMutation |
     return null;
   }
 
-  if (slashIndex > 0 && value[slashIndex - 1] === "/") {
-    return null;
-  }
+  const isDoubleSlash = slashIndex > 0 && value[slashIndex - 1] === "/";
 
-  let numeratorStart = findNumeratorStart(value, slashIndex, breakingChars);
-  let numerator = value.slice(numeratorStart, slashIndex);
-  if (!numerator.trim()) {
+  let numeratorStart = isDoubleSlash ? slashIndex - 1 : findNumeratorStart(value, slashIndex, breakingChars);
+  let numerator = isDoubleSlash ? "" : value.slice(numeratorStart, slashIndex);
+  if (!isDoubleSlash && !numerator.trim()) {
     return null;
   }
 
   if (hasUnmatchedLeadingOpenDelimiter(numerator)) {
     numeratorStart += 1;
     numerator = value.slice(numeratorStart, slashIndex);
+    if (!numerator.trim()) {
+      return null;
+    }
   }
 
   if (isWrappedByOuterParentheses(numerator.trim())) {
