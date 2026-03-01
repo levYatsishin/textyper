@@ -247,7 +247,7 @@
   async function handleBracketKey(event: KeyboardEvent): Promise<boolean> {
     if (
       !expansionsEnabled ||
-      !expansionSettings.helpers.autoEnlargeBracketsEnabled ||
+      !expansionSettings.helpers.autoBracketPairingEnabled ||
       !inputElement ||
       event.ctrlKey ||
       event.metaKey ||

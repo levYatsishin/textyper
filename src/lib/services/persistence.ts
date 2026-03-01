@@ -261,6 +261,10 @@ function sanitizeExpansionHelperSettings(raw: unknown): ExpansionSettings["helpe
       typeof input.matrixShortcutsEnabled === "boolean"
         ? input.matrixShortcutsEnabled
         : DEFAULT_EXPANSION_SETTINGS.helpers.matrixShortcutsEnabled,
+    autoBracketPairingEnabled:
+      typeof input.autoBracketPairingEnabled === "boolean"
+        ? input.autoBracketPairingEnabled
+        : DEFAULT_EXPANSION_SETTINGS.helpers.autoBracketPairingEnabled,
     autoEnlargeBracketsEnabled:
       typeof input.autoEnlargeBracketsEnabled === "boolean"
         ? input.autoEnlargeBracketsEnabled

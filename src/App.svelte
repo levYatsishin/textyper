@@ -51,6 +51,7 @@
     | "autofractionEnabled"
     | "taboutEnabled"
     | "matrixShortcutsEnabled"
+    | "autoBracketPairingEnabled"
     | "autoEnlargeBracketsEnabled";
   type ExpansionCompileState = "idle" | "loading" | "ready";
 
@@ -740,6 +741,18 @@
               handleExpansionHelperToggle("matrixShortcutsEnabled", !expansionSettings.helpers.matrixShortcutsEnabled)}
           >
             matrix
+          </button>
+          <button
+            type="button"
+            class="text-option"
+            class:active-option={expansionSettings.helpers.autoBracketPairingEnabled}
+            on:click={() =>
+              handleExpansionHelperToggle(
+                "autoBracketPairingEnabled",
+                !expansionSettings.helpers.autoBracketPairingEnabled
+              )}
+          >
+            autopair
           </button>
           <button
             type="button"

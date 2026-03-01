@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
+import { DEFAULT_EXPANSION_SETTINGS } from "../data/expansionsDefaults";
 import type { CompiledSnippet } from "../types";
 import InputLane from "./InputLane.svelte";
 
@@ -281,6 +282,28 @@ describe("InputLane run controls", () => {
     expect(textarea.value).toBe("()");
     expect(textarea.selectionStart).toBe(1);
     expect(textarea.selectionEnd).toBe(1);
+  });
+
+  it("does not auto-pair brackets when autopair helper is disabled", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      expansionSettings: {
+        ...DEFAULT_EXPANSION_SETTINGS,
+        helpers: {
+          ...DEFAULT_EXPANSION_SETTINGS.helpers,
+          autoBracketPairingEnabled: false
+        }
+      }
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.focus();
+    textarea.setSelectionRange(0, 0);
+
+    await fireEvent.keyDown(textarea, { key: "(" });
+
+    expect(textarea.value).toBe("");
   });
 
   it("expands // into an empty fraction via snippets", async () => {

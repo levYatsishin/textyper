@@ -226,6 +226,7 @@ export interface ExpansionHelperSettings {
   autofractionEnabled: boolean;
   taboutEnabled: boolean;
   matrixShortcutsEnabled: boolean;
+  autoBracketPairingEnabled: boolean;
   autoEnlargeBracketsEnabled: boolean;
   autofractionSymbol: string;
   autofractionBreakingChars: string;

@@ -9,6 +9,7 @@ export const DEFAULT_EXPANSION_SETTINGS: ExpansionSettings = {
     autofractionEnabled: true,
     taboutEnabled: true,
     matrixShortcutsEnabled: true,
+    autoBracketPairingEnabled: true,
     autoEnlargeBracketsEnabled: true,
     autofractionSymbol: "\\frac",
     autofractionBreakingChars: "+-=,;:",
