@@ -28,7 +28,8 @@ describe("applyMatrixShortcuts", () => {
       environments: ENVIRONMENTS
     });
 
-    expect(mutation?.value).toBe("\\begin{aligned}x &= y \\\\ ");
+    expect(mutation?.value).toBe("\\begin{aligned}x &= y \\\\\n");
+    expect(mutation?.selectionStart).toBe("\\begin{aligned}x &= y \\\\\n".length);
   });
 
   it("does nothing when cursor is outside configured environments", () => {

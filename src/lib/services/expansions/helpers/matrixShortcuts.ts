@@ -54,7 +54,7 @@ export function applyMatrixShortcuts(input: MatrixShortcutInput): ExpansionMutat
   }
 
   if (key === "Enter") {
-    return insertText(value, selectionStart, selectionEnd, " \\\\ ");
+    return insertText(value, selectionStart, selectionEnd, " \\\\\n");
   }
 
   return null;

@@ -98,6 +98,13 @@ describe("default snippet pack behavior", () => {
     expect(runAutoExpansion("print", snippets)).toBe("print");
   });
 
+  it("expands environment snippets with real new lines", () => {
+    const output = runAutoExpansion("pmat", snippets);
+    expect(output).toContain("\\begin{pmatrix}\n");
+    expect(output).toContain("\n\\end{pmatrix}");
+    expect(output).not.toContain("\\n\\end");
+  });
+
   it("keeps relation and trig helpers stable around existing commands", () => {
     expect(runAutoExpansion(" implies", snippets)).toBe(" \\implies");
     expect(runAutoExpansion("\\implies", snippets)).toBe("\\implies");

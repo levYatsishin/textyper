@@ -37,4 +37,25 @@ describe("parseObsidianSnippetSource", () => {
     expect(parsed.snippets).toHaveLength(1);
     expect(parsed.snippets[0].triggerSource).toContain("alpha|beta");
   });
+
+  it("decodes Obsidian-style \\n escapes in replacements", () => {
+    const source = `[
+      { trigger: "pmat", replacement: "\\\\begin{pmatrix}\\\\n$1\\\\n\\\\end{pmatrix}$0", options: "A" }
+    ]`;
+
+    const parsed = parseObsidianSnippetSource(source, {});
+    expect(parsed.snippets).toHaveLength(1);
+    expect(parsed.snippets[0].replacement).toContain("\\begin{pmatrix}\n");
+    expect(parsed.snippets[0].replacement).toContain("\n\\end{pmatrix}");
+  });
+
+  it("does not convert command names that start with n", () => {
+    const source = `[
+      { trigger: "nabl", replacement: "\\\\nabla", options: "A" }
+    ]`;
+
+    const parsed = parseObsidianSnippetSource(source, {});
+    expect(parsed.snippets).toHaveLength(1);
+    expect(parsed.snippets[0].replacement).toBe("\\nabla");
+  });
 });

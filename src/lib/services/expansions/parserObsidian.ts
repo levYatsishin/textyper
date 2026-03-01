@@ -45,6 +45,10 @@ function applySnippetVariables(input: string, variables: SnippetVariables): stri
   return output;
 }
 
+function decodeObsidianEscapes(input: string): string {
+  return input.replace(/\\n(?![A-Za-z])/g, "\n");
+}
+
 function filterRegexFlags(flags: string): string {
   const unique = [...new Set(flags.split(""))];
   return unique.filter((flag) => REGEX_FLAGS.has(flag)).join("");
@@ -144,7 +148,7 @@ function compileSnippet(
 
   const triggerSource = raw.trigger instanceof RegExp ? raw.trigger.source : String(raw.trigger);
   const expandedTriggerSource = applySnippetVariables(triggerSource, variables);
-  const replacement = applySnippetVariables(String(raw.replacement), variables);
+  const replacement = decodeObsidianEscapes(applySnippetVariables(String(raw.replacement), variables));
   const description = raw.description?.trim() || `Snippet ${index + 1}`;
   const priority = Number.isFinite(raw.priority) ? raw.priority ?? 0 : 0;
   const id = `snippet-${index + 1}-${description.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
