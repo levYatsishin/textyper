@@ -15,10 +15,21 @@ const expression: Expression = {
   topics: ["algebra"],
   subtopics: ["fundamentals"]
 };
+const originalClipboard = globalThis.navigator.clipboard;
+const originalExecCommand = document.execCommand;
 
 describe("FormulaStage hover tooltip", () => {
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      value: originalClipboard,
+      configurable: true
+    });
+    Object.defineProperty(document, "execCommand", {
+      value: originalExecCommand,
+      configurable: true
+    });
   });
 
   it("shows tooltip with snippet on hover", async () => {
@@ -83,6 +94,52 @@ describe("FormulaStage hover tooltip", () => {
 
     await fireEvent.dblClick(revealBox, { clientX: 28, clientY: 28 });
     expect(writeText).toHaveBeenCalledWith(revealedExpression.latex);
+    expect(container.querySelector(".formula-copy-notice")?.textContent?.trim()).toBe("formula copied");
+  });
+
+  it("falls back to execCommand when async clipboard API is unavailable", async () => {
+    const execCommand = vi.fn().mockReturnValue(true);
+    Object.defineProperty(document, "execCommand", {
+      value: execCommand,
+      configurable: true
+    });
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      value: undefined,
+      configurable: true
+    });
+
+    const { container } = render(FormulaStage, { expression, revealLatex: false });
+    const atom = container.querySelector("[data-ltx-id]") as HTMLElement;
+    expect(atom).toBeTruthy();
+
+    await fireEvent.dblClick(atom, { clientX: 20, clientY: 20 });
+    expect(execCommand).toHaveBeenCalledWith("copy");
+  });
+
+  it("falls back to execCommand when async clipboard write fails", async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("clipboard denied"));
+    const execCommand = vi.fn().mockReturnValue(true);
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      value: { writeText },
+      configurable: true
+    });
+    Object.defineProperty(document, "execCommand", {
+      value: execCommand,
+      configurable: true
+    });
+
+    const revealedExpression: Expression = {
+      ...expression,
+      id: "reveal-copy-fallback",
+      latex: "\\sqrt{x^2+y^2}"
+    };
+    const { container } = render(FormulaStage, { expression: revealedExpression, revealLatex: true });
+    const revealBox = container.querySelector(".latex-reveal") as HTMLElement;
+    expect(revealBox).toBeTruthy();
+
+    await fireEvent.dblClick(revealBox, { clientX: 28, clientY: 28 });
+    expect(writeText).toHaveBeenCalledWith(revealedExpression.latex);
+    expect(execCommand).toHaveBeenCalledWith("copy");
     expect(container.querySelector(".formula-copy-notice")?.textContent?.trim()).toBe("formula copied");
   });
 

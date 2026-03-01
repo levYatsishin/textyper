@@ -388,23 +388,89 @@
     }
   }
 
-  async function copyTooltipSnippet(): Promise<void> {
-    if (!tooltipText || !navigator?.clipboard?.writeText) {
-      return;
+  function copyTextWithExecCommandFallback(text: string): boolean {
+    if (!text || typeof document.execCommand !== "function") {
+      return false;
     }
-    try {
-      await navigator.clipboard.writeText(tooltipText);
-      tooltipCopied = true;
-      if (copiedResetTimer !== null) {
-        window.clearTimeout(copiedResetTimer);
+
+    const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const selection = document.getSelection();
+    const selectedRanges: Range[] = [];
+    if (selection) {
+      for (let index = 0; index < selection.rangeCount; index += 1) {
+        selectedRanges.push(selection.getRangeAt(index).cloneRange());
       }
-      copiedResetTimer = window.setTimeout(() => {
-        tooltipCopied = false;
-        copiedResetTimer = null;
-      }, 1_000);
-    } catch {
-      tooltipCopied = false;
     }
+
+    const helperInput = document.createElement("textarea");
+    helperInput.value = text;
+    helperInput.setAttribute("readonly", "");
+    helperInput.style.position = "fixed";
+    helperInput.style.left = "-9999px";
+    helperInput.style.top = "0";
+    helperInput.style.opacity = "0";
+    document.body.append(helperInput);
+    helperInput.focus();
+    helperInput.select();
+    helperInput.setSelectionRange(0, helperInput.value.length);
+
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } catch {
+      copied = false;
+    }
+
+    helperInput.remove();
+    if (selection) {
+      selection.removeAllRanges();
+      for (const range of selectedRanges) {
+        selection.addRange(range);
+      }
+    }
+    activeElement?.focus();
+
+    return copied;
+  }
+
+  async function copyTextToClipboard(text: string): Promise<boolean> {
+    if (!text) {
+      return false;
+    }
+
+    if (typeof navigator?.clipboard?.writeText === "function") {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // Fallback for browsers or contexts where async clipboard writes fail.
+      }
+    }
+
+    return copyTextWithExecCommandFallback(text);
+  }
+
+  async function copyTooltipSnippet(): Promise<boolean> {
+    if (!tooltipText) {
+      return false;
+    }
+
+    const copied = await copyTextToClipboard(tooltipText);
+    if (!copied) {
+      tooltipCopied = false;
+      return false;
+    }
+
+    tooltipCopied = true;
+    if (copiedResetTimer !== null) {
+      window.clearTimeout(copiedResetTimer);
+    }
+    copiedResetTimer = window.setTimeout(() => {
+      tooltipCopied = false;
+      copiedResetTimer = null;
+    }, 1_000);
+
+    return true;
   }
 
   async function handleDoubleClick(event: MouseEvent): Promise<void> {
@@ -420,15 +486,11 @@
   }
 
   async function handleRevealDoubleClick(event: MouseEvent): Promise<void> {
-    if (!navigator?.clipboard?.writeText || !revealLatexValue) {
+    if (!revealLatexValue) {
       return;
     }
-    try {
-      await navigator.clipboard.writeText(revealLatexValue);
-      showCopyNotice("formula copied");
-    } catch {
-      showCopyNotice("copy failed");
-    }
+    const copied = await copyTextToClipboard(revealLatexValue);
+    showCopyNotice(copied ? "formula copied" : "copy failed");
   }
 
   function applyLeftRightDelimiterHoverMapping(): void {
