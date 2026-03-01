@@ -107,7 +107,7 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "imag", replacement: "\\\\mathrm{Im}", options: "A" },
   { trigger: "sum", replacement: "\\\\sum", options: "A" },
   { trigger: "prod", replacement: "\\\\prod", options: "A" },
-  { trigger: "lim", replacement: "\\\\lim_{n \\\\to \\\\infty} $1$0", options: "A" },
+  { trigger: "lim", replacement: "\\\\lim_{\${1:n} \\\\to \${2:\\\\infty}} $0", options: "A" },
   { trigger: /([A-Za-z])(\\d)/, replacement: "[[0]]_{[[1]]}", options: "rA", description: "auto letter subscript", priority: -1 },
   { trigger: /([A-Za-z])_(\\d\\d)/, replacement: "[[0]]_{[[1]]}", options: "rA" },
   { trigger: /\\\\mathbf{([A-Za-z])}(\\d)/, replacement: "\\\\mathbf{[[0]]}_{[[1]]}", options: "rA" },

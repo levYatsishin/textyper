@@ -223,6 +223,49 @@ describe("InputLane run controls", () => {
     expect(textarea.selectionEnd).toBe(1);
   });
 
+  it("expands lim with tab order n -> infty -> tail", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "auto-lim",
+        trigger: "lim",
+        triggerSource: "lim",
+        replacement: "\\lim_{${1:n} \\to ${2:\\infty}} $0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "lim";
+    textarea.setSelectionRange(3, 3);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toBe("\\lim_{n \\to \\infty} ");
+    const nStart = textarea.value.indexOf("n");
+    expect(textarea.selectionStart).toBe(nStart);
+    expect(textarea.selectionEnd).toBe(nStart + 1);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    const infStart = textarea.value.indexOf("\\infty");
+    expect(textarea.selectionStart).toBe(infStart);
+    expect(textarea.selectionEnd).toBe(infStart + "\\infty".length);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    expect(textarea.selectionStart).toBe(textarea.value.length);
+    expect(textarea.selectionEnd).toBe(textarea.value.length);
+  });
+
   it("auto-pairs brackets from keyboard input", async () => {
     const { container } = render(InputLane, {
       status: "running",

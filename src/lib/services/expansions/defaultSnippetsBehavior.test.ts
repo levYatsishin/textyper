@@ -85,6 +85,7 @@ describe("default snippet pack behavior", () => {
   });
 
   it("keeps integral shortcuts stable and non-intrusive", () => {
+    expect(runAutoExpansion("lim", snippets)).toBe("\\lim_{n \\to \\infty} ");
     expect(runAutoExpansion("int", snippets)).toMatch(/^\\int/);
     expect(runAutoExpansion("iint", snippets)).toBe("\\iint");
     expect(runAutoExpansion("iiint", snippets)).toBe("\\iiint");

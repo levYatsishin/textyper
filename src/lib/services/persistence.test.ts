@@ -3,7 +3,9 @@ import { ALL_TOPIC_IDS } from "../data/topics";
 import {
   computeBestScores,
   DEFAULT_SETTINGS,
+  EXPANSION_SNIPPETS_STORAGE_KEY,
   HISTORY_STORAGE_KEY,
+  loadExpansionSnippetSource,
   loadHistory,
   loadSettings,
   sanitizeSettings,
@@ -159,5 +161,15 @@ describe("persistence", () => {
   it("returns empty history when storage is empty", () => {
     localStorage.removeItem(HISTORY_STORAGE_KEY);
     expect(loadHistory()).toEqual([]);
+  });
+
+  it("migrates legacy lim snippet tabstops to fixed expansion", () => {
+    localStorage.setItem(
+      EXPANSION_SNIPPETS_STORAGE_KEY,
+      '[{ trigger: "lim", replacement: "\\\\lim_{n \\\\to \\\\infty} $1$0", options: "A" }]'
+    );
+
+    expect(loadExpansionSnippetSource()).toContain('replacement: "\\\\lim_{${1:n} \\\\to ${2:\\\\infty}} $0"');
+    expect(loadExpansionSnippetSource()).not.toContain('replacement: "\\\\lim_{n \\\\to \\\\infty} $1$0"');
   });
 });

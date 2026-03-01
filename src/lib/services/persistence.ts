@@ -326,7 +326,19 @@ export function saveExpansionSettings(settings: ExpansionSettings): void {
 }
 
 function sanitizeSourceString(raw: unknown, fallback: string): string {
-  return typeof raw === "string" && raw.trim().length > 0 ? raw : fallback;
+  if (typeof raw !== "string" || raw.trim().length === 0) {
+    return fallback;
+  }
+
+  return raw
+    .replace(
+      'replacement: "\\\\lim_{n \\\\to \\\\infty} $1$0"',
+      'replacement: "\\\\lim_{${1:n} \\\\to ${2:\\\\infty}} $0"'
+    )
+    .replace(
+      'replacement: "\\\\lim_{n \\\\to \\\\infty} "',
+      'replacement: "\\\\lim_{${1:n} \\\\to ${2:\\\\infty}} $0"'
+    );
 }
 
 export function loadExpansionSnippetSource(): string {
