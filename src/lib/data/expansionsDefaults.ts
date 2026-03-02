@@ -61,6 +61,7 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "@h", replacement: "\\\\eta", options: "A" },
   { trigger: "@t", replacement: "\\\\theta", options: "A" },
   { trigger: "@T", replacement: "\\\\Theta", options: "A" },
+  { trigger: ":u", replacement: "\\\\tau", options: "A" },
   { trigger: ":t", replacement: "\\\\vartheta", options: "A" },
   { trigger: "@i", replacement: "\\\\iota", options: "A" },
   { trigger: "@k", replacement: "\\\\kappa", options: "A" },

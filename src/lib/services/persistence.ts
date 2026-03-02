@@ -438,6 +438,19 @@ function sanitizeSourceString(raw: unknown, fallback: string): string {
     }
   }
 
+  const tauShortcutWithComma = '{ trigger: ":u", replacement: "\\\\tau", options: "A" },';
+  const tauShortcutNoComma = '{ trigger: ":u", replacement: "\\\\tau", options: "A" }';
+  const hasTauShortcut = migrated.includes(tauShortcutWithComma) || migrated.includes(tauShortcutNoComma);
+  if (!hasTauShortcut) {
+    const thetaShortcutWithComma = '{ trigger: "@T", replacement: "\\\\Theta", options: "A" },';
+    const thetaShortcutNoComma = '{ trigger: "@T", replacement: "\\\\Theta", options: "A" }';
+    if (migrated.includes(thetaShortcutWithComma)) {
+      migrated = migrated.replace(thetaShortcutWithComma, `${thetaShortcutWithComma}\n  ${tauShortcutWithComma}`);
+    } else if (migrated.includes(thetaShortcutNoComma)) {
+      migrated = migrated.replace(thetaShortcutNoComma, `${thetaShortcutNoComma},\n  ${tauShortcutWithComma}`);
+    }
+  }
+
   return migrated;
 }
 

@@ -66,6 +66,14 @@ function isInsideCommandToken(value: string, index: number): boolean {
   return value[cursor] === "\\";
 }
 
+function computeRegexCommandCheckStart(value: string, start: number, end: number): number {
+  let cursor = start;
+  while (cursor < end && /[^\\A-Za-z]/.test(value[cursor])) {
+    cursor += 1;
+  }
+  return cursor < end ? cursor : start;
+}
+
 function findSnippetMatch(
   input: ExpansionInput,
   runMode: "auto" | "manual"
@@ -88,11 +96,18 @@ function findSnippetMatch(
 
       const start = selectionStart - match[0].length;
       const end = selectionStart;
-      if (isInsideCommandToken(value, start)) {
+      const commandCheckStart = computeRegexCommandCheckStart(value, start, end);
+      if (isInsideCommandToken(value, commandCheckStart)) {
         continue;
       }
-      if (snippet.options.wordBoundary && !hasWordBoundary(value, start, end, wordDelimiters)) {
-        continue;
+      if (snippet.options.wordBoundary) {
+        if (commandCheckStart > start) {
+          if (!isBoundaryCharacter(value[end], wordDelimiters)) {
+            continue;
+          }
+        } else if (!hasWordBoundary(value, commandCheckStart, end, wordDelimiters)) {
+          continue;
+        }
       }
 
       return {

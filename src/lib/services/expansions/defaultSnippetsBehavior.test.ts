@@ -86,6 +86,10 @@ describe("default snippet pack behavior", () => {
     expect(runAutoExpansion("(pi", snippets)).toBe("(\\pi");
     expect(runAutoExpansion("\\beta", snippets)).toBe("\\beta");
     expect(runAutoExpansion("@beta", snippets)).toBe("@\\beta");
+    expect(runAutoExpansion(":u", snippets)).toBe("\\tau");
+    expect(runAutoExpansionAtCursor("\\Gamma ^{\\mu}_{\\nu lambda}", "\\Gamma ^{\\mu}_{\\nu lambda".length, snippets)).toBe(
+      "\\Gamma ^{\\mu}_{\\nu \\lambda}"
+    );
   });
 
   it("expands word triggers inside superscript and subscript braces", () => {
