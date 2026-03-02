@@ -172,4 +172,26 @@ describe("persistence", () => {
     expect(loadExpansionSnippetSource()).toContain('replacement: "\\\\lim_{${1:n} \\\\to ${2:\\\\infty}} $0"');
     expect(loadExpansionSnippetSource()).not.toContain('replacement: "\\\\lim_{n \\\\to \\\\infty} $1$0"');
   });
+
+  it("migrates legacy snippet pack with rm to longer math-font triggers and adds ln/log", () => {
+    localStorage.setItem(
+      EXPANSION_SNIPPETS_STORAGE_KEY,
+      `[
+  { trigger: "bf", replacement: "\\\\mathbf{$1}$0", options: "A", description: "bold symbol" },
+  { trigger: "rm", replacement: "\\\\mathrm{$1}$0", options: "A" },
+  { trigger: "det", replacement: "\\\\det", options: "A" }
+]`
+    );
+
+    const migrated = loadExpansionSnippetSource();
+    expect(migrated).toContain('{ trigger: "mnorm", replacement: "\\\\mathnormal{$1}$0", options: "A"');
+    expect(migrated).toContain('{ trigger: "mrm", replacement: "\\\\mathrm{$1}$0", options: "A"');
+    expect(migrated).toContain('{ trigger: "mit", replacement: "\\\\mathit{$1}$0", options: "A"');
+    expect(migrated).toContain('{ trigger: "msf", replacement: "\\\\mathsf{$1}$0", options: "A"');
+    expect(migrated).toContain('{ trigger: "mtt", replacement: "\\\\mathtt{$1}$0", options: "A"');
+    expect(migrated).not.toContain('{ trigger: "rm", replacement: "\\\\mathrm{$1}$0", options: "A" },');
+
+    expect(migrated).toContain('{ trigger: "ln", replacement: "\\\\ln", options: "Aw" },');
+    expect(migrated).toContain('{ trigger: "log", replacement: "\\\\log", options: "Aw" },');
+  });
 });

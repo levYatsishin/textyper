@@ -334,7 +334,7 @@ function sanitizeSourceString(raw: unknown, fallback: string): string {
     return fallback;
   }
 
-  return raw
+  const normalized = raw
     .replace(
       'replacement: "\\\\lim_{n \\\\to \\\\infty} $1$0"',
       'replacement: "\\\\lim_{${1:n} \\\\to ${2:\\\\infty}} $0"'
@@ -343,6 +343,45 @@ function sanitizeSourceString(raw: unknown, fallback: string): string {
       'replacement: "\\\\lim_{n \\\\to \\\\infty} "',
       'replacement: "\\\\lim_{${1:n} \\\\to ${2:\\\\infty}} $0"'
     );
+
+  let migrated = normalized;
+
+  const legacyRmPattern = /\{ trigger: "rm", replacement: "\\\\mathrm{\$1}\$0", options: "A" \},?/;
+  const hasLegacyRm = legacyRmPattern.test(migrated);
+  const hasNewFontSet = migrated.includes('{ trigger: "mrm", replacement: "\\\\mathrm{$1}$0", options: "A" },');
+
+  if (hasLegacyRm && !hasNewFontSet) {
+    migrated = migrated.replace(
+      legacyRmPattern,
+      [
+        '{ trigger: "mnorm", replacement: "\\\\mathnormal{$1}$0", options: "A", description: "math normal font" },',
+        '{ trigger: "mrm", replacement: "\\\\mathrm{$1}$0", options: "A", description: "math roman font" },',
+        '{ trigger: "mit", replacement: "\\\\mathit{$1}$0", options: "A", description: "math italic font" },',
+        '{ trigger: "msf", replacement: "\\\\mathsf{$1}$0", options: "A", description: "math sans font" },',
+        '{ trigger: "mtt", replacement: "\\\\mathtt{$1}$0", options: "A", description: "math typewriter font" },'
+      ].join("\n  ")
+    );
+  }
+
+  const hasLn = migrated.includes('{ trigger: "ln", replacement: "\\\\ln", options: "Aw" },');
+  const hasLog = migrated.includes('{ trigger: "log", replacement: "\\\\log", options: "Aw" },');
+  const detPattern = /\{ trigger: "det", replacement: "\\\\det", options: "A" \},?/;
+  const additions: string[] = [];
+  if (!hasLn) {
+    additions.push('{ trigger: "ln", replacement: "\\\\ln", options: "Aw" },');
+  }
+  if (!hasLog) {
+    additions.push('{ trigger: "log", replacement: "\\\\log", options: "Aw" },');
+  }
+
+  if (additions.length > 0 && detPattern.test(migrated)) {
+    migrated = migrated.replace(detPattern, (detMatch) => {
+      const detWithComma = detMatch.trimEnd().endsWith(",") ? detMatch : `${detMatch},`;
+      return `${detWithComma}\n  ${additions.join("\n  ")}`;
+    });
+  }
+
+  return migrated;
 }
 
 export function loadExpansionSnippetSource(): string {

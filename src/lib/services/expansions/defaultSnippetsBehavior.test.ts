@@ -98,6 +98,20 @@ describe("default snippet pack behavior", () => {
     expect(runAutoExpansion("print", snippets)).toBe("print");
   });
 
+  it("adds logarithm helpers and longer math-font triggers", () => {
+    expect(runAutoExpansion("ln", snippets)).toBe("\\ln");
+    expect(runAutoExpansion("log", snippets)).toBe("\\log");
+
+    expect(runAutoExpansion("bf", snippets)).toBe("\\mathbf{}");
+    expect(runAutoExpansion("mnorm", snippets)).toBe("\\mathnormal{}");
+    expect(runAutoExpansion("mrm", snippets)).toBe("\\mathrm{}");
+    expect(runAutoExpansion("mit", snippets)).toBe("\\mathit{}");
+    expect(runAutoExpansion("msf", snippets)).toBe("\\mathsf{}");
+    expect(runAutoExpansion("mtt", snippets)).toBe("\\mathtt{}");
+
+    expect(runAutoExpansion("rm", snippets)).toBe("rm");
+  });
+
   it("expands environment snippets with real new lines", () => {
     const output = runAutoExpansion("pmat", snippets);
     expect(output).toContain("\\begin{pmatrix}\n");
