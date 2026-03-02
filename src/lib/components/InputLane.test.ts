@@ -555,4 +555,79 @@ describe("InputLane run controls", () => {
     expect(textarea.selectionStart).toBeGreaterThanOrEqual(boldEnd);
     expect(textarea.selectionEnd).toBe(textarea.selectionStart);
   });
+
+  it("tabs out of rd braces before jumping to int differential anchor", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "auto-int",
+        trigger: "int",
+        triggerSource: "int",
+        replacement: "\\int $0 \\, d${1:x} $2",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: true,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      }),
+      createSnippet({
+        id: "auto-rd",
+        trigger: "rd",
+        triggerSource: "rd",
+        replacement: "^{$1}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      }),
+      createSnippet({
+        id: "auto-infty",
+        trigger: "infty",
+        triggerSource: "infty",
+        replacement: "\\infty",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "int";
+    textarea.setSelectionRange(3, 3);
+    await fireEvent.input(textarea);
+
+    const afterInt = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, afterInt)}rd${textarea.value.slice(afterInt)}`;
+    textarea.setSelectionRange(afterInt + 2, afterInt + 2);
+    await fireEvent.input(textarea);
+
+    const inftyInsertAt = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, inftyInsertAt)}infty${textarea.value.slice(textarea.selectionEnd)}`;
+    textarea.setSelectionRange(inftyInsertAt + 5, inftyInsertAt + 5);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toContain("^{\\infty}");
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    const closeBrace = textarea.value.indexOf("}");
+    expect(textarea.selectionStart).toBe(closeBrace + 1);
+    expect(textarea.selectionEnd).toBe(closeBrace + 1);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    expect(textarea.value.slice(textarea.selectionStart, textarea.selectionEnd)).toBe("x");
+  });
 });

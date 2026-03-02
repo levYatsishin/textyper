@@ -29,7 +29,7 @@ function shiftRanges(state: TabstopState, from: number, delta: number): void {
       if (range.start >= from) {
         range.start += delta;
         range.end += delta;
-      } else if (range.end > from) {
+      } else if (range.end >= from) {
         range.end += delta;
       }
     });
@@ -227,14 +227,7 @@ export function mergeNestedTabstopState(
   const parentAfter = shiftedParent.groups.slice(activeParentIndex + 1);
 
   if (!childState || childState.groups.length === 0) {
-    const groups = [...parentBefore, ...parentAfter];
-    if (groups.length === 0) {
-      return null;
-    }
-    return {
-      groups,
-      activeGroupIndex: parentAfter.length > 0 ? parentBefore.length : Math.max(0, parentBefore.length - 1)
-    };
+    return shiftedParent.groups.length > 0 ? shiftedParent : null;
   }
 
   const childClone = cloneState(childState);
