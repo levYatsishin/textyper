@@ -2,7 +2,7 @@ import type { ExpansionSettings, SnippetVariables } from "../types";
 
 export const DEFAULT_EXPANSION_SETTINGS: ExpansionSettings = {
   enabled: true,
-  sourceFormat: "obsidian",
+  sourceFormat: "obsidian-ls",
   manualTriggerKey: "Tab",
   wordDelimiters: " \t\n.,;:!?()[]{}<>+-=*/^_&$~#%`\\|\"'",
   helpers: {

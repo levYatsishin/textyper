@@ -750,7 +750,7 @@
             enabled
           </button>
           <span class="bar-divider" aria-hidden="true">|</span>
-          <span class="expansion-muted">format: obsidian</span>
+          <span class="expansion-muted">format: obsidian-ls</span>
         </div>
         {#if expansionCompileState === "loading"}
           <div class="expansion-loading" role="status" aria-live="polite">

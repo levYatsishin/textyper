@@ -156,7 +156,7 @@ export interface GameStore extends Readable<GameState> {
   updateSettings: (settings: Partial<SessionSettings>) => void;
 }
 
-export type SnippetSourceFormat = "obsidian";
+export type SnippetSourceFormat = "obsidian-ls";
 
 export interface SnippetModeFlags {
   text: boolean;

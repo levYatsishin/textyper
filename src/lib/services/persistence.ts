@@ -314,7 +314,7 @@ export function sanitizeExpansionSettings(raw: unknown): ExpansionSettings {
   const input = raw as Partial<ExpansionSettings>;
   return {
     enabled: typeof input.enabled === "boolean" ? input.enabled : DEFAULT_EXPANSION_SETTINGS.enabled,
-    sourceFormat: "obsidian",
+    sourceFormat: "obsidian-ls",
     manualTriggerKey: "Tab",
     wordDelimiters:
       typeof input.wordDelimiters === "string" && input.wordDelimiters.length > 0
