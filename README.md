@@ -36,7 +36,7 @@ Moreover, classification was mostly automatic and, to be honest, should not be t
 
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
 ### Snippets and helpers
-- 
+Of course there is no way of tyging LaTeX really fast without snippets and other IDE-like helpers.  
 ### Other things you should know
 - After 5 minutes of inactivity in zen mode, session automaticaly ends, therefore preventing spoiling of statistics. 
 - In zen mode ticking timer is hidden and can be viewed bellow live preview by hovering over a little dot. This is to minize distraction. 
