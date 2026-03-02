@@ -93,6 +93,12 @@ describe("default snippet pack behavior", () => {
     expect(runAutoExpansionAtCursor("_{alpha}", "_{alpha".length, snippets)).toBe("_{\\alpha}");
   });
 
+  it("expands word-boundary helpers after common LaTeX separators", () => {
+    expect(runAutoExpansion("&ln", snippets)).toBe("&\\ln");
+    expect(runAutoExpansion("$log", snippets)).toBe("$\\log");
+    expect(runAutoExpansion("~implies", snippets)).toBe("~\\implies");
+  });
+
   it("does not break existing command words into partial commands", () => {
     expect(runAutoExpansion("\\beta", snippets)).not.toContain("\\b\\eta");
     expect(runAutoExpansion("\\sum", snippets)).not.toContain("\\s\\um");

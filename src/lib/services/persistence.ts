@@ -23,7 +23,7 @@ export const EXPANSION_VARIABLES_STORAGE_KEY = "mathTyper.expansions.variables.v
 const HISTORY_LIMIT = 500;
 const BEST_SCORES_LIMIT = 5;
 const DIFFICULTY_ORDER: Difficulty[] = ["beginner", "intermediate", "advanced"];
-const REQUIRED_WORD_DELIMITERS = "^_";
+const REQUIRED_WORD_DELIMITERS = "^_&$~#%`";
 
 export const DEFAULT_SETTINGS: SessionSettings = {
   mode: "practice",

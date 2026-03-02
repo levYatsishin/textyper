@@ -4,7 +4,7 @@ export const DEFAULT_EXPANSION_SETTINGS: ExpansionSettings = {
   enabled: true,
   sourceFormat: "obsidian",
   manualTriggerKey: "Tab",
-  wordDelimiters: " \t\n.,;:!?()[]{}<>+-=*/^_\\|\"'",
+  wordDelimiters: " \t\n.,;:!?()[]{}<>+-=*/^_&$~#%`\\|\"'",
   helpers: {
     autofractionEnabled: true,
     taboutEnabled: true,

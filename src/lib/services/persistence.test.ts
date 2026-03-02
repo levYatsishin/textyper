@@ -176,6 +176,12 @@ describe("persistence", () => {
     const loaded = loadExpansionSettings();
     expect(loaded.wordDelimiters).toContain("^");
     expect(loaded.wordDelimiters).toContain("_");
+    expect(loaded.wordDelimiters).toContain("&");
+    expect(loaded.wordDelimiters).toContain("$");
+    expect(loaded.wordDelimiters).toContain("~");
+    expect(loaded.wordDelimiters).toContain("#");
+    expect(loaded.wordDelimiters).toContain("%");
+    expect(loaded.wordDelimiters).toContain("`");
   });
 
   it("migrates legacy lim snippet tabstops to fixed expansion", () => {
