@@ -23,6 +23,7 @@ export const EXPANSION_VARIABLES_STORAGE_KEY = "mathTyper.expansions.variables.v
 const HISTORY_LIMIT = 500;
 const BEST_SCORES_LIMIT = 5;
 const DIFFICULTY_ORDER: Difficulty[] = ["beginner", "intermediate", "advanced"];
+const REQUIRED_WORD_DELIMITERS = "^_";
 
 export const DEFAULT_SETTINGS: SessionSettings = {
   mode: "practice",
@@ -292,6 +293,16 @@ function sanitizeExpansionHelperSettings(raw: unknown): ExpansionSettings["helpe
   };
 }
 
+function ensureRequiredWordDelimiters(raw: string): string {
+  let next = raw;
+  for (const delimiter of REQUIRED_WORD_DELIMITERS) {
+    if (!next.includes(delimiter)) {
+      next += delimiter;
+    }
+  }
+  return next;
+}
+
 export function sanitizeExpansionSettings(raw: unknown): ExpansionSettings {
   if (!raw || typeof raw !== "object") {
     return {
@@ -307,7 +318,7 @@ export function sanitizeExpansionSettings(raw: unknown): ExpansionSettings {
     manualTriggerKey: "Tab",
     wordDelimiters:
       typeof input.wordDelimiters === "string" && input.wordDelimiters.length > 0
-        ? input.wordDelimiters
+        ? ensureRequiredWordDelimiters(input.wordDelimiters)
         : DEFAULT_EXPANSION_SETTINGS.wordDelimiters,
     helpers: sanitizeExpansionHelperSettings(input.helpers)
   };

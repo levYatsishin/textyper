@@ -34,6 +34,22 @@ function runAutoExpansion(input: string, snippets: CompiledSnippet[]): string {
   return mutation?.value ?? input;
 }
 
+function runAutoExpansionAtCursor(input: string, cursor: number, snippets: CompiledSnippet[]): string {
+  const mutation = applySnippetExpansions(
+    {
+      value: input,
+      selectionStart: cursor,
+      selectionEnd: cursor,
+      snippets,
+      wordDelimiters: DEFAULT_EXPANSION_SETTINGS.wordDelimiters
+    },
+    "auto",
+    2
+  );
+
+  return mutation?.value ?? input;
+}
+
 describe("default snippet pack behavior", () => {
   const snippets = compileDefaultSnippets();
 
@@ -70,6 +86,11 @@ describe("default snippet pack behavior", () => {
     expect(runAutoExpansion("(pi", snippets)).toBe("(\\pi");
     expect(runAutoExpansion("\\beta", snippets)).toBe("\\beta");
     expect(runAutoExpansion("@beta", snippets)).toBe("@\\beta");
+  });
+
+  it("expands word triggers inside superscript and subscript braces", () => {
+    expect(runAutoExpansionAtCursor("^{infty}", "^{infty".length, snippets)).toBe("^{\\infty}");
+    expect(runAutoExpansionAtCursor("_{alpha}", "_{alpha".length, snippets)).toBe("_{\\alpha}");
   });
 
   it("does not break existing command words into partial commands", () => {

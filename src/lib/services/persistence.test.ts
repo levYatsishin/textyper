@@ -3,8 +3,10 @@ import { ALL_TOPIC_IDS } from "../data/topics";
 import {
   computeBestScores,
   DEFAULT_SETTINGS,
+  EXPANSION_SETTINGS_STORAGE_KEY,
   EXPANSION_SNIPPETS_STORAGE_KEY,
   HISTORY_STORAGE_KEY,
+  loadExpansionSettings,
   loadExpansionSnippetSource,
   loadHistory,
   loadSettings,
@@ -161,6 +163,19 @@ describe("persistence", () => {
   it("returns empty history when storage is empty", () => {
     localStorage.removeItem(HISTORY_STORAGE_KEY);
     expect(loadHistory()).toEqual([]);
+  });
+
+  it("adds required delimiters for script-context snippet expansion", () => {
+    localStorage.setItem(
+      EXPANSION_SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        wordDelimiters: " \t\n.,;:!?()[]{}<>+-=*/\\|\"'"
+      })
+    );
+
+    const loaded = loadExpansionSettings();
+    expect(loaded.wordDelimiters).toContain("^");
+    expect(loaded.wordDelimiters).toContain("_");
   });
 
   it("migrates legacy lim snippet tabstops to fixed expansion", () => {
