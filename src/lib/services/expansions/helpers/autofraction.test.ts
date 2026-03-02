@@ -13,7 +13,7 @@ describe("applyAutofraction", () => {
     });
 
     expect(mutation?.value).toBe("x+\\frac{1}{}");
-    expect(mutation?.selectionStart).toBe("x+\\frac{".length);
+    expect(mutation?.selectionStart).toBe("x+\\frac{1".length);
     expect(mutation?.selectionEnd).toBe("x+\\frac{1".length);
     expect(mutation?.tabstops).toBeTruthy();
 

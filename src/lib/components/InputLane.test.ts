@@ -284,6 +284,40 @@ describe("InputLane run controls", () => {
     expect(textarea.selectionEnd).toBe(1);
   });
 
+  it("does not auto-pair escaped opening brace on keydown", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "\\";
+    textarea.focus();
+    textarea.setSelectionRange(1, 1);
+    await fireEvent.input(textarea);
+
+    await fireEvent.keyDown(textarea, { key: "{" });
+
+    expect(textarea.value).toBe("\\");
+  });
+
+  it("does not auto-pair escaped opening pipe on keydown", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "\\";
+    textarea.focus();
+    textarea.setSelectionRange(1, 1);
+    await fireEvent.input(textarea);
+
+    await fireEvent.keyDown(textarea, { key: "|" });
+
+    expect(textarea.value).toBe("\\");
+  });
+
   it("does not auto-pair brackets when autopair helper is disabled", async () => {
     const { container } = render(InputLane, {
       status: "running",
@@ -430,6 +464,29 @@ describe("InputLane run controls", () => {
     await fireEvent.input(textarea);
 
     expect(textarea.value).toBe("\\left(\\frac{1}{}\\right)");
+  });
+
+  it("keeps cursor at numerator end after autofraction so typing appends", async () => {
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice"
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "1/";
+    textarea.setSelectionRange(2, 2);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toBe("\\frac{1}{}");
+    expect(textarea.selectionStart).toBe("\\frac{1".length);
+    expect(textarea.selectionEnd).toBe("\\frac{1".length);
+
+    const insertAt = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, insertAt)}2${textarea.value.slice(insertAt)}`;
+    textarea.setSelectionRange(insertAt + 1, insertAt + 1);
+    await fireEvent.input(textarea);
+
+    expect(textarea.value).toBe("\\frac{12}{}");
   });
 
   it("auto-enlarges bracket pair when closing key is pressed", async () => {

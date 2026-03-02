@@ -385,6 +385,14 @@ function sanitizeSourceString(raw: unknown, fallback: string): string {
     .replace(
       'replacement: "\\\\int_{${1:a}}^{${2:b}} ${3:f(x)} \\\\, d${4:x} $0"',
       'replacement: "\\\\int_{${1:a}}^{${2:b}} $0 \\\\, d${3:x} $4"'
+    )
+    .replace(
+      '{ trigger: "\\\\{", replacement: "\\\\{$1}$0", options: "A" },',
+      '{ trigger: "\\\\{", replacement: "\\\\{$1\\\\}$0", options: "A" },'
+    )
+    .replace(
+      '{ trigger: "\\\\{", replacement: "\\\\{$1}$0", options: "A" }',
+      '{ trigger: "\\\\{", replacement: "\\\\{$1\\\\}$0", options: "A" }'
     );
 
   let migrated = normalized;
@@ -435,6 +443,26 @@ function sanitizeSourceString(raw: unknown, fallback: string): string {
       migrated = migrated.replace(setSnippetWithComma, `${setSnippetWithComma}\n  ${escapedSetSnippetWithComma}`);
     } else if (migrated.includes(setSnippetNoComma)) {
       migrated = migrated.replace(setSnippetNoComma, `${setSnippetNoComma},\n  ${escapedSetSnippetWithComma}`);
+    }
+  }
+
+  const escapedPipeSnippetWithComma = '{ trigger: "\\\\|", replacement: "\\\\|$1\\\\|$0", options: "A" },';
+  const escapedPipeSnippetNoComma = '{ trigger: "\\\\|", replacement: "\\\\|$1\\\\|$0", options: "A" }';
+  const hasEscapedPipeSnippet =
+    migrated.includes(escapedPipeSnippetWithComma) || migrated.includes(escapedPipeSnippetNoComma);
+  if (!hasEscapedPipeSnippet) {
+    if (migrated.includes(escapedSetSnippetWithComma)) {
+      migrated = migrated.replace(escapedSetSnippetWithComma, `${escapedSetSnippetWithComma}\n  ${escapedPipeSnippetWithComma}`);
+    } else if (migrated.includes(escapedSetSnippetNoComma)) {
+      migrated = migrated.replace(escapedSetSnippetNoComma, `${escapedSetSnippetNoComma},\n  ${escapedPipeSnippetWithComma}`);
+    } else {
+      const modSnippetWithComma = '{ trigger: "mod", replacement: "|$1|$0", options: "A" },';
+      const modSnippetNoComma = '{ trigger: "mod", replacement: "|$1|$0", options: "A" }';
+      if (migrated.includes(modSnippetWithComma)) {
+        migrated = migrated.replace(modSnippetWithComma, `${modSnippetWithComma}\n  ${escapedPipeSnippetWithComma}`);
+      } else if (migrated.includes(modSnippetNoComma)) {
+        migrated = migrated.replace(modSnippetNoComma, `${modSnippetNoComma},\n  ${escapedPipeSnippetWithComma}`);
+      }
     }
   }
 

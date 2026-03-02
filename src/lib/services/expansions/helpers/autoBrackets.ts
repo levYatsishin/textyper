@@ -169,6 +169,11 @@ function handleOpeningBracket(input: AutoBracketsInput): ExpansionMutation | nul
     return null;
   }
 
+  // Do not auto-pair escaped delimiters like \{, \|, \(, \[
+  if (isEscaped(input.value, input.selectionStart)) {
+    return null;
+  }
+
   if (hasDelimiterCommandBefore(input.value, input.selectionStart)) {
     return null;
   }

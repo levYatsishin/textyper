@@ -92,6 +92,32 @@ describe("applyAutoBrackets", () => {
     expect(mutation).toBeNull();
   });
 
+  it("does not auto-pair an escaped opening brace", () => {
+    const mutation = applyAutoBrackets({
+      value: "\\",
+      selectionStart: 1,
+      selectionEnd: 1,
+      key: "{",
+      autoEnlargeEnabled: true,
+      autoEnlargeTriggers: triggers
+    });
+
+    expect(mutation).toBeNull();
+  });
+
+  it("does not auto-pair an escaped opening pipe", () => {
+    const mutation = applyAutoBrackets({
+      value: "\\",
+      selectionStart: 1,
+      selectionEnd: 1,
+      key: "|",
+      autoEnlargeEnabled: true,
+      autoEnlargeTriggers: triggers
+    });
+
+    expect(mutation).toBeNull();
+  });
+
   it("passively auto-enlarges when cursor sits before a closing delimiter", () => {
     const mutation = applyPassiveAutoEnlarge({
       value: "(\\sum)",

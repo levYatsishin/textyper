@@ -132,13 +132,12 @@ function shouldAutoEnlargeAroundFraction(input: AutofractionInput, symbol: strin
 function createFractionTabstops(symbol: string, numerator: string, offset: number) {
   const template = `${symbol}{${numerator}}{$1}$0`;
   const parsed = resolveTabstops(template);
-  const numeratorRangeStart = `${symbol}{`.length;
-  const numeratorRangeEnd = numeratorRangeStart + numerator.length;
+  const numeratorRangeEnd = `${symbol}{`.length + numerator.length;
 
   let tabstops = parsed.tabstops;
   if (tabstops) {
     const groups = [
-      { index: 1, ranges: [{ start: numeratorRangeStart, end: numeratorRangeEnd }] },
+      { index: 1, ranges: [{ start: numeratorRangeEnd, end: numeratorRangeEnd }] },
       ...tabstops.groups.map((group) => ({
         index: group.index === 0 ? 0 : group.index + 1,
         ranges: group.ranges.map((range) => ({ ...range }))
@@ -263,11 +262,17 @@ export function applyAutofraction(input: AutofractionInput): ExpansionMutation |
 
   const selection = getActiveTabstopRange(nextTabstops);
   const caret = numeratorStart + insertedLength;
+  const collapsedSelection = selection
+    ? {
+        start: selection.end,
+        end: selection.end
+      }
+    : null;
 
   return {
     value: nextValue,
-    selectionStart: selection?.start ?? caret,
-    selectionEnd: selection?.end ?? caret,
+    selectionStart: collapsedSelection?.start ?? caret,
+    selectionEnd: collapsedSelection?.end ?? caret,
     tabstops: nextTabstops
   };
 }

@@ -136,6 +136,7 @@ describe("default snippet pack behavior", () => {
     expect(runAutoExpansion("ln", snippets)).toBe("\\ln");
     expect(runAutoExpansion("log", snippets)).toBe("\\log");
     expect(runAutoExpansion("\\{", snippets)).toBe("\\{\\}");
+    expect(runAutoExpansion("\\|", snippets)).toBe("\\|\\|");
 
     expect(runAutoExpansion("bf", snippets)).toBe("\\mathbf{}");
     expect(runAutoExpansion("mnorm", snippets)).toBe("\\mathnormal{}");

@@ -156,6 +156,7 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "\\\\subset eq", replacement: "\\\\subseteq", options: "A" },
   { trigger: "set", replacement: "\\\\{ $1 \\\\}$0", options: "A" },
   { trigger: "\\\\{", replacement: "\\\\{$1\\\\}$0", options: "A" },
+  { trigger: "\\\\|", replacement: "\\\\|$1\\\\|$0", options: "A" },
   { trigger: "=>", replacement: "\\\\implies", options: "A" },
   { trigger: "=<", replacement: "\\\\impliedby", options: "A" },
   { trigger: "iff", replacement: "\\\\iff", options: "A" },
