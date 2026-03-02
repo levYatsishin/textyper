@@ -179,7 +179,11 @@ describe("persistence", () => {
       `[
   { trigger: "bf", replacement: "\\\\mathbf{$1}$0", options: "A", description: "bold symbol" },
   { trigger: "rm", replacement: "\\\\mathrm{$1}$0", options: "A" },
-  { trigger: "det", replacement: "\\\\det", options: "A" }
+  { trigger: "det", replacement: "\\\\det", options: "A" },
+  { trigger: "int", replacement: "\\\\int $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
+  { trigger: "oinf", replacement: "\\\\int_{0}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
+  { trigger: "infi", replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
+  { trigger: "dint", replacement: "\\\\int_{$1}^{$2} $3 \\\\, d$4 $0", options: "Aw", priority: 2 }
 ]`
     );
 
@@ -193,5 +197,10 @@ describe("persistence", () => {
 
     expect(migrated).toContain('{ trigger: "ln", replacement: "\\\\ln", options: "Aw" },');
     expect(migrated).toContain('{ trigger: "log", replacement: "\\\\log", options: "Aw" },');
+
+    expect(migrated).toContain('replacement: "\\\\int $0 \\\\, d${1:x} $2"');
+    expect(migrated).toContain('replacement: "\\\\int_{0}^{\\\\infty} $0 \\\\, d${1:x} $2"');
+    expect(migrated).toContain('replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $0 \\\\, d${1:x} $2"');
+    expect(migrated).toContain('replacement: "\\\\int_{${1:a}}^{${2:b}} $0 \\\\, d${3:x} $4"');
   });
 });

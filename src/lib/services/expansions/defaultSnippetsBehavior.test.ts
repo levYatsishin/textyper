@@ -86,13 +86,16 @@ describe("default snippet pack behavior", () => {
 
   it("keeps integral shortcuts stable and non-intrusive", () => {
     expect(runAutoExpansion("lim", snippets)).toBe("\\lim_{n \\to \\infty} ");
-    expect(runAutoExpansion("int", snippets)).toMatch(/^\\int/);
+    expect(runAutoExpansion("int", snippets)).toContain("\\, dx");
     expect(runAutoExpansion("iint", snippets)).toBe("\\iint");
     expect(runAutoExpansion("iiint", snippets)).toBe("\\iiint");
     expect(runAutoExpansion("oint", snippets)).toBe("\\oint");
     expect(runAutoExpansion("oinf", snippets).startsWith("\\int_{0}^{\\infty}")).toBe(true);
+    expect(runAutoExpansion("oinf", snippets)).toContain("\\, dx");
     expect(runAutoExpansion("infi", snippets).startsWith("\\int_{-\\infty}^{\\infty}")).toBe(true);
-    expect(runAutoExpansion("dint", snippets).startsWith("\\int_{")).toBe(true);
+    expect(runAutoExpansion("infi", snippets)).toContain("\\, dx");
+    expect(runAutoExpansion("dint", snippets).startsWith("\\int_{a}^{b}")).toBe(true);
+    expect(runAutoExpansion("dint", snippets)).toContain("\\, dx");
 
     expect(runAutoExpansion("point", snippets)).toBe("point");
     expect(runAutoExpansion("print", snippets)).toBe("print");

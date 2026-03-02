@@ -492,7 +492,7 @@ describe("InputLane run controls", () => {
         id: "auto-int",
         trigger: "int",
         triggerSource: "int",
-        replacement: "\\int $1 \\, d$2 $0",
+        replacement: "\\int $0 \\, d${1:x} $2",
         options: {
           auto: true,
           regex: false,
@@ -528,7 +528,8 @@ describe("InputLane run controls", () => {
     await fireEvent.input(textarea);
 
     expect(textarea.value).toContain("\\int");
-    expect(textarea.value).toContain("\\, d");
+    expect(textarea.value).toContain("\\, dx");
+    expect(textarea.selectionEnd).toBe(textarea.selectionStart);
 
     const insertAt = textarea.selectionStart;
     textarea.value = `${textarea.value.slice(0, insertAt)}bf${textarea.value.slice(insertAt)}`;
@@ -547,7 +548,11 @@ describe("InputLane run controls", () => {
 
     const afterChildTab = textarea.selectionStart;
     await fireEvent.keyDown(textarea, { key: "Tab" });
-    expect(textarea.selectionStart).toBeGreaterThan(afterChildTab);
+    expect(textarea.selectionStart).toBeGreaterThanOrEqual(afterChildTab);
+    expect(textarea.value.slice(textarea.selectionStart, textarea.selectionEnd)).toBe("x");
+
+    await fireEvent.keyDown(textarea, { key: "Tab", shiftKey: true });
+    expect(textarea.selectionStart).toBeGreaterThanOrEqual(boldEnd);
     expect(textarea.selectionEnd).toBe(textarea.selectionStart);
   });
 });

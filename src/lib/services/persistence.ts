@@ -342,6 +342,38 @@ function sanitizeSourceString(raw: unknown, fallback: string): string {
     .replace(
       'replacement: "\\\\lim_{n \\\\to \\\\infty} "',
       'replacement: "\\\\lim_{${1:n} \\\\to ${2:\\\\infty}} $0"'
+    )
+    .replace(
+      'replacement: "\\\\int $1 \\\\, d$2 $0"',
+      'replacement: "\\\\int $0 \\\\, d${1:x} $2"'
+    )
+    .replace(
+      'replacement: "\\\\int ${1:f(x)} \\\\, d${2:x} $0"',
+      'replacement: "\\\\int $0 \\\\, d${1:x} $2"'
+    )
+    .replace(
+      'replacement: "\\\\int_{0}^{\\\\infty} $1 \\\\, d$2 $0"',
+      'replacement: "\\\\int_{0}^{\\\\infty} $0 \\\\, d${1:x} $2"'
+    )
+    .replace(
+      'replacement: "\\\\int_{0}^{\\\\infty} ${1:f(x)} \\\\, d${2:x} $0"',
+      'replacement: "\\\\int_{0}^{\\\\infty} $0 \\\\, d${1:x} $2"'
+    )
+    .replace(
+      'replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $1 \\\\, d$2 $0"',
+      'replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $0 \\\\, d${1:x} $2"'
+    )
+    .replace(
+      'replacement: "\\\\int_{-\\\\infty}^{\\\\infty} ${1:f(x)} \\\\, d${2:x} $0"',
+      'replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $0 \\\\, d${1:x} $2"'
+    )
+    .replace(
+      'replacement: "\\\\int_{$1}^{$2} $3 \\\\, d$4 $0"',
+      'replacement: "\\\\int_{${1:a}}^{${2:b}} $0 \\\\, d${3:x} $4"'
+    )
+    .replace(
+      'replacement: "\\\\int_{${1:a}}^{${2:b}} ${3:f(x)} \\\\, d${4:x} $0"',
+      'replacement: "\\\\int_{${1:a}}^{${2:b}} $0 \\\\, d${3:x} $4"'
     );
 
   let migrated = normalized;

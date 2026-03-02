@@ -216,13 +216,13 @@ export const DEFAULT_OBSIDIAN_SNIPPETS_SOURCE = `[
   { trigger: "ddt", replacement: "\\\\frac{d}{dt} ", options: "A" },
 
   // Integrals
-  { trigger: "oinf", replacement: "\\\\int_{0}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
-  { trigger: "infi", replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
-  { trigger: "dint", replacement: "\\\\int_{$1}^{$2} $3 \\\\, d$4 $0", options: "Aw", priority: 2 },
+  { trigger: "oinf", replacement: "\\\\int_{0}^{\\\\infty} $0 \\\\, d\${1:x} $2", options: "Aw", priority: 2 },
+  { trigger: "infi", replacement: "\\\\int_{-\\\\infty}^{\\\\infty} $0 \\\\, d\${1:x} $2", options: "Aw", priority: 2 },
+  { trigger: "dint", replacement: "\\\\int_{\${1:a}}^{\${2:b}} $0 \\\\, d\${3:x} $4", options: "Aw", priority: 2 },
   { trigger: "oint", replacement: "\\\\oint", options: "Aw", priority: 2 },
   { trigger: "iiint", replacement: "\\\\iiint", options: "Aw", priority: 2 },
   { trigger: "iint", replacement: "\\\\iint", options: "Aw", priority: 2 },
-  { trigger: "int", replacement: "\\\\int $1 \\\\, d$2 $0", options: "Aw", priority: 2 },
+  { trigger: "int", replacement: "\\\\int $0 \\\\, d\${1:x} $2", options: "Aw", priority: 2 },
 
   // Environments and brackets (trainer-friendly subset)
   { trigger: "beg", replacement: "\\\\begin{$1}\\\\n$2\\\\n\\\\end{$1}$0", options: "A" },

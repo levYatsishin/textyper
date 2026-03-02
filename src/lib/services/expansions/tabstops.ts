@@ -116,12 +116,7 @@ function parseTabstopPlaceholder(
 }
 
 function orderedTabstopIndexes(indexes: number[]): number[] {
-  const unique = [...new Set(indexes)];
-  const nonZero = unique.filter((index) => index !== 0).sort((left, right) => left - right);
-  if (unique.includes(0)) {
-    nonZero.push(0);
-  }
-  return nonZero;
+  return [...new Set(indexes)];
 }
 
 export function resolveTabstops(template: string): ParsedTabstops {

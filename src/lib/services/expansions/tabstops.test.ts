@@ -62,12 +62,21 @@ describe("tabstop resolution", () => {
   });
 
   it("merges child tabstops into parent flow and keeps next parent groups", () => {
-    const parent = resolveTabstops("\\int $1 \\, d$2 $0");
+    const parent = resolveTabstops("\\int $0 \\, d${1:x} $2");
     const child = resolveTabstops("\\mathbf{$1}$0");
     expect(parent.tabstops).toBeTruthy();
     expect(child.tabstops).toBeTruthy();
 
-    const merged = mergeNestedTabstopState(parent.tabstops, child.tabstops, 5, 7, "\\mathbf{}".length);
+    const parentRange = getActiveTabstopRange(parent.tabstops);
+    expect(parentRange).toBeTruthy();
+
+    const merged = mergeNestedTabstopState(
+      parent.tabstops,
+      child.tabstops,
+      parentRange!.start,
+      parentRange!.end,
+      "\\mathbf{}".length
+    );
     expect(merged).toBeTruthy();
     expect(merged?.groups.length).toBe(4);
     expect(merged?.activeGroupIndex).toBe(0);
@@ -75,10 +84,15 @@ describe("tabstop resolution", () => {
     const first = getActiveTabstopRange(merged);
     expect(first).toEqual({ start: 8, end: 8 });
 
-    const step1 = stepTabstop("\\int \\mathbf{} \\, d ", merged, 1);
-    expect(step1.selection).toEqual({ start: 9, end: 9 });
+    const valueWithChild = `${parent.text.slice(0, parentRange!.start)}\\mathbf{}${parent.text.slice(parentRange!.end)}`;
+    const step1 = stepTabstop(valueWithChild, merged, 1);
+    expect(step1.state?.activeGroupIndex).toBe(1);
 
     const step2 = stepTabstop(step1.value, step1.state, 1);
-    expect(step2.selection).toEqual({ start: 17, end: 17 });
+    expect(step2.state?.activeGroupIndex).toBe(2);
+    expect(step2.selection).toBeTruthy();
+    expect(step2.selection?.start).toBeGreaterThanOrEqual(step1.selection?.start ?? 0);
+    const selected = step2.value.slice(step2.selection!.start, step2.selection!.end);
+    expect(selected).toBe("x");
   });
 });
