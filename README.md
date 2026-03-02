@@ -35,6 +35,8 @@ Any single formula can belong to multiple topics/subtopics. Counts in the list a
 Moreover, classification was mostly automatic and, to be honest, should not be treated too seriously, only as a helpful hint. You can hover on the displayed topic of the current formula and see to which other ones it also belongs. (Although I hope this will be improved in future) 
 
 Note that when you filter formulas by difficulty, the formulas shown in the topic selection are filtered as well – so don’t be surprised if there are fewer of them listed.
+### Snippets and helpers
+- 
 ### Other things you should know
 - After 5 minutes of inactivity in zen mode, session automaticaly ends, therefore preventing spoiling of statistics. 
 - In zen mode ticking timer is hidden and can be viewed bellow live preview by hovering over a little dot. This is to minize distraction. 

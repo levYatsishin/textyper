@@ -172,12 +172,19 @@ export function applySnippetExpansions(
 ): ExpansionMutation | null {
   let mutationInput = { ...input };
   let mutation: ExpansionMutation | null = null;
+  let previousMatchKey: string | null = null;
 
   for (let pass = 0; pass < maxPasses; pass += 1) {
     const match = findSnippetMatch(mutationInput, runMode);
     if (!match) {
       break;
     }
+
+    const matchKey = `${match.snippet.id}:${match.start}:${match.end}`;
+    if (matchKey === previousMatchKey) {
+      break;
+    }
+    previousMatchKey = matchKey;
 
     mutation = applySnippetMatch(mutationInput, match);
     mutationInput = {

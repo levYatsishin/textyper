@@ -207,4 +207,36 @@ describe("snippet expansion engine", () => {
 
     expect(result).toBeNull();
   });
+
+  it("avoids self-retrigger loops across auto passes", () => {
+    const snippets: CompiledSnippet[] = [
+      createSnippet({
+        id: "auto-escaped-set",
+        trigger: "\\{",
+        triggerSource: "\\{",
+        replacement: "\\{$1\\}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const result = applySnippetExpansions(
+      {
+        value: "\\{",
+        selectionStart: 2,
+        selectionEnd: 2,
+        snippets,
+        wordDelimiters: " ,.;"
+      },
+      "auto",
+      2
+    );
+
+    expect(result?.value).toBe("\\{\\}");
+  });
 });

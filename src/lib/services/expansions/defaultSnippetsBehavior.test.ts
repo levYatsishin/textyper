@@ -131,6 +131,7 @@ describe("default snippet pack behavior", () => {
   it("adds logarithm helpers and longer math-font triggers", () => {
     expect(runAutoExpansion("ln", snippets)).toBe("\\ln");
     expect(runAutoExpansion("log", snippets)).toBe("\\log");
+    expect(runAutoExpansion("\\{", snippets)).toBe("\\{\\}");
 
     expect(runAutoExpansion("bf", snippets)).toBe("\\mathbf{}");
     expect(runAutoExpansion("mnorm", snippets)).toBe("\\mathnormal{}");

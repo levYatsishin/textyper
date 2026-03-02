@@ -630,4 +630,88 @@ describe("InputLane run controls", () => {
     await fireEvent.keyDown(textarea, { key: "Tab" });
     expect(textarea.value.slice(textarea.selectionStart, textarea.selectionEnd)).toBe("x");
   });
+
+  it("keeps int differential anchor priority after bf -> rd with plain text", async () => {
+    const compiledSnippets = [
+      createSnippet({
+        id: "auto-int",
+        trigger: "int",
+        triggerSource: "int",
+        replacement: "\\int $0 \\, d${1:x} $2",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: true,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      }),
+      createSnippet({
+        id: "auto-bf",
+        trigger: "bf",
+        triggerSource: "bf",
+        replacement: "\\mathbf{$1}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      }),
+      createSnippet({
+        id: "auto-rd",
+        trigger: "rd",
+        triggerSource: "rd",
+        replacement: "^{$1}$0",
+        options: {
+          auto: true,
+          regex: false,
+          visual: false,
+          wordBoundary: false,
+          modes: { text: false, math: false, blockMath: false, inlineMath: false, code: false }
+        }
+      })
+    ];
+
+    const { container } = render(InputLane, {
+      status: "running",
+      mode: "practice",
+      compiledSnippets
+    });
+
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+    textarea.value = "int";
+    textarea.setSelectionRange(3, 3);
+    await fireEvent.input(textarea);
+
+    const intAnchor = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, intAnchor)}bf${textarea.value.slice(intAnchor)}`;
+    textarea.setSelectionRange(intAnchor + 2, intAnchor + 2);
+    await fireEvent.input(textarea);
+
+    const bfStart = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, bfStart)}irnstorst${textarea.value.slice(bfStart)}`;
+    textarea.setSelectionRange(bfStart + "irnstorst".length, bfStart + "irnstorst".length);
+    await fireEvent.input(textarea);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    expect(textarea.selectionStart).toBe(textarea.selectionEnd);
+
+    const rdInsertAt = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, rdInsertAt)}rd${textarea.value.slice(rdInsertAt)}`;
+    textarea.setSelectionRange(rdInsertAt + 2, rdInsertAt + 2);
+    await fireEvent.input(textarea);
+
+    const rdStart = textarea.selectionStart;
+    textarea.value = `${textarea.value.slice(0, rdStart)}ites${textarea.value.slice(rdStart)}`;
+    textarea.setSelectionRange(rdStart + "ites".length, rdStart + "ites".length);
+    await fireEvent.input(textarea);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    expect(textarea.selectionStart).toBe(textarea.selectionEnd);
+
+    await fireEvent.keyDown(textarea, { key: "Tab" });
+    expect(textarea.value.slice(textarea.selectionStart, textarea.selectionEnd)).toBe("x");
+  });
 });

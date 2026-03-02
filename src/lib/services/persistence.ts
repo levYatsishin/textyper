@@ -424,6 +424,20 @@ function sanitizeSourceString(raw: unknown, fallback: string): string {
     });
   }
 
+  const escapedSetSnippetWithComma = '{ trigger: "\\\\{", replacement: "\\\\{$1\\\\}$0", options: "A" },';
+  const escapedSetSnippetNoComma = '{ trigger: "\\\\{", replacement: "\\\\{$1\\\\}$0", options: "A" }';
+  const hasEscapedSetSnippet =
+    migrated.includes(escapedSetSnippetWithComma) || migrated.includes(escapedSetSnippetNoComma);
+  if (!hasEscapedSetSnippet) {
+    const setSnippetWithComma = '{ trigger: "set", replacement: "\\\\{ $1 \\\\}$0", options: "A" },';
+    const setSnippetNoComma = '{ trigger: "set", replacement: "\\\\{ $1 \\\\}$0", options: "A" }';
+    if (migrated.includes(setSnippetWithComma)) {
+      migrated = migrated.replace(setSnippetWithComma, `${setSnippetWithComma}\n  ${escapedSetSnippetWithComma}`);
+    } else if (migrated.includes(setSnippetNoComma)) {
+      migrated = migrated.replace(setSnippetNoComma, `${setSnippetNoComma},\n  ${escapedSetSnippetWithComma}`);
+    }
+  }
+
   return migrated;
 }
 

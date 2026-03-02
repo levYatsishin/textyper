@@ -265,6 +265,7 @@
         inputElement.focus();
         inputElement.setSelectionRange(activeRange.start, activeRange.end);
       }
+      lastCommittedSnapshot = createSnapshot();
       return;
     }
 
