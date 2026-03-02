@@ -104,6 +104,7 @@
   let poolRestartFallbackLatex = "";
   let inputFocusNonce = 0;
   let expansionMenuOpen = false;
+  let resetSnippetsConfirmOpen = false;
   let expansionButtonElement: HTMLButtonElement | null = null;
   let expansionMenuElement: HTMLDivElement | null = null;
   let expansionSettings = cloneExpansionSettings(DEFAULT_EXPANSION_SETTINGS);
@@ -193,6 +194,7 @@
 
   function closeExpansionMenu(): void {
     expansionMenuOpen = false;
+    resetSnippetsConfirmOpen = false;
   }
 
   function toggleExpansionMenu(): void {
@@ -255,8 +257,21 @@
     void ensureExpansionsCompiled(true);
   }
 
+  function openResetSnippetsConfirm(): void {
+    resetSnippetsConfirmOpen = true;
+  }
+
+  function closeResetSnippetsConfirm(): void {
+    resetSnippetsConfirmOpen = false;
+  }
+
+  function confirmResetSnippets(): void {
+    resetExpansionDefaults();
+    resetSnippetsConfirmOpen = false;
+  }
+
   function handleDocumentMouseDown(event: MouseEvent): void {
-    if (!expansionMenuOpen) {
+    if (!expansionMenuOpen || resetSnippetsConfirmOpen) {
       return;
     }
     const target = event.target as Node | null;
@@ -271,8 +286,21 @@
   }
 
   function handleWindowKeyDown(event: KeyboardEvent): void {
+    if (event.key === "Escape" && resetSnippetsConfirmOpen) {
+      closeResetSnippetsConfirm();
+      return;
+    }
     if (event.key === "Escape" && expansionMenuOpen) {
       closeExpansionMenu();
+    }
+  }
+
+  function handleResetConfirmOverlayKeydown(event: KeyboardEvent): void {
+    if (event.currentTarget !== event.target) {
+      return;
+    }
+    if (event.key === "Escape") {
+      closeResetSnippetsConfirm();
     }
   }
 
@@ -686,7 +714,7 @@
       class="expansion-settings-trigger text-option"
       class:expansion-settings-trigger-loading={expansionCompileState === "loading"}
       bind:this={expansionButtonElement}
-      aria-label="Expansion settings"
+      aria-label="Snippet settings"
       on:click={toggleExpansionMenu}
     >
       <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -697,10 +725,19 @@
       </svg>
     </button>
     {#if expansionMenuOpen}
-      <div class="expansion-settings-popout" bind:this={expansionMenuElement} role="dialog" aria-label="Expansion settings">
+      <div class="expansion-settings-popout" bind:this={expansionMenuElement} role="dialog" aria-label="Snippet settings">
         <div class="expansion-popout-header">
-          <span>expansions</span>
-          <button type="button" class="text-option expansion-link-button" on:click={resetExpansionDefaults}>reset</button>
+          <div class="expansion-popout-header-left">
+            <span>snippets</span>
+            <a
+              class="expansion-popout-readme"
+              href="https://github.com/levYatsishin/textyper#snippets-and-helpers"
+              target="_blank"
+              rel="noreferrer noopener"
+              >readme</a
+            >
+          </div>
+          <button type="button" class="text-option expansion-link-button" on:click={openResetSnippetsConfirm}>reset</button>
         </div>
         <div class="expansion-popout-row">
           <button
@@ -805,6 +842,27 @@
       </div>
     {/if}
   </div>
+
+  {#if resetSnippetsConfirmOpen}
+    <div
+      class="confirm-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reset-snippets-dialog-title"
+      tabindex="0"
+      on:click|self={closeResetSnippetsConfirm}
+      on:keydown={handleResetConfirmOverlayKeydown}
+    >
+      <div class="confirm-card">
+        <h3 class="confirm-title" id="reset-snippets-dialog-title">Reset snippet settings?</h3>
+        <p class="confirm-text">This restores snippet helpers, snippets source, and variables to defaults.</p>
+        <div class="confirm-actions">
+          <button type="button" class="btn subtle" on:click={closeResetSnippetsConfirm}>Cancel</button>
+          <button type="button" class="btn subtle confirm-delete" on:click={confirmResetSnippets}>Reset</button>
+        </div>
+      </div>
+    </div>
+  {/if}
 
   <button
     type="button"
