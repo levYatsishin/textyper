@@ -237,6 +237,20 @@ body {
   color: var(--muted);
 }
 
+.pointer-coarse-only {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .pointer-fine-only {
+    display: none;
+  }
+
+  .pointer-coarse-only {
+    display: list-item;
+  }
+}
+
 .github-help-popout-link {
   display: inline-block;
   margin-top: 0.36rem;

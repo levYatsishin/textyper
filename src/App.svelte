@@ -702,7 +702,13 @@
       <div class="github-help-popout-separator" aria-hidden="true"></div>
       <ul class="github-help-popout-list">
         <li class="github-help-popout-item">'show formula' mode for symbol learning.</li>
-        <li class="github-help-popout-item">hover over individual rendered symbols to learn their code, double-click to copy.</li>
+        <li class="github-help-popout-item pointer-fine-only">
+          hover over individual rendered symbols to learn their code, double-click to copy.
+        </li>
+        <li class="github-help-popout-item pointer-coarse-only">
+          long-press a rendered symbol to learn its code, then tap copy.
+        </li>
+        <li class="github-help-popout-item">snippets settings via a gear icon bellow.</li>
         <li class="github-help-popout-item">zen auto-stops after 5m of no input.</li>
       </ul>
       <div class="github-help-popout-link">read more on github readme above</div>
