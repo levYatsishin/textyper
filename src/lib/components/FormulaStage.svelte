@@ -7,6 +7,7 @@
     extractLeftRightDelimiterSnippets,
     type HoverAtom
   } from "../services/latexHoverMap";
+  import { addKatexLineBreakHints } from "../services/katexLineBreaks";
   import { getTopicScopedSubtopics } from "../services/topicSubtopics";
   import type { Expression } from "../types";
 
@@ -107,7 +108,7 @@
   }
   $: effectiveExpression = poolRestartFlashVisible ? (displayedExpression ?? expression) : expression;
   $: instrumentedRender = effectiveExpression ? buildInstrumentedRender(effectiveExpression.latex) : { html: "", atomsById: {} };
-  $: renderedExpression = effectiveExpression ? instrumentedRender.html : "";
+  $: renderedExpression = effectiveExpression ? addKatexLineBreakHints(instrumentedRender.html) : "";
   $: baseAtomsById = effectiveExpression ? instrumentedRender.atomsById : {};
   $: atomsById = baseAtomsById;
   $: sourceTopicId = effectiveExpression?.topics[0] ?? "";

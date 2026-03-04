@@ -1131,6 +1131,11 @@ body {
   white-space: normal !important;
 }
 
+.formula-output .katex-html .base {
+  display: inline;
+  white-space: normal !important;
+}
+
 .formula-output .katex,
 .formula-output .katex * {
   user-select: none;

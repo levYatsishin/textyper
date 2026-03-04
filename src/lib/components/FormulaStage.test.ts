@@ -323,4 +323,19 @@ describe("FormulaStage hover tooltip", () => {
     const snippetNode = container.querySelector(".formula-hover-snippet");
     expect(snippetNode?.textContent?.trim()).toContain("\\left|");
   });
+
+  it("injects line-break hints for long rendered target formulas", () => {
+    const longExpression: Expression = {
+      ...expression,
+      id: "hover-wrap-test",
+      latex:
+        "\\hat{y}=\\hat{f}(x)=\\frac{\\sum_{i=1}^{m} \\tau_{i} \\hat{y}_{i}}{\\sum_{i=1}^{m} \\tau_{i}}=\\sum_{i=1}^{m} \\tau_{i}^{*}\\hat{y}_{i}".repeat(
+          2
+        )
+    };
+
+    const { container } = render(FormulaStage, { expression: longExpression, revealLatex: false });
+    const output = container.querySelector(".formula-output") as HTMLElement;
+    expect(output.querySelector("wbr")).toBeTruthy();
+  });
 });
