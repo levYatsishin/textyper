@@ -2143,9 +2143,11 @@ body {
   }
 
   .topics-menu {
+    left: 50%;
     right: auto;
-    left: 0;
+    transform: translateX(-50%);
     width: min(560px, calc(100vw - 1.64rem));
+    max-width: calc(100vw - 1.64rem);
   }
 
   .topic-sublist {
