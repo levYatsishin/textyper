@@ -412,6 +412,10 @@ body {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
 }
 
+.expansion-settings-popout-arming {
+  pointer-events: none;
+}
+
 .expansion-popout-header {
   display: flex;
   align-items: center;
@@ -497,6 +501,12 @@ body {
 .expansion-option[data-help]:hover::after,
 .expansion-option[data-help]:focus-visible::after {
   opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .expansion-option[data-help]::after {
+    display: none;
+  }
 }
 
 .expansion-loading {

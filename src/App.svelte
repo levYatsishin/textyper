@@ -122,6 +122,8 @@
   let expansionCompileState: ExpansionCompileState = "idle";
   let expansionCompilePromise: Promise<void> | null = null;
   let expansionCompileDebounce: ReturnType<typeof setTimeout> | null = null;
+  let expansionMenuInteractionReady = true;
+  let expansionMenuInteractionTimer: ReturnType<typeof setTimeout> | null = null;
 
   function isThemeMode(value: unknown): value is ThemeMode {
     return value === "dark" || value === "light";
@@ -201,6 +203,22 @@
   function closeExpansionMenu(): void {
     expansionMenuOpen = false;
     resetSnippetsConfirmOpen = false;
+    expansionMenuInteractionReady = true;
+    if (expansionMenuInteractionTimer !== null) {
+      clearTimeout(expansionMenuInteractionTimer);
+      expansionMenuInteractionTimer = null;
+    }
+  }
+
+  function armExpansionMenuInteraction(delayMs = 220): void {
+    expansionMenuInteractionReady = false;
+    if (expansionMenuInteractionTimer !== null) {
+      clearTimeout(expansionMenuInteractionTimer);
+    }
+    expansionMenuInteractionTimer = setTimeout(() => {
+      expansionMenuInteractionReady = true;
+      expansionMenuInteractionTimer = null;
+    }, delayMs);
   }
 
   function closeMobileMenu(): void {
@@ -225,14 +243,17 @@
   function openExpansionFromMobileMenu(): void {
     closeMobileMenu();
     expansionMenuOpen = true;
+    armExpansionMenuInteraction(280);
     void ensureExpansionsCompiled();
   }
 
   function toggleExpansionMenu(): void {
-    expansionMenuOpen = !expansionMenuOpen;
     if (expansionMenuOpen) {
-      void ensureExpansionsCompiled();
+      closeExpansionMenu();
+      return;
     }
+    expansionMenuOpen = true;
+    void ensureExpansionsCompiled();
   }
 
   function updateExpansionSettings(next: ExpansionSettings): void {
@@ -377,6 +398,10 @@
     if (expansionCompileDebounce !== null) {
       clearTimeout(expansionCompileDebounce);
       expansionCompileDebounce = null;
+    }
+    if (expansionMenuInteractionTimer !== null) {
+      clearTimeout(expansionMenuInteractionTimer);
+      expansionMenuInteractionTimer = null;
     }
   });
 
@@ -853,7 +878,13 @@
       </svg>
     </button>
     {#if expansionMenuOpen}
-      <div class="expansion-settings-popout" bind:this={expansionMenuElement} role="dialog" aria-label="Snippet settings">
+      <div
+        class="expansion-settings-popout"
+        class:expansion-settings-popout-arming={!expansionMenuInteractionReady}
+        bind:this={expansionMenuElement}
+        role="dialog"
+        aria-label="Snippet settings"
+      >
         <div class="expansion-popout-header">
           <div class="expansion-popout-header-left">
             <span>snippets</span>
