@@ -539,6 +539,20 @@ body {
   text-transform: lowercase;
 }
 
+.expansion-editor-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.48rem;
+}
+
+.expansion-editor-size-button {
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+}
+
 .expansion-editor {
   width: 100%;
   min-height: 7rem;
@@ -553,6 +567,14 @@ body {
 
 .expansion-editor-vars {
   min-height: 4.8rem;
+}
+
+.expansion-editor.expansion-editor-expanded {
+  min-height: 13.5rem;
+}
+
+.expansion-editor-vars.expansion-editor-expanded {
+  min-height: 9.6rem;
 }
 
 .expansion-editor:focus {
@@ -2089,6 +2111,14 @@ body {
     max-height: min(74vh, calc(100vh - 4.2rem));
     overflow-y: auto;
     z-index: 88;
+  }
+
+  .expansion-editor.expansion-editor-expanded {
+    min-height: 42vh;
+  }
+
+  .expansion-editor-vars.expansion-editor-expanded {
+    min-height: 30vh;
   }
 
   .control-line {

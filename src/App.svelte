@@ -114,6 +114,8 @@
   let expansionSettings = cloneExpansionSettings(DEFAULT_EXPANSION_SETTINGS);
   let expansionSnippetsSource = DEFAULT_OBSIDIAN_SNIPPETS_SOURCE;
   let expansionVariablesSource = DEFAULT_EXPANSION_VARIABLES_SOURCE;
+  let expansionSnippetsEditorExpanded = false;
+  let expansionVariablesEditorExpanded = false;
   let expansionCompiledSnippets: CompiledSnippet[] = [];
   let expansionVariables: SnippetVariables = {};
   let expansionParseIssues: SnippetParseIssue[] = [];
@@ -274,6 +276,14 @@
     expansionVariablesSource = (event.currentTarget as HTMLTextAreaElement).value;
     saveExpansionVariablesSource(expansionVariablesSource);
     debounceExpansionCompile();
+  }
+
+  function toggleSnippetsEditorExpanded(): void {
+    expansionSnippetsEditorExpanded = !expansionSnippetsEditorExpanded;
+  }
+
+  function toggleVariablesEditorExpanded(): void {
+    expansionVariablesEditorExpanded = !expansionVariablesEditorExpanded;
   }
 
   function resetExpansionDefaults(): void {
@@ -929,17 +939,39 @@
             enlarge
           </button>
         </div>
-        <label class="expansion-editor-label" for="expansion-snippets-input">snippets source</label>
+        <div class="expansion-editor-label-row">
+          <label class="expansion-editor-label" for="expansion-snippets-input">snippets source</label>
+          <button
+            type="button"
+            class="text-option expansion-editor-size-button"
+            aria-pressed={expansionSnippetsEditorExpanded}
+            on:click={toggleSnippetsEditorExpanded}
+          >
+            {expansionSnippetsEditorExpanded ? "collapse" : "expand"}
+          </button>
+        </div>
         <textarea
           id="expansion-snippets-input"
           class="expansion-editor"
+          class:expansion-editor-expanded={expansionSnippetsEditorExpanded}
           value={expansionSnippetsSource}
           on:input={handleExpansionInput}
         ></textarea>
-        <label class="expansion-editor-label" for="expansion-variables-input">variables</label>
+        <div class="expansion-editor-label-row">
+          <label class="expansion-editor-label" for="expansion-variables-input">variables</label>
+          <button
+            type="button"
+            class="text-option expansion-editor-size-button"
+            aria-pressed={expansionVariablesEditorExpanded}
+            on:click={toggleVariablesEditorExpanded}
+          >
+            {expansionVariablesEditorExpanded ? "collapse" : "expand"}
+          </button>
+        </div>
         <textarea
           id="expansion-variables-input"
           class="expansion-editor expansion-editor-vars"
+          class:expansion-editor-expanded={expansionVariablesEditorExpanded}
           value={expansionVariablesSource}
           on:input={handleVariablesInput}
         ></textarea>
