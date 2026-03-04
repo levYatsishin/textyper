@@ -107,6 +107,10 @@
   let resetSnippetsConfirmOpen = false;
   let expansionButtonElement: HTMLButtonElement | null = null;
   let expansionMenuElement: HTMLDivElement | null = null;
+  let mobileMenuOpen = false;
+  let mobileQuickOverviewOpen = false;
+  let mobileMenuButtonElement: HTMLButtonElement | null = null;
+  let mobileMenuElement: HTMLDivElement | null = null;
   let expansionSettings = cloneExpansionSettings(DEFAULT_EXPANSION_SETTINGS);
   let expansionSnippetsSource = DEFAULT_OBSIDIAN_SNIPPETS_SOURCE;
   let expansionVariablesSource = DEFAULT_EXPANSION_VARIABLES_SOURCE;
@@ -197,6 +201,31 @@
     resetSnippetsConfirmOpen = false;
   }
 
+  function closeMobileMenu(): void {
+    mobileMenuOpen = false;
+    mobileQuickOverviewOpen = false;
+  }
+
+  function toggleMobileMenu(): void {
+    mobileMenuOpen = !mobileMenuOpen;
+    if (mobileMenuOpen) {
+      closeExpansionMenu();
+    }
+    if (!mobileMenuOpen) {
+      mobileQuickOverviewOpen = false;
+    }
+  }
+
+  function toggleMobileQuickOverview(): void {
+    mobileQuickOverviewOpen = !mobileQuickOverviewOpen;
+  }
+
+  function openExpansionFromMobileMenu(): void {
+    closeMobileMenu();
+    expansionMenuOpen = true;
+    void ensureExpansionsCompiled();
+  }
+
   function toggleExpansionMenu(): void {
     expansionMenuOpen = !expansionMenuOpen;
     if (expansionMenuOpen) {
@@ -271,17 +300,25 @@
   }
 
   function handleDocumentMouseDown(event: MouseEvent): void {
-    if (!expansionMenuOpen || resetSnippetsConfirmOpen) {
-      return;
-    }
     const target = event.target as Node | null;
     if (!target) {
       return;
     }
-    const inToggle = !!expansionButtonElement?.contains(target);
-    const inPanel = !!expansionMenuElement?.contains(target);
-    if (!inToggle && !inPanel) {
-      closeExpansionMenu();
+
+    if (mobileMenuOpen) {
+      const inMobileToggle = !!mobileMenuButtonElement?.contains(target);
+      const inMobilePanel = !!mobileMenuElement?.contains(target);
+      if (!inMobileToggle && !inMobilePanel) {
+        closeMobileMenu();
+      }
+    }
+
+    if (expansionMenuOpen && !resetSnippetsConfirmOpen) {
+      const inToggle = !!expansionButtonElement?.contains(target);
+      const inPanel = !!expansionMenuElement?.contains(target);
+      if (!inToggle && !inPanel) {
+        closeExpansionMenu();
+      }
     }
   }
 
@@ -292,6 +329,10 @@
     }
     if (event.key === "Escape" && expansionMenuOpen) {
       closeExpansionMenu();
+      return;
+    }
+    if (event.key === "Escape" && mobileMenuOpen) {
+      closeMobileMenu();
     }
   }
 
@@ -674,6 +715,77 @@
 </script>
 
 <main class="app-shell">
+  <div class="mobile-menu-wrap">
+    <button
+      type="button"
+      class="mobile-menu-trigger text-option"
+      bind:this={mobileMenuButtonElement}
+      aria-label="Open mobile menu"
+      aria-expanded={mobileMenuOpen}
+      on:click={toggleMobileMenu}
+    >
+      <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 7h16"></path>
+        <path d="M4 12h16"></path>
+        <path d="M4 17h16"></path>
+      </svg>
+    </button>
+    {#if mobileMenuOpen}
+      <div class="mobile-menu-popout" bind:this={mobileMenuElement} role="dialog" aria-label="Mobile menu">
+        <a
+          class="mobile-menu-link"
+          href="https://github.com/levYatsishin/textyper"
+          target="_blank"
+          rel="noreferrer noopener"
+          on:click={closeMobileMenu}
+          >github</a
+        >
+        <button
+          type="button"
+          class="mobile-menu-link"
+          aria-expanded={mobileQuickOverviewOpen}
+          on:click={toggleMobileQuickOverview}
+        >
+          quick overview
+        </button>
+        <button type="button" class="mobile-menu-link" on:click={openExpansionFromMobileMenu}>
+          snippets settings
+        </button>
+        {#if mobileQuickOverviewOpen}
+          <div class="mobile-quick-overview" role="note" aria-label="Quick overview">
+            <div class="github-help-popout-title">quick overview</div>
+            <ul class="github-help-popout-list">
+              <li class="github-help-popout-item">rendered target, type matching latex.</li>
+              <li class="github-help-popout-item">auto-advance when render matches.</li>
+              <li class="github-help-popout-item">filter by difficulty, topic, and subtopic.</li>
+              <li class="github-help-popout-item">local history and statistics in browser, hidden at the bottom of the page.</li>
+            </ul>
+            <div class="github-help-popout-separator" aria-hidden="true"></div>
+            <ul class="github-help-popout-list">
+              <li class="github-help-popout-item">'show formula' mode for symbol learning.</li>
+              <li class="github-help-popout-item pointer-fine-only">
+                hover over individual rendered symbols to learn their code, double-click to copy.
+              </li>
+              <li class="github-help-popout-item pointer-coarse-only">
+                long-press a rendered symbol to learn its code, then tap copy.
+              </li>
+              <li class="github-help-popout-item">snippets settings via a gear icon bellow.</li>
+              <li class="github-help-popout-item">zen auto-stops after 5m of no input.</li>
+            </ul>
+            <a
+              class="github-help-popout-link"
+              href="https://github.com/levYatsishin/textyper#snippets-and-helpers"
+              target="_blank"
+              rel="noreferrer noopener"
+              on:click={closeMobileMenu}
+              >read more on github readme above</a
+            >
+          </div>
+        {/if}
+      </div>
+    {/if}
+  </div>
+
   <a
     class="github-link"
     href="https://github.com/levYatsishin/textyper"
