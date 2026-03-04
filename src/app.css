@@ -1980,8 +1980,19 @@ body {
   }
 
   .control-line {
-    justify-content: flex-start;
-    gap: 0.46rem;
+    justify-content: center;
+    width: 100%;
+    gap: 0.34rem 0.4rem;
+  }
+
+  .control-line .text-group {
+    gap: 0.4rem;
+  }
+
+  .control-line .text-option {
+    font-size: 0.93rem;
+    line-height: 1.12;
+    padding: 0.08rem 0;
   }
 
   .topics-menu {
@@ -1994,8 +2005,50 @@ body {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .stats-drawer-content {
+    width: 100%;
+  }
+
+  .stats-scope-row {
+    width: 100%;
+    margin-bottom: 0.34rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.18rem 0.52rem;
+  }
+
+  .stats-scope-row-running {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.18rem 0.52rem;
+  }
+
+  .stats-scope-item {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+    font-size: 0.63rem;
+    max-width: 100%;
+  }
+
   .stats-rail {
+    width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.34rem;
+  }
+
+  .stat-card {
+    padding: 0.4rem 0.42rem;
+  }
+
+  .stat-card p {
+    overflow-wrap: anywhere;
+  }
+
+  .attempts-correct {
+    display: block;
+    margin: 0.14rem 0 0;
   }
 
   .result-grid {
