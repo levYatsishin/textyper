@@ -160,7 +160,8 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   const setTimer = options.setTimer ?? setInterval;
   const clearTimer = options.clearTimer ?? clearInterval;
   const timerIntervalMs = options.timerIntervalMs ?? DEFAULT_TIMER_INTERVAL_MS;
-  const subtopicUniverse = buildSubtopicUniverse(expressions);
+  let availableExpressions = expressions;
+  let subtopicUniverse = buildSubtopicUniverse(availableExpressions);
   let queuedExpressionIds: string[] = [];
   let queuedExpressionKey = "";
   let hasPickedFromQueue = false;
@@ -220,7 +221,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     selectedSubtopicsByTopic: SessionSettings["selectedSubtopicsByTopic"],
     previousId: string | null
   ): { expression: Expression | null; poolRestarted: boolean } {
-    const pool = getExpressionPool(expressions, difficulties, selectedTopicIds, selectedSubtopicsByTopic);
+    const pool = getExpressionPool(availableExpressions, difficulties, selectedTopicIds, selectedSubtopicsByTopic);
     if (pool.length === 0) {
       return { expression: null, poolRestarted: false };
     }
@@ -330,7 +331,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
   const initialPreviewExpression = initialPreviewPick.expression;
 
   const restoredExpression = canRestoreActiveSession && activeSnapshot && restoredSettings
-    ? findExpressionById(expressions, activeSnapshot.currentExpressionId)
+    ? findExpressionById(availableExpressions, activeSnapshot.currentExpressionId)
     : null;
   const hasRestoredExpression =
     !!restoredExpression &&
@@ -738,6 +739,63 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     lastActivityAt = now();
   }
 
+  function expressionMatchesSettings(expression: Expression, settings: SessionSettings): boolean {
+    if (!settings.difficulties.includes(expression.difficulty)) {
+      return false;
+    }
+
+    return expression.topics.some((topicId) => {
+      if (!settings.selectedTopicIds.includes(topicId)) {
+        return false;
+      }
+      const selectedSubtopics = settings.selectedSubtopicsByTopic[topicId] ?? [];
+      if (selectedSubtopics.length === 0) {
+        return true;
+      }
+      return getTopicScopedSubtopics(expression, topicId).some((subtopic) => selectedSubtopics.includes(subtopic));
+    });
+  }
+
+  function replaceExpressions(nextExpressions: Expression[]): void {
+    availableExpressions = nextExpressions;
+    subtopicUniverse = buildSubtopicUniverse(availableExpressions);
+
+    const nextSettings = applySubtopicDefaults(state.settings);
+    const currentExpression = state.currentExpression
+      ? findExpressionById(availableExpressions, state.currentExpression.id)
+      : null;
+    const shouldKeepCurrentExpression =
+      currentExpression !== null && expressionMatchesSettings(currentExpression, nextSettings);
+
+    resetExpressionCycle(
+      nextSettings.difficulties,
+      nextSettings.selectedTopicIds,
+      nextSettings.selectedSubtopicsByTopic,
+      state.currentExpression?.id ?? null
+    );
+
+    const nextExpression = shouldKeepCurrentExpression
+      ? currentExpression
+      : pickNextExpression(
+          nextSettings.difficulties,
+          nextSettings.selectedTopicIds,
+          nextSettings.selectedSubtopicsByTopic,
+          state.currentExpression?.id ?? null
+        ).expression;
+
+    setState({
+      ...state,
+      settings: nextSettings,
+      currentExpression: nextExpression,
+      remainingMs:
+        state.status === "running"
+          ? getTimeLimitMs(nextSettings) === null
+            ? null
+            : Math.max(0, getTimeLimitMs(nextSettings)! - state.stats.elapsedMs)
+          : getTimeLimitMs(nextSettings)
+    });
+  }
+
   function updateSettings(settingsPatch: Partial<SessionSettings>): void {
     const previousSettings = state.settings;
     const nextSettings = normalizeSettings(settingsPatch);
@@ -878,6 +936,7 @@ export function createGameStore(expressions: Expression[], options: GameStoreOpt
     submit,
     skip,
     registerActivity,
+    replaceExpressions,
     toggleReveal,
     reset,
     end,

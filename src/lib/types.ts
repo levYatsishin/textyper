@@ -146,6 +146,7 @@ export interface GameStore extends Readable<GameState> {
   submit: (inputLatex: string) => Promise<void>;
   skip: () => void;
   registerActivity: () => void;
+  replaceExpressions: (expressions: Expression[]) => void;
   toggleReveal: (on?: boolean) => void;
   reset: () => void;
   end: () => void;

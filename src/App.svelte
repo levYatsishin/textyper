@@ -58,7 +58,7 @@
   type TopicSubtopicStats = Record<TopicId, TopicSubtopicStat[]>;
   type ThemeMode = "dark" | "light";
   const THEME_STORAGE_KEY = "mathTyper.theme.v1";
-  export let expressions: Expression[];
+  export let expressions: Expression[] = [];
 
   function cloneExpansionSettings(settings: ExpansionSettings): ExpansionSettings {
     return {
@@ -96,8 +96,8 @@
     }, {} as Record<TopicId, string[]>);
   }
 
-  const game = createGameStore(expressions);
-  const allSubtopicsByTopic = getAllSubtopicsByTopic(expressions);
+  const game = createGameStore([]);
+  let allSubtopicsByTopic = getAllSubtopicsByTopic([]);
   let themeMode: ThemeMode = "dark";
   let poolRestartFlashVisible = false;
   let poolRestartFlashTimer: ReturnType<typeof setTimeout> | null = null;
@@ -727,6 +727,10 @@
     game.skip();
   }
 
+  $: if (expressions.length > 0) {
+    allSubtopicsByTopic = getAllSubtopicsByTopic(expressions);
+    game.replaceExpressions(expressions);
+  }
   $: topicCounts = getTopicCounts($game.settings);
   $: topicSubtopicStats = getTopicSubtopicStats($game.settings);
   $: if ($game.status === "running" && expansionSettings.enabled && expansionCompileState === "idle") {
