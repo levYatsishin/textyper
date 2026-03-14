@@ -12,7 +12,6 @@
   import InputLane from "./lib/components/InputLane.svelte";
   import ResultsModal from "./lib/components/ResultsModal.svelte";
   import StatsRail from "./lib/components/StatsRail.svelte";
-  import { EXPRESSIONS } from "./lib/data/expressions";
   import { parseObsidianSnippetSource } from "./lib/services/expansions/parserObsidian";
   import { parseSnippetVariablesSource } from "./lib/services/expansions/variables";
   import {
@@ -29,6 +28,7 @@
   import type {
     CompiledSnippet,
     Difficulty,
+    Expression,
     ExpansionSettings,
     Mode,
     SessionSettings,
@@ -58,6 +58,7 @@
   type TopicSubtopicStats = Record<TopicId, TopicSubtopicStat[]>;
   type ThemeMode = "dark" | "light";
   const THEME_STORAGE_KEY = "mathTyper.theme.v1";
+  export let expressions: Expression[];
 
   function cloneExpansionSettings(settings: ExpansionSettings): ExpansionSettings {
     return {
@@ -71,13 +72,13 @@
     };
   }
 
-  function getAllSubtopicsByTopic(): Record<TopicId, string[]> {
+  function getAllSubtopicsByTopic(items: Expression[]): Record<TopicId, string[]> {
     const byTopic = TOPICS.reduce<Record<TopicId, Set<string>>>((accumulator, topic) => {
       accumulator[topic.id] = new Set<string>();
       return accumulator;
     }, {} as Record<TopicId, Set<string>>);
 
-    for (const expression of EXPRESSIONS) {
+    for (const expression of items) {
       for (const topicId of expression.topics) {
         const set = byTopic[topicId];
         if (!set) {
@@ -95,8 +96,8 @@
     }, {} as Record<TopicId, string[]>);
   }
 
-  const game = createGameStore(EXPRESSIONS);
-  const allSubtopicsByTopic = getAllSubtopicsByTopic();
+  const game = createGameStore(expressions);
+  const allSubtopicsByTopic = getAllSubtopicsByTopic(expressions);
   let themeMode: ThemeMode = "dark";
   let poolRestartFlashVisible = false;
   let poolRestartFlashTimer: ReturnType<typeof setTimeout> | null = null;
@@ -479,7 +480,7 @@
 
   function getPoolSize(settings: SessionSettings): number {
     const selectedTopics = new Set(settings.selectedTopicIds);
-    return EXPRESSIONS.filter(
+    return expressions.filter(
       (item) =>
         settings.difficulties.includes(item.difficulty) &&
         item.topics.some((topicId) => {
@@ -523,7 +524,7 @@
       return accumulator;
     }, {} as Record<TopicId, number>);
 
-    for (const expression of EXPRESSIONS) {
+    for (const expression of expressions) {
       if (!settings.difficulties.includes(expression.difficulty)) {
         continue;
       }
@@ -541,7 +542,7 @@
       return accumulator;
     }, {} as Record<TopicId, Map<string, number>>);
 
-    for (const expression of EXPRESSIONS) {
+    for (const expression of expressions) {
       if (!settings.difficulties.includes(expression.difficulty)) {
         continue;
       }

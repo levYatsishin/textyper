@@ -1,6 +1,3 @@
-import html2canvas from "html2canvas";
-import katex from "katex";
-import pixelmatch from "pixelmatch";
 import type { CompareLatexFn } from "../types";
 
 const DEFAULT_TOLERANCE = 0.018;
@@ -344,6 +341,12 @@ export async function compareRenderedLatex(inputLatex: string, targetLatex: stri
   if (typeof document === "undefined") {
     throw new Error("Rendered comparison requires a browser document.");
   }
+
+  const [{ default: html2canvas }, { default: katex }, { default: pixelmatch }] = await Promise.all([
+    import("html2canvas"),
+    import("katex"),
+    import("pixelmatch")
+  ]);
 
   const wrapper = document.createElement("div");
   wrapper.style.position = "fixed";
