@@ -45,6 +45,7 @@ Note that when you filter formulas by difficulty, the formulas shown in the topi
 - When all formulas in the current pool have been shown, the pool resets and the formulas are reshuffled; the reset time isn’t counted toward the timers.
 - Dark theme is set by default, but it can be changed to light at the top right corner. Themes are based on Gruvbox Material ([morhetz](https://github.com/morhetz/gruvbox) → [sainnhe](https://github.com/sainnhe/gruvbox-material))
 ## Planned features
+- typst support
 - better formulas
     - parse more formulas from wikipedea, wikidata, proof wiki and more sourses
     - better topic ontology (llm auto classification?)
